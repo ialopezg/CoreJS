@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": false,
+    "outDir": "./node_modules/@ialopezg/core",
+    "removeComments": false,
+    "noLib": false,
+    "noImplicitAny": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "files": ["src/index.ts"],
+  "include": ["./src/**/*", "./src/socket/utils/**/*.ts"],
+  "exclude": ["build", "node_modules"]
+}

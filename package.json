@@ -1,0 +1,67 @@
+{
+  "name": "@ialopezg/core",
+  "version": "0.0.0",
+  "description": "Custom tools for NodeJS",
+  "private": true,
+  "main": "lib/index.js",
+  "module": "lib/index.es.js",
+  "browser": "lib/index.umd.js",
+  "sideEffects": false,
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "echo Using TypeScript && rollup -c",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 2",
+    "copy": "copyfiles package.json LICENSE README.md CHANGELOG.MD lib",
+    "lint": "prettier --check \"./src/**/*.ts\"",
+    "lint:fix": "prettier --write \"./src/**/*.ts\"",
+    "package": "npm run build && npm run copy && npm run public",
+    "prepare": "husky install",
+    "public": "json -I -f lib/package.json -e 'this.private=false'",
+    "test": "echo No test specified",
+    "release": "standard-version",
+    "release:minor": "standard-version --release-as minor",
+    "release:patch": "standard-version --release-as patch",
+    "release:major": "standard-version --release-as major"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ialopezg/corejs.git"
+  },
+  "keywords": [],
+  "author": "Isidro A. Lopez G. <me@ialopezg.com> (https://ialopezg.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ialopezg/corejs/issues"
+  },
+  "homepage": "https://github.com/ialopezg/corejs#readme",
+  "devDependencies": {
+    "@commitlint/cli": "^16.2.4",
+    "@commitlint/config-conventional": "^16.2.4",
+    "@rollup/plugin-typescript": "^8.3.2",
+    "@typescript-eslint/eslint-plugin": "^5.22.0",
+    "@typescript-eslint/parser": "^5.22.0",
+    "conventional-changelog-angular": "^5.0.13",
+    "conventional-changelog-cli": "^2.2.2",
+    "copyfiles": "^2.4.1",
+    "eslint": "^8.15.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.2.0",
+    "eslint-plugin-promise": "^6.0.0",
+    "husky": "^8.0.0",
+    "json": "^11.0.0",
+    "prettier": "^2.6.2",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.72.1",
+    "rollup-plugin-terser": "^7.0.2",
+    "standard-version": "^9.3.2",
+    "typescript": "^4.6.4"
+  },
+  "files": [
+    "lib",
+    "CHANGELOG"
+  ],
+  "engines": {
+    "node": ">=8"
+  }
+}
