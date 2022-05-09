@@ -2,15 +2,13 @@
   "name": "@ialopezg/core",
   "version": "0.0.1",
   "description": "Custom tools for NodeJS",
-  "private": true,
   "main": "lib/index.js",
   "module": "lib/index.es.js",
   "browser": "lib/index.umd.js",
   "sideEffects": false,
   "scripts": {
-    "prebuild": "rimraf dist",
+    "prebuild": "rimraf lib",
     "build": "echo Using TypeScript && rollup -c",
-    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 2",
     "copy": "copyfiles package.json LICENSE README.md CHANGELOG.MD lib",
     "lint": "prettier --check \"./src/**/*.ts\"",
     "lint:fix": "prettier --write \"./src/**/*.ts\"",
@@ -59,7 +57,7 @@
   },
   "files": [
     "lib",
-    "CHANGELOG"
+    "CHANGELOG.md"
   ],
   "engines": {
     "node": ">=8"
