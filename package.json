@@ -1,6 +1,6 @@
 {
   "name": "@ialopezg/core",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Custom tools for NodeJS",
   "private": true,
   "main": "lib/index.js",
