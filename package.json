@@ -1,5 +1,5 @@
 {
-  "name": "@ialopezg/core",
+  "name": "@ialopezg/corejs",
   "version": "0.0.1",
   "description": "Custom tools for NodeJS",
   "main": "lib/index.js",
