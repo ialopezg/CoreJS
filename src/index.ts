@@ -6,4 +6,4 @@
  * MIT License
  */
 
-export * from './common/enums';
+export * from './common';
