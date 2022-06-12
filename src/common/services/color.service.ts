@@ -4,7 +4,7 @@ import { colorCodes, formatCodes } from '../constants';
 export class ColorService {
   private static readonly _styles = new Map<number, number[]>();
 
-  static bgBlack = (text?: string): ColorService | string =>
+  static bgBlack = (text?: string): any =>
     this.parse(colorCodes.bgBlack, text);
 
   static bgBrightBlack = (text?: string): any =>

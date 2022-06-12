@@ -5,14 +5,14 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": false,
-    "outDir": "./node_modules/@ialopezg/core",
+    "outDir": "./lib",
+    "rootDir": "./src",
     "removeComments": false,
     "noLib": false,
     "noImplicitAny": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "files": ["src/index.ts"],
-  "include": ["./src/**/*", "./src/socket/utils/**/*.ts"],
-  "exclude": ["build", "node_modules"]
+  "include": [ "./src/**/*" ],
+  "exclude": [ "lib", "node_modules" ]
 }
