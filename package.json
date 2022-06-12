@@ -1,6 +1,6 @@
 {
   "name": "@ialopezg/corejs",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Custom tools for NodeJS",
   "main": "lib/index.js",
   "module": "lib/index.es.js",
@@ -83,7 +83,9 @@
       "jsx"
     ],
     "collectCoverage": true,
-    "collectCoverageFrom": ["./src/**"],
+    "collectCoverageFrom": [
+      "./src/**"
+    ],
     "coverageThreshold": {
       "global": {
         "lines": 90
