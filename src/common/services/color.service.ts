@@ -4,114 +4,114 @@ import { colorCodes, formatCodes } from '../constants';
 export class ColorService {
   private static readonly _styles = new Map<number, number[]>();
 
-  static bgBlack = (text?: string): any =>
-    this._parse(colorCodes.bgBlack, text);
+  static bgBlack = (text?: string): ColorService | string =>
+    this.parse(colorCodes.bgBlack, text);
 
   static bgBrightBlack = (text?: string): any =>
-    this._parse(colorCodes.bgBrightBlack, text);
+    this.parse(colorCodes.bgBrightBlack, text);
 
-  static bgBlue = (text?: string): any => this._parse(colorCodes.bgBlue, text);
+  static bgBlue = (text?: string): any => this.parse(colorCodes.bgBlue, text);
 
   static bgBrightBlue = (text?: string): any =>
-    this._parse(colorCodes.bgBrightBlue, text);
+    this.parse(colorCodes.bgBrightBlue, text);
 
-  static bgCyan = (text?: string): any => this._parse(colorCodes.bgCyan, text);
+  static bgCyan = (text?: string): any => this.parse(colorCodes.bgCyan, text);
 
   static bgBrightCyan = (text?: string): any =>
-    this._parse(colorCodes.bgBrightCyan, text);
+    this.parse(colorCodes.bgBrightCyan, text);
 
   static bgGreen = (text?: string): any =>
-    this._parse(colorCodes.bgGreen, text);
+    this.parse(colorCodes.bgGreen, text);
 
   static bgBrightGreen = (text?: string): any =>
-    this._parse(colorCodes.bgBrightGreen, text);
+    this.parse(colorCodes.bgBrightGreen, text);
 
   static bgMagenta = (text?: string): any =>
-    this._parse(colorCodes.bgMagenta, text);
+    this.parse(colorCodes.bgMagenta, text);
 
   static bgBrightMagenta = (text?: string): any =>
-    this._parse(colorCodes.bgBrightMagenta, text);
+    this.parse(colorCodes.bgBrightMagenta, text);
 
-  static bgRed = (text?: string): any => this._parse(colorCodes.bgRed, text);
+  static bgRed = (text?: string): any => this.parse(colorCodes.bgRed, text);
 
   static bgBrightRed = (text?: string): any =>
-    this._parse(colorCodes.bgBrightRed, text);
+    this.parse(colorCodes.bgBrightRed, text);
 
   static bgYellow = (text?: string): any =>
-    this._parse(colorCodes.bgYellow, text);
+    this.parse(colorCodes.bgYellow, text);
 
   static bgBrightYellow = (text?: string): any =>
-    this._parse(colorCodes.bgBrightYellow, text);
+    this.parse(colorCodes.bgBrightYellow, text);
 
   static bgWhite = (text?: string): any =>
-    this._parse(colorCodes.bgWhite, text);
+    this.parse(colorCodes.bgWhite, text);
 
   static bgBrightWhite = (text?: string): any =>
-    this._parse(colorCodes.bgBrightWhite, text);
+    this.parse(colorCodes.bgBrightWhite, text);
 
-  static black = (text?: string): any => this._parse(colorCodes.black, text);
+  static black = (text?: string): any => this.parse(colorCodes.black, text);
 
   static brightBlack = (text?: string): any =>
-    this._parse(colorCodes.brightBlack, text);
+    this.parse(colorCodes.brightBlack, text);
 
-  static blue = (text?: string): any => this._parse(colorCodes.blue, text);
+  static blue = (text?: string): any => this.parse(colorCodes.blue, text);
 
   static brightBlue = (text?: string): any =>
-    this._parse(colorCodes.brightBlue, text);
+    this.parse(colorCodes.brightBlue, text);
 
-  static cyan = (text?: string): any => this._parse(colorCodes.cyan, text);
+  static cyan = (text?: string): any => this.parse(colorCodes.cyan, text);
 
   static brightCyan = (text?: string): any =>
-    this._parse(colorCodes.brightCyan, text);
+    this.parse(colorCodes.brightCyan, text);
 
-  static green = (text?: string): any => this._parse(colorCodes.green, text);
+  static green = (text?: string): any => this.parse(colorCodes.green, text);
 
   static brightGreen = (text?: string): any =>
-    this._parse(colorCodes.brightGreen, text);
+    this.parse(colorCodes.brightGreen, text);
 
   static magenta = (text?: string): any =>
-    this._parse(colorCodes.magenta, text);
+    this.parse(colorCodes.magenta, text);
 
   static brightMagenta = (text?: string): any =>
-    this._parse(colorCodes.brightMagenta, text);
+    this.parse(colorCodes.brightMagenta, text);
 
-  static red = (text?: string): any => this._parse(colorCodes.red, text);
+  static red = (text?: string): any => this.parse(colorCodes.red, text);
 
   static brightRed = (text?: string): any =>
-    this._parse(colorCodes.brightRred, text);
+    this.parse(colorCodes.brightRred, text);
 
-  static white = (text?: string): any => this._parse(colorCodes.white, text);
+  static white = (text?: string): any => this.parse(colorCodes.white, text);
 
   static brightWhite = (text?: string): any =>
-    this._parse(colorCodes.brightWhite, text);
+    this.parse(colorCodes.brightWhite, text);
 
-  static yellow = (text?: string): any => this._parse(colorCodes.yellow, text);
+  static yellow = (text?: string): any => this.parse(colorCodes.yellow, text);
 
   static brightYellow = (text?: string): any =>
-    this._parse(colorCodes.brightYellow, text);
+    this.parse(colorCodes.brightYellow, text);
 
-  static bolder = (text?: string): any => this._parse(formatCodes.bold, text);
+  static bolder = (text?: string): any => this.parse(formatCodes.bold, text);
 
-  static dim = (text?: string): any => this._parse(formatCodes.dim, text);
+  static dim = (text?: string): any => this.parse(formatCodes.dim, text);
 
-  static hidden = (text?: string): any => this._parse(formatCodes.hidden, text);
+  static hidden = (text?: string): any => this.parse(formatCodes.hidden, text);
 
   static inverse = (text?: string): any =>
-    this._parse(formatCodes.inverse, text);
+    this.parse(formatCodes.inverse, text);
 
-  static italic = (text?: string): any => this._parse(formatCodes.italic, text);
+  static italic = (text?: string): any => this.parse(formatCodes.italic, text);
 
   static strikeThrough = (text?: string): any =>
-    this._parse(formatCodes.strike, text);
+    this.parse(formatCodes.strike, text);
 
   static underline = (text?: string): any =>
-    this._parse(formatCodes.underline, text);
+    this.parse(formatCodes.underline, text);
 
-  static blink = (text?: string): any => this._parse(formatCodes.blink, text);
+  static blink = (text?: string): any => this.parse(formatCodes.blink, text);
 
-  static reset = () => parseFormat([0, 0]);
+  static reset = () => parseFormat();
 
-  private static _parse(code: any, message?: string): any {
+  static parse(code: any, message?: string): any {
     this._styles.set(code[0], code);
     if (message) {
       let result = message;
