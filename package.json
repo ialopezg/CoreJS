@@ -63,7 +63,9 @@
   },
   "files": [
     "lib",
-    "CHANGELOG.md"
+    "CHANGELOG.md",
+    "README.md",
+    "LICENSE"
   ],
   "engines": {
     "node": ">=8"
