@@ -79,6 +79,13 @@
       "js",
       "json",
       "jsx"
-    ]
+    ],
+    "collectCoverage": true,
+    "collectCoverageFrom": ["./src/**"],
+    "coverageThreshold": {
+      "global": {
+        "lines": 90
+      }
+    }
   }
 }
