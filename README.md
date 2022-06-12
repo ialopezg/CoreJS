@@ -80,11 +80,11 @@ Author - [Isidro A. Lopez G.](https://github.com/ialopezg)
 [downloads-image]: https://img.shields.io/npm/dm/@ialopezg/corejs.svg
 [downloads-url]: https://npmcharts.com/compare/@ialopezg/corejs?minimal=true
 [travis-url]: https://travis-ci.org/ialopezg/corejs
-[travis-image]: https://img.shields.io/travis/ialopezg/corejs/main.svg
+[travis-image]: https://app.travis-ci.com/ialopezg/corejs.svg?branch=main
 [travis-image-osx]: https://img.shields.io/travis/ialopezg/corejs/main.svg?label=osx
 [travis-image-windows]: https://img.shields.io/travis/ialopezg/corejs/main.svg?label=windows
 [travis-url]: https://travis-ci.org/ialopezg/corejs
 [coveralls-image]: https://coveralls.io/repos/github/ialopezg/corejs/badge.svg?branch=main
 [coveralls-url]: https://coveralls.io/github/ialopezg/corejs?branch=main
 [contributors]: https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square
-[contributors-link]: #contributors
+[contributors-link]: #people
