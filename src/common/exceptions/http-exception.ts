@@ -1,9 +1,9 @@
-/**
- * Defines a HTTP Exception with status code.
- */
-import { HttpStatus } from "../enums";
+import { HttpStatus } from '../enums';
 
-export class Exception {
+/**
+ * Defines an HTTP HttpException with status code.
+ */
+export class HttpException {
   /**
    * Creates a new instance of this class.
    *
