@@ -1,3 +1,9 @@
+/**
+ * Parses a message with ANSI code color or format.
+ *
+ * @param code Array containing start and end color codes.
+ * @param message Message to be parsed.
+ */
 export const parseFormat = (code?: number[], message?: string): string => {
   code = code || [0, 0];
   message = message || '';
