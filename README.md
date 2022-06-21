@@ -40,7 +40,11 @@ You have two options to install this repository.
    ```json
    {
      "dependencies": {
+<<<<<<< HEAD
        "@ialopezg/core": "latest"
+=======
+       "@ialopezg/core": "^0.1.0"
+>>>>>>> e16b756eb289ba5a109bb95659f332a28c436519
      }
    }
    ```
