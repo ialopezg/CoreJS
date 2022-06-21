@@ -36,7 +36,7 @@
 
 ## Features
 
-- Compatible with both TypeScript and ES6 (Recommend to use [TypeScript](https://www.typescriptlang.org/))
+- Compatible with both TypeScript and ES6 (Recommend to use [TypeScript](https://www.typescriptlang.org/)
 
 ## Future
 
