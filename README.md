@@ -40,7 +40,7 @@ You have two options to install this repository.
    ```json
    {
      "dependencies": {
-       "@ialopezg/core": "^0.0.2"
+       "@ialopezg/core": "latest"
      }
    }
    ```
