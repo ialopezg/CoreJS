@@ -6,14 +6,14 @@
  * @returns True if value is empty, otherwise false.
  */
 export const isEmpty = (obj: any): boolean => {
-    if (typeof obj === 'string') {
-        return !((<string>obj).trim().length);
-    }
-    if (obj instanceof Object) {
-        return !Object.keys(obj).length;
-    }
+  if (typeof obj === 'string') {
+    return !((<string>obj).trim().length);
+  }
+  if (obj instanceof Object) {
+    return !Object.keys(obj).length;
+  }
 
-    return !obj.length;
+  return !obj.length;
 };
 
 /**
