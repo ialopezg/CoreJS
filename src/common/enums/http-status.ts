@@ -22,7 +22,7 @@ export enum HttpStatus {
    * A status code intended to be used to allow the user agent to preload resources, while the
    * server prepares a response. It is intended to be primarily used with the Link Header.
    */
-  EARLYHINTS = 103,
+  EARLY_HINTS = 103,
 
   /**
    * The request was successful, but the meaning of success depends on the request method used:
@@ -185,7 +185,7 @@ export enum HttpStatus {
 
   /**
    * Reserved for future use. The original intention was that this code might be used as part of some form of
-   * digital cash or micro payment scheme, but that has not happened, and this code is not usually used.
+   * digital cash or payments scheme, but that has not happened, and this code is not usually used.
    * Google Developers API uses this status if a particular developer has exceeded the daily limit on requests.
    */
   PAYMENT_REQUIRED = 402,
