@@ -24,56 +24,39 @@
 
 [CoreJS](https://github.com/ialopezg/corejs) is a toolset that helps you to develop and debug modern applications. This tool is made to be used in [Node.js](https://nodejs.org), which allows you to easily build efficient, scalable applications. It uses modern JavaScript, is built with [TypeScript](https://typescriptlang.org) and bring best JavaScript concepts.
 
-## Getting started
+## Installation
+- NPM
+  ```bash
+  npm install @ialopezg/corejs
+  ```
+- Yarn
+  ```bash
+  yarn add @ialopezg/corejs
+  ```
 
-### Requirements
+## Features
 
-- `npm v6+` or `yarn v1.17+`
-- `NodeJS v8+`
+- Compatible with both TypeScript and ES6 (Recommend to use [TypeScript](https://www.typescriptlang.org/))
 
-### Installation
+## Future
 
-You have two options to install this repository.
+CoreJS is very much still a work in progress. There is still some things to finish:
 
-1. By adding the dependency to your `package.json` file.
-
-   ```json
-   {
-     "dependencies": {
-<<<<<<< HEAD
-       "@ialopezg/core": "latest"
-=======
-       "@ialopezg/core": "^0.1.0"
->>>>>>> e16b756eb289ba5a109bb95659f332a28c436519
-     }
-   }
-   ```
-
-   ```bash
-   # Install dependencies
-   # NPM
-   npm install
-   # or Yarn
-   yarn
-   ```
-
-2. By using a package manager
-   ```bash
-   # NPM
-   npm install --save @ialopezg/corejs
-   # or Yarn
-   yarn add @ialopezg/corejs
-   ```
+- Better test utilities
+- Validation helpers
+- and more...
 
 ## People
 
 Author - [Isidro A. Lopez G.](https://github.com/ialopezg)
 
----
-
 ## License
 
-&copy; Copyright 2019-present - CoreJS by [Isidro A. López G.](https://ialopezg.com/)
+CoreJS is licensed under [MIT](LICENSE) license.
+
+---
+&copy; Copyright 2019-present - [Isidro A. Lopez G.](https://ialopezg.com/)
+
 
 [npm-image]: https://img.shields.io/npm/v/@ialopezg/corejs.svg
 [npm-url]: https://npmjs.org/package/@ialopezg/corejs
