@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.1.0](https://github.com/ialopezg/corejs/compare/v0.0.3...v0.1.0) (2022-06-21)
+
+
+### Features
+
+* add RuntimeException ([a8df941](https://github.com/ialopezg/corejs/commits/a8df941db348dd00c6b3abdeaceaedd0bef3b382))
+* add validator utility ([4dda0a6](https://github.com/ialopezg/corejs/commits/4dda0a6d8a1f9bf97a5240b7e4ad9f3b90f9b652))
+* rename Exception to HttpException ([ed0c02d](https://github.com/ialopezg/corejs/commits/ed0c02d6322a6e3d98d4e1ee0765ef8af315a51e))
+
+
+### Bug Fixes
+
+* early hints code in HttpStatus enum ([e9d8769](https://github.com/ialopezg/corejs/commits/e9d876909e4cb8a747954b8f71ae4015e759baca))
+* package.json scripts ([e87eabe](https://github.com/ialopezg/corejs/commits/e87eabe8776df47136ae2b2a0b0adb2d7a29cce4))
+
 ### [0.0.3](https://github.com/ialopezg/corejs/compare/v0.0.2...v0.0.3) (2022-06-12)
 
 
