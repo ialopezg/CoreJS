@@ -14,7 +14,7 @@ export enum HttpStatus {
 
   /**
    * The server has accepted the full request but has not yet completed it and no response is
-   * available as of yet.
+   * available yet.
    */
   PROCESSING = 102,
 
@@ -87,7 +87,7 @@ export enum HttpStatus {
   MULTI_STATUS = 207,
 
   /**
-   * The members of a DAV binding have already been enumerated in a preceding part of the (multistatus)
+   * The members of a DAV binding have already been enumerated in a preceding part of the (multi status)
    * response, and are not being included again.
    */
   ALREADY_REPORTED = 208,
@@ -210,7 +210,7 @@ export enum HttpStatus {
   METHOD_NOT_ALLOWED = 405,
 
   /**
-   * The requested resource is capable of generating only content not acceptable according to the Accept
+   * The requested resource is capable of generating only content not acceptable according to Accept
    * headers sent in the request.
    */
   NOT_ACCEPTABLE = 406,
@@ -283,7 +283,7 @@ export enum HttpStatus {
   RANGE_NOT_SATISFIABLE = 416,
 
   /**
-   * The server cannot meet the requirements of the Expect request-header field.
+   * The server cannot meet the requirements of to Expect request-header field.
    */
   EXPECTATION_FAILED = 417,
 
@@ -405,7 +405,7 @@ export enum HttpStatus {
   /**
    * The client needs to authenticate to gain network access.
    * Intended for use by intercepting proxies used to control access to the network (e.g., "captive portals"
-   * used to require agreement to Terms of Service before granting full Internet access via a Wi-Fi hotspot).
+   * used to require agreement to Terms of Service before granting full Internet accesses via a Wi-Fi hotspot).
    */
   NETWORK_AUTHENTICATION_REQUIRED = 511,
 }
