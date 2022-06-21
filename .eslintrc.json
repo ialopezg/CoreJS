@@ -16,5 +16,10 @@
         "@typescript-eslint"
     ],
     "rules": {
+      "semi": "off",
+      "@typescript-eslint/semi": ["error", "always"],
+      "comma-dangle": "off",
+      "@typescript-eslint/comma-dangle": ["error", "always-multiline"],
+      "space-before-function-paren": "off"
     }
 }
