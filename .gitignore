@@ -39,6 +39,7 @@ lerna-debug.log*
 data/pgadmin
 data/postgres
 data/mongodb
+example/*
 .env
 .env.development
 .env.test

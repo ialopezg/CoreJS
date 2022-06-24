@@ -14,11 +14,9 @@ export const generateHash = async (
   text: string,
   salt?: number,
 ): Promise<string> => {
-  if (isUndefined(salt)) {
-    salt = 10;
-  }
+  const rounds = isUndefined(salt) ? 10 : salt;
 
-  return bcrypt.hash(text, salt);
+  return bcrypt.hash(text, rounds);
 };
 
 /**

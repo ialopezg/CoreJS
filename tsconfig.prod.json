@@ -1,18 +1,20 @@
 {
   "compilerOptions": {
-    "target": "es6",
     "module": "commonjs",
     "declaration": true,
-    "declarationMap": true,
-    "sourceMap": false,
-    "outDir": "./lib",
-    "rootDir": "./src",
+    "noImplicitAny": false,
     "removeComments": false,
     "noLib": false,
-    "noImplicitAny": false,
+    "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "target": "es6",
+    "sourceMap": false,
+    "outDir": "./lib"
   },
-  "include": [ "./src/**/*" ],
-  "exclude": [ "lib", "node_modules" ]
+  "files": [
+    "./src/index.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
