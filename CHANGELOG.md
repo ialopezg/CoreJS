@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.2](https://github.com/ialopezg/corejs/compare/v0.1.1...v0.1.2) (2022-06-24)
+
+
+### Features
+
+* add hash utilities ([31e841b](https://github.com/ialopezg/corejs/commits/31e841b46ccd4fe434d8dd7ba0c52562d27d6d1c))
+* add string utilities ([4f01c9f](https://github.com/ialopezg/corejs/commits/4f01c9f1523b9cc0ddc330e14e62b31841c03792))
+
+
+### Bug Fixes
+
+* **ci:** hotfix package.json dependencies for appveyor ci ([63cbdc7](https://github.com/ialopezg/corejs/commits/63cbdc754e7bd7020461237e8d205878b007c168))
+* exports links ([47279e5](https://github.com/ialopezg/corejs/commits/47279e5a26041f496434039cadc991ca3f0e857f))
+
 ### [0.1.1](https://github.com/ialopezg/corejs/compare/v0.1.0...v0.1.1) (2022-06-21)
 
 
