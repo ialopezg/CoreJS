@@ -32,6 +32,13 @@
     "url": "https://github.com/ialopezg/corejs/issues"
   },
   "homepage": "https://github.com/ialopezg/corejs#readme",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "express": "^4.18.1",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.5.5",
+    "socket.io": "^4.5.1"
+  },
   "devDependencies": {
     "@commitlint/cli": "^17.0.2",
     "@commitlint/config-conventional": "^17.0.2",
@@ -71,32 +78,13 @@
     "node": ">=8"
   },
   "jest": {
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(tsx?|jsx?)$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "json",
-      "jsx"
-    ],
+    "preset": "ts-jest",
+    "testEnvironment": "node",
     "collectCoverage": true,
-    "collectCoverageFrom": [
-      "./src/**"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "lines": 90
-      }
-    }
-  },
-  "dependencies": {
-    "bcrypt": "^5.0.1",
-    "express": "^4.18.1",
-    "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.5.5",
-    "socket.io": "^4.5.1"
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/",
+      "/lib"
+    ]
   }
 }
