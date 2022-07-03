@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.1](https://github.com/ialopezg/corejs/compare/v1.0.0-alpha.0...v1.0.0-alpha.1) (2022-07-03)
+
+
+### Features
+
+* add Middlewares support ([11c4055](https://github.com/ialopezg/corejs/commits/11c40555da43190c113d852c39aa0f1dc6574603))
+
 ## [1.0.0-alpha.0](https://github.com/ialopezg/corejs/compare/v0.1.2...v1.0.0-alpha.0) (2022-06-24)
 
 
