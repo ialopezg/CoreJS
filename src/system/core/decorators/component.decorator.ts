@@ -1,3 +1,7 @@
+/**
+ * Define the component metadata on the target.
+ * @constructor
+ */
 export const Component = (): ClassDecorator => {
-  return (target: Object) => {};
+  return (_target: Object) => {};
 };

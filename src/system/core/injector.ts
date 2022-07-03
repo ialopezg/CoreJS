@@ -1,12 +1,23 @@
-import { Container, InstanceWrapper, ModuleDependency } from './container';
+import { AppContainer, InstanceWrapper, ModuleDependency } from './container';
 import { Component } from './interfaces';
 import { AppInstanceLoader } from './instance-loader';
 
+/**
+ * Injector of instances object.
+ */
 export class AppInjector {
   private readonly instanceLoader = new AppInstanceLoader();
 
-  constructor(private readonly container: Container) {}
+  /**
+   * Creates a new instance of AppInjector.
+   *
+   * @param container Dependency modules container.
+   */
+  constructor(private readonly container: AppContainer) {}
 
+  /**
+   * Creates all module dependency instances.
+   */
   createInstancesOfDependencies(): void {
     this.container.getModules().forEach((module: ModuleDependency) => {
       this.createInstancesOfComponents(module);
@@ -14,24 +25,29 @@ export class AppInjector {
     });
   }
 
-  private createInstancesOfComponents(module: ModuleDependency) {
-    module.components.forEach(
+  /**
+   * Creates all components instances in parent module.
+   *
+   * @param parent Parent module.
+   * @private
+   */
+  private createInstancesOfComponents(parent: ModuleDependency) {
+    parent.components.forEach(
       (_wrapper: InstanceWrapper<Component>, component: Component) => {
-        this.instanceLoader.loadInstanceOfComponent(
-          component,
-          module.components,
-        );
+        this.instanceLoader.loadInstanceOfComponent(component, parent);
       },
     );
   }
 
-  private createInstancesOfControllers(module: ModuleDependency) {
-    module.controllers.forEach((_wrapper, controller) => {
-      this.instanceLoader.loadInstanceOfController(
-        controller,
-        module.controllers,
-        module.components,
-      );
+  /**
+   * Creates all controller instances in parent module.
+   *
+   * @param parent Parent module.
+   * @private
+   */
+  private createInstancesOfControllers(parent: ModuleDependency) {
+    parent.controllers.forEach((_wrapper, controller) => {
+      this.instanceLoader.loadInstanceOfController(controller, parent);
     });
   }
 }

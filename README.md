@@ -13,6 +13,7 @@
 [![GitHub Release Version][github-release-image]][github-release]
 [![NPM Downloads][downloads-image]][npm-url]
 [![Build][travis-image]][travis-url]
+[![Coverage Status][coveralls-image]][coveralls-url]
 <br class="badge-separator" />
 <span class="badge-patreon"><a href="https://patreon.com/ialopezg" title="Donate to this project using Patreon"><img src="https://img.shields.io/badge/patreon-donate-yellow.svg" alt="Patreon donate button" /></a></span>
 <span class="badge-opencollective"><a href="https://opencollective.com/ialopezg" title="Donate to this project using Open Collective"><img src="https://img.shields.io/badge/open%20collective-donate-yellow.svg" alt="Open Collective donate button" /></a></span>
@@ -25,6 +26,7 @@
 [CoreJS](https://github.com/ialopezg/corejs) is a toolset that helps you to develop and debug modern applications. This tool is made to be used in [Node.js](https://nodejs.org), which allows you to easily build efficient, scalable applications. It uses modern JavaScript, is built with [TypeScript](https://typescriptlang.org) and bring best JavaScript concepts.
 
 ## Installation
+
 - NPM
   ```bash
   npm install @ialopezg/corejs
@@ -55,8 +57,8 @@ Author - [Isidro A. Lopez G.](https://github.com/ialopezg)
 CoreJS is licensed under [MIT](LICENSE) license.
 
 ---
-&copy; Copyright 2019-present - [Isidro A. Lopez G.](https://ialopezg.com/)
 
+&copy; Copyright 1995-present - [Isidro A. Lopez G.](https://ialopezg.com/)
 
 [npm-image]: https://img.shields.io/npm/v/@ialopezg/corejs.svg
 [npm-url]: https://npmjs.org/package/@ialopezg/corejs
@@ -66,11 +68,8 @@ CoreJS is licensed under [MIT](LICENSE) license.
 [codecov-image]: https://codecov.io/gh/ialopezg/corejs/branch/main/graph/badge.svg
 [downloads-image]: https://img.shields.io/npm/dm/@ialopezg/corejs.svg
 [downloads-url]: https://npmcharts.com/compare/@ialopezg/corejs?minimal=true
-[travis-url]: https://travis-ci.org/ialopezg/corejs
+[travis-url]: https://app.travis-ci.com/ialopezg/corejs.svg?branch=main
 [travis-image]: https://app.travis-ci.com/ialopezg/corejs.svg?branch=main
-[travis-image-osx]: https://img.shields.io/travis/ialopezg/corejs/main.svg?label=osx
-[travis-image-windows]: https://img.shields.io/travis/ialopezg/corejs/main.svg?label=windows
-[travis-url]: https://travis-ci.org/ialopezg/corejs
 [coveralls-image]: https://coveralls.io/repos/github/ialopezg/corejs/badge.svg?branch=main
 [coveralls-url]: https://coveralls.io/github/ialopezg/corejs?branch=main
 [contributors]: https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square

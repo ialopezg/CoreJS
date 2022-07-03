@@ -1,14 +1,14 @@
 import { Express } from 'express';
 
 import { RouterBuilder } from './router-builder';
-import { Container, InstanceWrapper, ModuleDependency } from './container';
+import { AppContainer, InstanceWrapper, ModuleDependency } from './container';
 import { Controller } from './interfaces';
 
 export class AppRoutesResolver {
   private readonly routerBuilder: RouterBuilder;
 
   constructor(
-    private readonly container: Container,
+    private readonly container: AppContainer,
     private readonly routerFactory: Function,
   ) {
     this.routerBuilder = new RouterBuilder(this.routerFactory);

@@ -3,6 +3,12 @@ import 'reflect-metadata';
 import { RequestMappingMetadata } from '../interfaces';
 import { RequestMethod } from '../enums';
 
+/**
+ * Define the request mapping metadata on the target.
+ *
+ * @param metadata An object that contains attached metadata.
+ * @constructor
+ */
 export const RequestMapping = (
   metadata: RequestMappingMetadata,
 ): MethodDecorator => {

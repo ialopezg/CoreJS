@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import { Server } from 'socket.io';
 
 import {
-  Container,
+  AppContainer,
   InstanceWrapper,
   ModuleDependency,
 } from '../core/container';
@@ -18,7 +18,7 @@ export class SocketModule {
   private static socketsContainer = new SocketContainer();
   private static subjectsController: SubjectsController;
 
-  static setup(container: Container): void {
+  static setup(container: AppContainer): void {
     this.IOServer = new Server(this.port);
     this.subjectsController = new SubjectsController(
       this.socketsContainer,
