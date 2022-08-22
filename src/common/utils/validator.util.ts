@@ -1,22 +1,4 @@
 /**
- * Whether given object value is empty.
- *
- * @param obj Object to be analyzed.
- *
- * @returns True if value is empty, otherwise false.
- */
-export const isEmpty = (obj: any): boolean => {
-  if (typeof obj === 'string') {
-    return !((<string>obj).trim().length);
-  }
-  if (obj instanceof Object) {
-    return !Object.keys(obj).length;
-  }
-
-  return !obj.length;
-};
-
-/**
  * Validates if given object value is undefined.
  *
  * @param obj Object to be analyzed.
