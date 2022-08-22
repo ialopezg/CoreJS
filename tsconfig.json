@@ -8,7 +8,8 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "target": "es6",
-    "sourceMap": true
+    "sourceMap": true,
+    "types": ["@types/node", "@types/jest"]
   },
   "exclude": ["lib", "node_modules"]
 }
