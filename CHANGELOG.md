@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.2](https://github.com/ialopezg/corejs/compare/v1.0.0-alpha.1...v1.0.0-alpha.2) (2022-10-10)
+
+
+### Features
+
+* add isString validator ([70f7f61](https://github.com/ialopezg/corejs/commits/70f7f61564550f3a7b0776f3b3ae66a0d0a833cb))
+* more validation functions ([6df6b4c](https://github.com/ialopezg/corejs/commits/6df6b4cd340e4f3407b8cf2831c2ac6fd09d249e))
+* source code refactoring ([f9e6757](https://github.com/ialopezg/corejs/commits/f9e6757a381b49625c0ed43913acbf36030f690c))
+
 ## [1.0.0-alpha.1](https://github.com/ialopezg/corejs/compare/v1.0.0-alpha.0...v1.0.0-alpha.1) (2022-07-03)
 
 
