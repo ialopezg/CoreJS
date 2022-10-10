@@ -11,8 +11,8 @@ export class HttpException {
    * @param status Status code.
    */
   constructor(
-    private readonly message: string,
-    private readonly status: HttpStatus | number,
+    private readonly message: string = 'Bad Request',
+    private readonly status: HttpStatus | number = HttpStatus.BAD_REQUEST,
   ) {}
 
   /**

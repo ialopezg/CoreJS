@@ -1,19 +1,21 @@
+import { expect } from 'chai';
+
 import { isBoolean } from '../../helpers';
 
 describe('isBoolean', () => {
   it('should return true if a boolean value is passed', function () {
-    expect(isBoolean(false)).toBe(true);
-    expect(isBoolean(true)).toBe(true);
+    expect(isBoolean(false)).to.be.true;
+    expect(isBoolean(true)).to.be.true;
   });
 
   it('should return false if a string with boolean value is passed', function () {
-    expect(isBoolean('false')).toBe(false);
-    expect(isBoolean('true')).toBe(false);
+    expect(isBoolean('false')).to.be.false;
+    expect(isBoolean('true')).to.be.false;
   });
 
   it('should return false if a non boolean value is passed', function () {
-    expect(isBoolean(0)).toBe(false);
-    expect(isBoolean(1)).toBe(false);
-    expect(isBoolean('hi')).toBe(false);
+    expect(isBoolean(0)).to.be.false;
+    expect(isBoolean(1)).to.be.false;
+    expect(isBoolean('hi')).to.be.false;
   });
 });

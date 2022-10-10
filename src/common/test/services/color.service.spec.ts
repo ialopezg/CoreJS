@@ -1,3 +1,6 @@
+import { expect } from 'chai';
+import * as sinon from 'sinon';
+
 import { ColorService as Color, parseFormat } from '../../../../src';
 
 describe('ColorService', () => {
@@ -8,12 +11,11 @@ describe('ColorService', () => {
   });
 
   describe('parse', () => {
-    const parseMock = jest
-      .spyOn(Color, 'parse')
-      .mockImplementation((code, message) => parseFormat(code, message));
+    let parseSpy: sinon.SinonSpy;
+    // .mockImplementation((code, message) => parseFormat(code, message));
 
-    beforeAll(() => {
-      parseMock.mockClear();
+    beforeEach(() => {
+      parseSpy = sinon.spy(Color, 'parse');
     });
 
     it('should "parse" to have been called', () => {
@@ -21,8 +23,7 @@ describe('ColorService', () => {
       Color.parse([1, 22], message);
       Color.green(message);
 
-      expect(parseMock).toHaveBeenCalled();
-      expect(parseMock).toHaveBeenCalledTimes(3);
+      expect(parseSpy.callCount).to.be.eql(3);
     });
   });
 
@@ -36,16 +37,16 @@ describe('ColorService', () => {
       const bgCyan = `\x1b[46m${message}\x1b[49m`;
       const bgWhite = `\x1b[47m${message}\x1b[49m`;
 
-      expect(Color.reset()).not.toContain(message);
-      expect(Color.bolder(Color.green(message))).toContain(message);
-      expect(Color.bgBlack(message)).toContain(message);
-      expect(Color.bgRed(message)).toBe(bgRed);
-      expect(Color.bgGreen(message)).toBe(bgGreen);
-      expect(Color.bgYellow(message)).toBe(bgYellow);
-      expect(Color.bgBlue(message)).toBe(bgBlue);
-      expect(Color.bgMagenta(message)).toBe(bgMagenta);
-      expect(Color.bgCyan(message)).toBe(bgCyan);
-      expect(Color.bgWhite(message)).toBe(bgWhite);
+      expect(Color.reset()).to.not.contain(message);
+      expect(Color.bolder(Color.green(message))).to.contain(message);
+      expect(Color.bgBlack(message)).to.contain(message);
+      expect(Color.bgRed(message)).to.be.eql(bgRed);
+      expect(Color.bgGreen(message)).to.be.eql(bgGreen);
+      expect(Color.bgYellow(message)).to.be.eql(bgYellow);
+      expect(Color.bgBlue(message)).to.be.eql(bgBlue);
+      expect(Color.bgMagenta(message)).to.be.eql(bgMagenta);
+      expect(Color.bgCyan(message)).to.be.eql(bgCyan);
+      expect(Color.bgWhite(message)).to.be.eql(bgWhite);
     });
 
     it('should print console texts with all available bright background colors', () => {
@@ -58,14 +59,14 @@ describe('ColorService', () => {
       const bgBrightCyan = parseFormat([106, 49], message);
       const bgBrightWhite = parseFormat([107, 49], message);
 
-      expect(Color.bgBrightBlack(message)).toBe(bgBrightBlack);
-      expect(Color.bgBrightRed(message)).toBe(bgBrightRed);
-      expect(Color.bgBrightGreen(message)).toBe(bgBrightGreen);
-      expect(Color.bgBrightYellow(message)).toBe(bgBrightYellow);
-      expect(Color.bgBrightBlue(message)).toBe(bgBrightBlue);
-      expect(Color.bgBrightMagenta(message)).toBe(bgBrightMagenta);
-      expect(Color.bgBrightCyan(message)).toBe(bgBrightCyan);
-      expect(Color.bgBrightWhite(message)).toBe(bgBrightWhite);
+      expect(Color.bgBrightBlack(message)).to.be.eql(bgBrightBlack);
+      expect(Color.bgBrightRed(message)).to.be.eql(bgBrightRed);
+      expect(Color.bgBrightGreen(message)).to.be.eql(bgBrightGreen);
+      expect(Color.bgBrightYellow(message)).to.be.eql(bgBrightYellow);
+      expect(Color.bgBrightBlue(message)).to.be.eql(bgBrightBlue);
+      expect(Color.bgBrightMagenta(message)).to.be.eql(bgBrightMagenta);
+      expect(Color.bgBrightCyan(message)).to.be.eql(bgBrightCyan);
+      expect(Color.bgBrightWhite(message)).to.be.eql(bgBrightWhite);
     });
 
     it('should print a console texts with all available foreground colors', () => {
@@ -78,14 +79,14 @@ describe('ColorService', () => {
       const cyan = parseFormat([36, 39], message);
       const white = parseFormat([37, 39], message);
 
-      expect(Color.black(message)).toBe(black);
-      expect(Color.red(message)).toBe(red);
-      expect(Color.green(message)).toBe(green);
-      expect(Color.yellow(message)).toBe(yellow);
-      expect(Color.blue(message)).toBe(blue);
-      expect(Color.magenta(message)).toBe(magenta);
-      expect(Color.cyan(message)).toBe(cyan);
-      expect(Color.white(message)).toBe(white);
+      expect(Color.black(message)).to.be.eql(black);
+      expect(Color.red(message)).to.be.eql(red);
+      expect(Color.green(message)).to.be.eql(green);
+      expect(Color.yellow(message)).to.be.eql(yellow);
+      expect(Color.blue(message)).to.be.eql(blue);
+      expect(Color.magenta(message)).to.be.eql(magenta);
+      expect(Color.cyan(message)).to.be.eql(cyan);
+      expect(Color.white(message)).to.be.eql(white);
     });
   });
 
@@ -100,14 +101,14 @@ describe('ColorService', () => {
       const brightCyan = parseFormat([96, 39], message);
       const brightWhite = parseFormat([97, 39], message);
 
-      expect(Color.brightBlack(message)).toBe(brightBlack);
-      expect(Color.brightRed(message)).toBe(brightRed);
-      expect(Color.brightGreen(message)).toBe(brightGreen);
-      expect(Color.brightYellow(message)).toBe(brightYellow);
-      expect(Color.brightBlue(message)).toBe(brightBlue);
-      expect(Color.brightMagenta(message)).toBe(brightMagenta);
-      expect(Color.brightCyan(message)).toBe(brightCyan);
-      expect(Color.brightWhite(message)).toBe(brightWhite);
+      expect(Color.brightBlack(message)).to.be.eql(brightBlack);
+      expect(Color.brightRed(message)).to.be.eql(brightRed);
+      expect(Color.brightGreen(message)).to.be.eql(brightGreen);
+      expect(Color.brightYellow(message)).to.be.eql(brightYellow);
+      expect(Color.brightBlue(message)).to.be.eql(brightBlue);
+      expect(Color.brightMagenta(message)).to.be.eql(brightMagenta);
+      expect(Color.brightCyan(message)).to.be.eql(brightCyan);
+      expect(Color.brightWhite(message)).to.be.eql(brightWhite);
     });
   });
 
@@ -115,7 +116,7 @@ describe('ColorService', () => {
     it('should reset all formats applied to the console', () => {
       const reset = parseFormat();
 
-      expect(Color.reset()).toBe(reset);
+      expect(Color.reset()).to.be.eql(reset);
     });
 
     it('should print a hidden console text', () => {
@@ -128,32 +129,32 @@ describe('ColorService', () => {
       const hidden = parseFormat([8, 28], message);
       const strike = parseFormat([9, 29], message);
 
-      expect(Color.bolder(message)).toBe(bold);
-      expect(Color.dim(message)).toBe(dim);
-      expect(Color.italic(message)).toBe(italic);
-      expect(Color.underline(message)).toBe(underline);
-      expect(Color.blink(message)).toBe(blink);
-      expect(Color.inverse(message)).toBe(inverse);
-      expect(Color.hidden(message)).toBe(hidden);
-      expect(Color.strikeThrough(message)).toBe(strike);
+      expect(Color.bolder(message)).to.be.eql(bold);
+      expect(Color.dim(message)).to.be.eql(dim);
+      expect(Color.italic(message)).to.be.eql(italic);
+      expect(Color.underline(message)).to.be.eql(underline);
+      expect(Color.blink(message)).to.be.eql(blink);
+      expect(Color.inverse(message)).to.be.eql(inverse);
+      expect(Color.hidden(message)).to.be.eql(hidden);
+      expect(Color.strikeThrough(message)).to.be.eql(strike);
     });
   });
 
   describe('other formats', () => {
     it('should print a console text with combined formats', () => {
-      const text = `\x1b[37mHello\x1b[39m \x1b[47mWorld!\x1b[49m from \x1b[33mCustomConsoleColors\x1b[39m`;
+      const text = '\x1b[37mHello\x1b[39m \x1b[47mWorld!\x1b[49m from \x1b[33mCustomConsoleColors\x1b[39m';
 
       expect(
         `${Color.white('Hello')} ${Color.bgWhite('World!')} from ${Color.yellow(
           'CustomConsoleColors',
         )}`,
-      ).toBe(text);
+      ).to.be.eql(text);
     });
 
     it('should print a formatted console text with chain of responsibility', () => {
       const text = 'Hello World!';
 
-      expect(`${Color.bgWhite(Color.black('Hello World!'))}`).toContain(text);
+      expect(`${Color.bgWhite(Color.black('Hello World!'))}`).to.contain(text);
     });
   });
 });

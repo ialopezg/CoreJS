@@ -1,4 +1,6 @@
-import * as utils from "../../utils";
+import { expect } from 'chai';
+
+import * as utils from '../../utils';
 
 describe('parseFormat', () => {
   const message = 'Hello World!';
@@ -7,7 +9,7 @@ describe('parseFormat', () => {
     const resetValue = utils.parseFormat();
     const value = utils.parseFormat([1, 22], message);
 
-    expect(value).toContain(message);
-    expect(resetValue).toBe(`\x1b[0m\x1b[0m`);
+    expect(value).to.contain(message);
+    expect(resetValue).to.be.eql(`\x1b[0m\x1b[0m`);
   });
 });

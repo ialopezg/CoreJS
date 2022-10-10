@@ -42,7 +42,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### Features
 
-* add RuntimeException ([a8df941](https://github.com/ialopezg/corejs/commits/a8df941db348dd00c6b3abdeaceaedd0bef3b382))
+* add UnknownExportException ([a8df941](https://github.com/ialopezg/corejs/commits/a8df941db348dd00c6b3abdeaceaedd0bef3b382))
 * add validator utility ([4dda0a6](https://github.com/ialopezg/corejs/commits/4dda0a6d8a1f9bf97a5240b7e4ad9f3b90f9b652))
 * rename Exception to HttpException ([ed0c02d](https://github.com/ialopezg/corejs/commits/ed0c02d6322a6e3d98d4e1ee0765ef8af315a51e))
 

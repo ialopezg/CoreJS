@@ -1,27 +1,22 @@
-import { HttpException } from '../../exceptions';
+import { expect } from 'chai';
 import { HttpStatus } from '../../enums';
 
-jest.enableAutomock();
+import { HttpException } from '../../exceptions';
 
 describe('Exception', () => {
-  it('constructor is called with enum type', () => {
-    const error = new HttpException('Error', HttpStatus.INTERNAL_SERVER_ERROR);
-    const getStatus = error.getStatus;
+  it('constructor is called with default options', () => {
+    const exception = new HttpException();
 
-    expect(HttpException).toHaveBeenCalled();
-    expect(HttpException).toHaveBeenCalledTimes(1);
-    expect(HttpException).toHaveBeenCalledWith('Error', HttpStatus.INTERNAL_SERVER_ERROR);
-    expect((<any>getStatus)._isMockFunction).toBe(true);
+    expect(exception.getStatus()).to.be.eql(400);
+    expect(exception.getMessage()).to.be.eql('Bad Request');
   });
 
-  it('should calls the constructor with number type', () => {
-    const error = new HttpException('Error', 500);
-    const getStatus = error.getStatus;
+  it('should calls the constructor with 500 status code', () => {
+    const error = new HttpException('Internal Server Error', HttpStatus.INTERNAL_SERVER_ERROR);
+    const message = error.getMessage();
+    const status = error.getStatus();
 
-    expect(HttpException).toHaveBeenCalled();
-    expect(HttpException).toHaveBeenCalledTimes(2);
-    expect(HttpException).toHaveBeenCalledWith('Error', 500);
-    expect((<any>getStatus)._isMockFunction).toBe(true);
+    expect(status).to.be.eql(500);
+    expect(message).to.be.eql(message);
   });
 });
-
