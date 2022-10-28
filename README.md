@@ -7,6 +7,8 @@
 </div>
 <br />
 
+>  Modern, powerful web application framework for [Node.js](http://nodejs.org).
+> 
 <div align="center">
 
 [![NPM Version][npm-image]][npm-url]
@@ -27,13 +29,8 @@
 
 ## Installation
 
-- NPM
   ```bash
   npm install @ialopezg/corejs
-  ```
-- Yarn
-  ```bash
-  yarn add @ialopezg/corejs
   ```
 
 ## Features
