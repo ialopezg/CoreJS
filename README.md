@@ -33,6 +33,26 @@
   npm install @ialopezg/corejs
   ```
 
+
+## Quick Start
+
+```ts
+// app.ts
+import { Application } from '@ialopezg/corejs';
+
+export class App implements Application {
+    constructor(private application) {}
+  
+    start() {
+      const port = process.env.APP_PORT || 3000;
+      
+      this.application.listen(port, () => {
+        console.log(`Application listen on port: ${port}`);
+      });
+    }
+}
+```
+
 ## Features
 
 - Compatible with both TypeScript and ES6 (Recommend to use [TypeScript](https://www.typescriptlang.org/)
