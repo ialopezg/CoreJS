@@ -36,16 +36,23 @@
 
 ## Quick Start
 
-```ts
-// app.ts
-import { Application } from '@ialopezg/corejs';
+### Basic App Setup
 
-export class App implements Application {
-    constructor(private application) {}
+#### app.ts
+
+```ts
+import { Application as ApplicationFactory } from '@ialopezg/corejs';
+import * as express from 'express'
+
+export class Application implements ApplicationFactory {
+    constructor(private application: express.Application) {
+      // do something
+    }
   
     start() {
-      const port = process.env.APP_PORT || 3000;
+      // do something before server starts
       
+      const port = process.env.APP_PORT || 3000;
       this.application.listen(port, () => {
         console.log(`Application listen on port: ${port}`);
       });
@@ -53,9 +60,51 @@ export class App implements Application {
 }
 ```
 
+### app.module.ts
+
+```ts
+import { Module } from '@ialopezg/corejs';
+
+@Module({})
+export class AppModule {}
+```
+
+### server.ts
+
+```ts
+import { AppRunner } from '@ialopezg/corejs';
+import { AppModule } from './app.module';
+import { Application } from './app';
+
+AppRunner.run(Application, AppModule);
+```
+
+## Setup first controller
+
+Controllers layer is responsible for handling HTTP requests. This is how we create controller in Nest application:
+
+```ts
+import { Controller } from '@ialopezg/corejs';
+import { NextFunction, Request, Response } from 'express';
+
+@Controller({ path: 'users' })
+class UsersController {
+  @RequestMapping({ path: '/' })
+  getAllUsers(request: Request, response: Response, next: NextFunction) {
+    response.status(201).json({});
+  }
+}
+```
+
 ## Features
 
 - Compatible with both TypeScript and ES6 (Recommend to use [TypeScript](https://www.typescriptlang.org/)
+- Based on well-known libraries (Express / socket.io) so you could easily use your experience
+- Easy to learn - syntax is really similar to Angular / Spring (Java)
+- Dependency Injection, Inversion of Control Container
+- Exceptions handler layer (helps to focus on logic)
+- Own modularity system
+- Sockets module
 
 ## Future
 
@@ -63,6 +112,8 @@ CoreJS is very much still a work in progress. There is still some things to fini
 
 - Better test utilities
 - Validation helpers
+- Starter repos
+- Config provider
 - and more...
 
 ## People
