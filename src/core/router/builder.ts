@@ -4,14 +4,14 @@ import { Router } from 'express';
 import { RequestMethod } from '../../common';
 
 import { Controller } from '../../common/interfaces';
-import { UnknownRequestMappingException } from '../../errors/exceptions';
+import { UnknownRequestMappingException } from '../../errors';
 import { ExpressAdapter } from '../adapters';
 import { RouterProxy, RouterProxyCallback } from './proxy';
 
 /**
  * Defines a Route path properties.
  */
-interface RoutePathProperties {
+export interface RoutePathProperties {
   /**
    * Route path.
    */

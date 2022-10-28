@@ -1,8 +1,6 @@
 import { AppModule } from '../../common';
 import { Controller } from '../../common/interfaces';
-import { UnknownModuleException } from '../../errors/exceptions';
-import { Middleware, MiddlewareConfiguration } from './interfaces';
-import { MiddlewareProto } from './interfaces/middleware-proto.interface';
+import { Middleware, MiddlewareConfiguration, MiddlewareProto } from './interfaces';
 import { RoutesMapper } from './mapper';
 
 /**

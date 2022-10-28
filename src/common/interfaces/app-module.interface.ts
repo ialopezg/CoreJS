@@ -1,4 +1,4 @@
-import { MiddlewareBuilder } from '../../system';
+import { MiddlewareBuilder } from '../../core';
 
 /**
  * Defines a prototype for App Module objects.

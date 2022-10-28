@@ -104,7 +104,7 @@ class UsersController {
 - Dependency Injection, Inversion of Control Container
 - Exceptions handler layer (helps to focus on logic)
 - Own modularity system
-- Sockets module
+- Sockets module (based on [socket.io](https://github.com/socketio/socket.io))
 
 ## Future
 
@@ -113,7 +113,6 @@ CoreJS is very much still a work in progress. There is still some things to fini
 - Better test utilities
 - Validation helpers
 - Starter repos
-- Config provider
 - and more...
 
 ## People

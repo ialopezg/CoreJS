@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { AppModule, Module } from '../../../common';
 import { Controller, Injectable } from '../../../common/interfaces';
-import { UnknownExportException } from '../../../errors/exceptions';
+import { UnknownExportException } from '../../../errors';
 import { AppContainer, InstanceWrapper, ModuleDependency } from '../../injector';
 
 describe('AppContainer', () => {
@@ -18,6 +18,7 @@ describe('AppContainer', () => {
   it('should create a module and collections for dependencies', () => {
     container.addModule(TestModule);
 
+    // eslint-disable-next-line dot-notation
     expect(container['modules'].get(<AppModule>TestModule)).to.be.eql({
       instance: new TestModule(),
       modules: new Set<ModuleDependency>(),
