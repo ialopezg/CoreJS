@@ -54,11 +54,7 @@ export class MiddlewareContainer {
    * @returns A collection of Middlewares.
    */
   getMiddlewares(module: AppModule): Map<MiddlewareProto, Middleware> {
-    if (!this.middlewares.has(module)) {
-      throw new UnknownModuleException();
-    }
-
-    return this.middlewares.get(module);
+    return this.middlewares.get(module) || new Map();
   }
 
   /**
