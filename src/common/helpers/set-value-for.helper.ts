@@ -6,7 +6,7 @@
  *
  * @returns An object containing all properties given in dot-notation string.
  */
-export const parseValue = (key: string, defaultValue: any = '') => {
+export const setValueFor = (key: string, defaultValue: any = '') => {
   const result = {};
 
   // Split path into component parts
