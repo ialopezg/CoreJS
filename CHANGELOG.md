@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.4](https://github.com/ialopezg/corejs/compare/v1.0.0-alpha.3...v1.0.0-alpha.4) (2022-11-18)
+
+
+### Features
+
+* add dependencies ([cec48f4](https://github.com/ialopezg/corejs/commits/cec48f468bb7d08f903c91897757fb996130767d))
+* add getValueFor helper ([1a4d19f](https://github.com/ialopezg/corejs/commits/1a4d19f8c42123cefa4a5a766d62be2141e305f1))
+* add isArray helper ([963bf24](https://github.com/ialopezg/corejs/commits/963bf24fc8ce1a565602e5262095b2d3d0e64472))
+* add isFunction helper ([7be2497](https://github.com/ialopezg/corejs/commits/7be2497688d1834e947667a6ea8c9ca97f0b0556))
+* add more funtions ([1bf68f2](https://github.com/ialopezg/corejs/commits/1bf68f21bb50d3efe784d838cb0393bcc4a124ec))
+* add more tests, helpers, and services ([20ae71a](https://github.com/ialopezg/corejs/commits/20ae71aaa16ef12aa251ca06a6885d901f97de83))
+* clean code ([44ea0fc](https://github.com/ialopezg/corejs/commits/44ea0fce9396c6a716371967da51589cbbf6e13e))
+* clean code ([7de8234](https://github.com/ialopezg/corejs/commits/7de823412f3762248cb506cfc80eefe6c9437091))
+* improve code and documentation in isString helper ([0fb0d49](https://github.com/ialopezg/corejs/commits/0fb0d497184767c10a2df804a3a0d67dc0e571b2))
+* update exports in helpers folder ([7b96644](https://github.com/ialopezg/corejs/commits/7b966444e65b503a5fc5b3400b7123997c19c418))
+
+
+### Bug Fixes
+
+* clean code ([fb5c225](https://github.com/ialopezg/corejs/commits/fb5c22519f592721fb7d5ec63046ec5f2bde3c7b))
+* clean code ([879b352](https://github.com/ialopezg/corejs/commits/879b352b7daafc94076dd8e11f3b7b10d1f1391d))
+* improve isEmpty helper ([cab013b](https://github.com/ialopezg/corejs/commits/cab013b4b0dc273008179fd5d8505ba66ef980c7))
+* setValueFor name ([1a28570](https://github.com/ialopezg/corejs/commits/1a285708f03230ac2dcf68591718128293d7b67d))
+* update middleware container ([2be69a0](https://github.com/ialopezg/corejs/commits/2be69a0b47f94719dde4d05042644adda0c29120))
+
 ## [1.0.0-alpha.3](https://github.com/ialopezg/corejs/compare/v1.0.0-alpha.2...v1.0.0-alpha.3) (2022-10-20)
 
 ## [1.0.0-alpha.2](https://github.com/ialopezg/corejs/compare/v1.0.0-alpha.1...v1.0.0-alpha.2) (2022-10-10)
