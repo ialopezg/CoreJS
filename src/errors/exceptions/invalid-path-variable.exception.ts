@@ -1,4 +1,4 @@
-import { RuntimeException } from '../../common/exceptions/runtime.exception';
+import { RuntimeException } from '../../common/exceptions';
 
 export class InvalidPathVariableException extends RuntimeException {
   constructor(annotationName: string) {

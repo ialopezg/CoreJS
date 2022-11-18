@@ -1,36 +1,37 @@
 import 'reflect-metadata';
 import { expect } from 'chai';
-import { InvalidModuleConfigurationException } from '../../../errors';
 
+import { InvalidModuleConfigurationException } from '../../../errors/exceptions';
+import { metadata } from '../../constants';
 import { Module } from '../../decorators';
 import { ModuleMetadata } from '../../interfaces';
 
 describe('@Module', () => {
-  const metadata: ModuleMetadata = {
+  const props: ModuleMetadata = {
     modules: ['AnotherTestModule'],
     components: ['TestComponent'],
     controllers: ['TestController'],
     exports: ['TestComponent'],
   };
 
-  @Module(metadata)
+  @Module(props)
   class TestModule {}
 
   it('should decorate type with expected module metadata', () => {
-    const modules = Reflect.getMetadata('modules', TestModule);
-    const components = Reflect.getMetadata('components', TestModule);
-    const exports = Reflect.getMetadata('exports', TestModule);
-    const controllers = Reflect.getMetadata('controllers', TestModule);
+    const modules = Reflect.getMetadata(metadata.MODULES, TestModule);
+    const controllers = Reflect.getMetadata(metadata.CONTROLLERS, TestModule);
+    const components = Reflect.getMetadata(metadata.COMPONENTS, TestModule);
+    const exports = Reflect.getMetadata(metadata.EXPORTS, TestModule);
 
-    expect(modules).to.be.eql(metadata.modules);
-    expect(components).to.be.eql(metadata.components);
-    expect(controllers).to.be.eql(metadata.controllers);
-    expect(exports).to.be.eql(metadata.exports);
+    expect(modules).to.be.eql(props.modules);
+    expect(controllers).to.be.eql(props.controllers);
+    expect(components).to.be.eql(props.components);
+    expect(exports).to.be.eql(props.exports);
   });
 
   it('should throw exception when module properties are invalid', () => {
     const invalidProps = {
-      ...metadata,
+      ...props,
       test: [],
     };
 

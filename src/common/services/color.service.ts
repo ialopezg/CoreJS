@@ -1,5 +1,5 @@
-import { parseFormat } from '../utils';
 import { colorCodes, formatCodes } from '../constants';
+import { parseFormat } from '../helpers';
 
 /**
  * Represents an object that provide console colored and formatted texts.

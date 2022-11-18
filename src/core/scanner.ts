@@ -1,121 +1,152 @@
 import 'reflect-metadata';
-import { AppModule } from '../common';
-import { Controller, Injectable } from '../common/interfaces';
 
-import { AppContainer, ModuleDependency } from './injector';
+import { ModuleMetaType, Controller, Injectable, MetaType } from '../common/interfaces';
+import { metadata } from '../common';
+import { AppContainer } from './injector';
 
 /**
- * Module Dependency Scanner.
+ * Defines an object that scans deeply modules and its related dependencies.
  */
 export class DependencyScanner {
-  constructor(private readonly container: AppContainer) {}
+  /**
+   * Creates a new instance for the class DependenciesScanner.
+   * @param container Module container.
+   */
+  constructor(private readonly container: AppContainer) { }
 
   /**
-   * Module deeply scan for its dependencies.
+   * Scans a base module for its dependencies.
+   *
+   * @param target Module base to be scanned.
    */
-  scan(module: AppModule) {
-    this.scanForModules(module);
+  scan(target: ModuleMetaType): void {
+    this.scanForModules(target);
     this.scanModulesForDependencies();
   }
 
   /**
-   * Scan a module recursively for its dependencies.
+   * Scan a module base for its submodules recursively.
    *
    * @param module Module to be scanned.
    */
-  private scanForModules(module: AppModule) {
+  private scanForModules(module: ModuleMetaType): void {
     this.storeModule(module);
 
-    (Reflect.getMetadata('modules', module) || []).forEach(
-      (subModule: AppModule) => this.scanForModules(subModule),
-    );
+    const subModules = this.reflectMetadata(module, metadata.MODULES);
+    subModules.map((subModule: any) => this.scanForModules(subModule));
   }
 
   /**
-   * Register a root module.
+   * Stores given module into the modules' container.
    *
-   * @param module Module to be registered.
+   * @param module Module to be stored.
    */
-  storeModule(module: AppModule) {
+  private storeModule(module: ModuleMetaType) {
     this.container.addModule(module);
   }
 
   /**
-   * Module scanning for dependencies.
+   * Scans deeply all modules for each dependencies.
    */
   private scanModulesForDependencies() {
     const modules = this.container.getModules();
 
-    // Modules deep scanning
-    modules.forEach((_dependencies: ModuleDependency, parent: AppModule) => {
-      this.reflectSubModules(parent);
-      this.reflectComponents(parent);
-      this.reflectControllers(parent);
-      this.reflectExportedComponents(parent);
+    modules.forEach(({ metaType }) => {
+      this.reflectRelatedModules(metaType);
+      this.reflectComponents(metaType);
+      this.reflectControllers(metaType);
+      this.reflectExports(metaType);
     });
   }
 
-  private reflectSubModules(parent: AppModule): void {
-    (Reflect.getMetadata('modules', parent) || []).forEach((child: AppModule) => {
-      this.storeSubModule(child, parent);
-    });
-  }
-
-  private reflectComponents(parent: AppModule): void {
-    (Reflect.getMetadata('components', parent) || []).forEach(
-      (component: any) => this.storeComponent(component, parent),
-    );
-  }
-
-  private reflectControllers(parent: AppModule): void {
-    (Reflect.getMetadata('controllers', parent) || []).forEach(
-      (controller: Controller) => this.storeController(controller, parent),
-    );
-  }
-
-  private reflectExportedComponents(parent: AppModule): void {
-    (Reflect.getMetadata('exports', parent) || []).forEach(
-      (component: any) => this.storeExportedComponent(component, parent),
-    );
+  /**
+   * Scans a module for its submodules dependencies.
+   *
+   * @param target Module to be scanned.
+   */
+  private reflectRelatedModules(target: ModuleMetaType) {
+    this.reflectMetadata(target, metadata.MODULES).forEach((module) => this.storeRelatedModule(module, target));
   }
 
   /**
-   * Registered a child module on the parent.
+   * Scans a module for its components dependencies.
    *
-   * @param module Child module.
-   * @param parent Parent module.
+   * @param target Module to be scanned.
    */
-  storeSubModule(module: AppModule, parent: AppModule): void {
-    this.container.addSubModule(module, parent);
+  private reflectComponents(target: ModuleMetaType) {
+    this.reflectMetadata(target, metadata.COMPONENTS)
+      .forEach((component: any) => this.storeComponent(component, target));
   }
 
   /**
-   * Registered a component on the parent.
+   * Scans a module for its controllers dependencies.
    *
-   * @param component Component to be registered.
-   * @param parent Parent module.
+   * @param target Module to be scanned.
    */
-  storeComponent(component: Injectable, parent: AppModule) {
-    this.container.addComponent(component, parent);
+  private reflectControllers(target: ModuleMetaType) {
+    this.reflectMetadata(target, metadata.CONTROLLERS)
+      .forEach((controller: any) => this.storeController(controller, target));
   }
 
   /**
-   * Registered a controller on the parent.
+   * Scans a module for its exported component dependencies.
    *
-   * @param controller Controller to be registered.
-   * @param parent Parent module.
+   * @param target Module to be scanned.
    */
-  storeController(controller: Controller, parent: AppModule) {
-    this.container.addController(controller, parent);
+  private reflectExports(target: ModuleMetaType) {
+    this.reflectMetadata(target, metadata.EXPORTS)
+      .forEach((component: any) => this.storeExportedComponent(component, target));
   }
 
   /**
-   * Registered a component as exported on the parent.
+   * Stores given module into the submodules collection of given target module.
    *
-   * @param component Component to be exported.
-   * @param parent Parent module.
+   * @param module Module to be stored as submodule.
+   * @param target Target module.
    */
-  storeExportedComponent(component: Injectable, parent: AppModule) {
-    this.container.addExportedComponent(component, parent);
+  private storeRelatedModule(module: ModuleMetaType, target: ModuleMetaType) {
+    this.container.addSubModule(module, target);
+  }
+
+  /**
+   * Stores given component into the components collection of given target module.
+   *
+   * @param component Component to be stored as submodule.
+   * @param target Target module.
+   */
+  private storeComponent(component: MetaType<Injectable>, target: ModuleMetaType) {
+    this.container.addComponent(component, target);
+  }
+
+  /**
+   * Stores given component into the components collection of given target module.
+   *
+   * @param component Component to be stored as submodule.
+   * @param target Target module.
+   */
+  storeExportedComponent(component: MetaType<Injectable>, target: ModuleMetaType) {
+    this.container.addExportedComponent(component, target);
+  }
+
+  /**
+   * Stores given controller into the controllers collection of given target module.
+   *
+   * @param controller Component to be stored as submodule.
+   * @param target Target module.
+   */
+  private storeController(controller: MetaType<Controller>, target: ModuleMetaType) {
+    this.container.addController(controller, target);
+  }
+
+  /**
+   * Gets the metadata value for the provided metadata key on the target object or its prototype chain.
+   *
+   * @param target The target object on which the metadata is defined.
+   * @param metadataKey Metadata key.
+   *
+   * @returns The metadata value for the metadata key if found; otherwise, an empty array.
+   */
+  private reflectMetadata(target: ModuleMetaType, metadataKey: string): any[] {
+    return Reflect.getMetadata(metadataKey, target) || [];
   }
 }

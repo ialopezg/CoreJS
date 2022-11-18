@@ -1,8 +1,7 @@
 import { expect } from 'chai';
-import {
-  InvalidMiddlewareConfigurationException,
-} from '../../../errors/exceptions/invalid-middleware-configuration.exception';
+
 import { MiddlewareBuilder } from '../../middleware';
+import { InvalidMiddlewareConfigurationException } from '../../../errors/exceptions';
 
 describe('MiddlewareBuilder', () => {
   let builder: MiddlewareBuilder;
@@ -13,31 +12,31 @@ describe('MiddlewareBuilder', () => {
 
   it('should store configuration passed as argument', () => {
     builder.use(<any>{
-      middlewares: 'Test',
-      forRoutes: 'Test',
+      middlewares: 'TestMiddleware',
+      forRoutes: 'TestMiddleware'
     });
 
     expect(builder.build()).to.deep.equal([{
-      middlewares: 'Test',
-      forRoutes: 'Test',
+      middlewares: 'TestMiddleware',
+      forRoutes: 'TestMiddleware'
     }]);
   });
 
   it('should be possible to chain "use" calls', () => {
     builder.use(<any>{
-      middlewares: 'Test',
-      forRoutes: 'Test',
+      middlewares: 'TestMiddleware',
+      forRoutes: 'TestMiddleware'
     }).use(<any>{
-      middlewares: 'Test',
-      forRoutes: 'Test',
+      middlewares: 'TestMiddleware',
+      forRoutes: 'TestMiddleware'
     });
 
     expect(builder.build()).to.deep.equal([<any>{
-      middlewares: 'Test',
-      forRoutes: 'Test',
+      middlewares: 'TestMiddleware',
+      forRoutes: 'TestMiddleware'
     }, <any>{
-      middlewares: 'Test',
-      forRoutes: 'Test',
+      middlewares: 'TestMiddleware',
+      forRoutes: 'TestMiddleware'
     }]);
   });
 

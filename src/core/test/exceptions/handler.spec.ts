@@ -1,7 +1,8 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
+import { HttpException } from '../../../common';
 
-import { Exception, ExceptionHandler } from '../../exceptions';
+import { ExceptionHandler } from '../../exceptions';
 
 describe('ExceptionHandler', () => {
   let handler: ExceptionHandler;
@@ -35,7 +36,7 @@ describe('ExceptionHandler', () => {
       const status = 401;
       const message = 'Unauthorized';
 
-      handler.next(new Exception(message, status), response);
+      handler.next(new HttpException(message, status), response);
 
       expect(statusStub.calledWith(status)).to.be.true;
       expect(jsonStub.calledWith({ message })).to.be.true;

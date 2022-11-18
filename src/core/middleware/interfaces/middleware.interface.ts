@@ -7,5 +7,5 @@ export interface Middleware {
   /**
    * Resolves middleware objects.
    */
-  resolve: () => (request: Request, response: Response, next: NextFunction) => void;
+  resolve: () => (request?: Request, response?: Response, next?: NextFunction) => void;
 }

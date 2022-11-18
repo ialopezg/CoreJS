@@ -1,10 +1,12 @@
 import 'reflect-metadata';
 
 import { Injectable } from '../common/interfaces';
-import { AppContainer, InstanceWrapper, ModuleDependency } from '../core/injector';
+import { AppContainer, InstanceWrapper } from '../core/injector';
+import { Module } from '../core/injector/module';
+import { GATEWAY_METADATA } from './constants';
 import { SocketContainer } from './container';
 import { SubjectsController } from './controller';
-import { Gateway } from './interfaces';
+import { AppGateway } from './interfaces';
 import { SocketServerProvider } from './provider';
 
 /**
@@ -24,7 +26,7 @@ export class SocketModule {
       new SocketServerProvider(this.container),
     );
 
-    container.getModules().forEach(({ components }: ModuleDependency) => {
+    container.getModules().forEach(({ components }: Module) => {
       this.hookGatewayIntoServers(components);
     });
   }
@@ -37,14 +39,14 @@ export class SocketModule {
   private static hookGatewayIntoServers(
     components: Map<Injectable, InstanceWrapper<Injectable>>,
   ): void {
-    components.forEach(({ instance }: InstanceWrapper<Gateway>, component: Injectable) => {
-      const metadataKeys = Reflect.getMetadataKeys(component);
+    components.forEach(({ instance, metaType }: InstanceWrapper<AppGateway>) => {
+      const metadataKeys = Reflect.getMetadataKeys(metaType);
 
-      if (metadataKeys.indexOf('__isGateway') < 0) {
+      if (metadataKeys.indexOf(GATEWAY_METADATA) < 0) {
         return;
       }
 
-      this.controller.hookGatewayIntoServer(<Gateway>instance, component);
+      this.controller.hookGatewayIntoServer(<AppGateway>instance, metaType);
     });
   }
 }

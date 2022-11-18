@@ -9,7 +9,7 @@ export class ExpressAdapter {
    *
    * @returns The newly created Express instance.
    */
-  static create(): express.Express {
+  static create(): any {
     return express();
   }
 
@@ -18,7 +18,7 @@ export class ExpressAdapter {
    *
    * @returns The newly created Express Router instance.
    */
-  static createRouter(): express.Router {
+  static createRouter(): any {
     return express.Router();
   }
 }

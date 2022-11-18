@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 
-import { Component } from '../../../common';
-import { RuntimeException } from '../../../common/exceptions/runtime.exception';
-import { Injector, InstanceWrapper, ModuleDependency } from '../../injector';
+import { InstanceWrapper, Injector } from '../../injector';
+import { Component, RuntimeException } from '../../../common';
+import { Module } from '../../injector/module';
 
 describe('Injector', () => {
   let injector: Injector;
@@ -13,84 +13,72 @@ describe('Injector', () => {
 
   describe('loadInstance', () => {
     @Component()
-    class DependencyOne {}
+    class DependencyOne { }
 
     @Component()
-    class DependencyTwo {}
+    class DependencyTwo { }
 
     @Component()
     class MainComponent {
       constructor(
-        public dependencyOne: DependencyOne,
-        public dependencyTwo: DependencyTwo,
-      ) {}
+        public depOne: DependencyOne,
+        public depTwo: DependencyTwo) { }
     }
 
-    let module: ModuleDependency;
+    let moduleDeps: Module;
 
     beforeEach(() => {
-      module = {
-        instance: null,
-        components: new Map<any, InstanceWrapper<any>>(),
-      };
-      module.components.set(MainComponent, {
+      moduleDeps = new Module(DependencyTwo);
+      moduleDeps.components.set('MainComponent', {
+        metaType: MainComponent,
         instance: Object.create(MainComponent.prototype),
         resolved: false,
       });
-      module.components.set(DependencyOne, {
+      moduleDeps.components.set('DependencyOne', {
+        metaType: DependencyOne,
         instance: Object.create(DependencyOne.prototype),
         resolved: false,
       });
-      module.components.set(DependencyTwo, {
+      moduleDeps.components.set('DependencyTwo', {
+        metaType: DependencyTwo,
         instance: Object.create(DependencyTwo.prototype),
         resolved: false,
       });
     });
 
     it('should create an instance of component with proper dependencies', () => {
-      injector.loadInstance(MainComponent, module.components, module);
-      const { instance } = <InstanceWrapper<MainComponent>>(
-        module.components.get(MainComponent)
-      );
+      injector.loadInstance(MainComponent, moduleDeps.components, moduleDeps);
+      const { instance } = <InstanceWrapper<MainComponent>>(moduleDeps.components.get('MainComponent'));
 
-      expect(instance.dependencyOne instanceof DependencyOne).to.be.true;
-      expect(instance.dependencyTwo instanceof DependencyTwo).to.be.true;
+      expect(instance.depOne instanceof DependencyOne).to.be.true;
+      expect(instance.depTwo instanceof DependencyTwo).to.be.true;
       expect(instance instanceof MainComponent).to.be.true;
     });
 
     it('should set "resolved" property to true after instance initialization', () => {
-      injector.loadInstance(MainComponent, module.components, module);
-      const { resolved } = <InstanceWrapper<MainComponent>>(
-        module.components.get(MainComponent)
-      );
+      injector.loadInstance(MainComponent, moduleDeps.components, moduleDeps);
+      const { resolved } = <InstanceWrapper<MainComponent>>(moduleDeps.components.get('MainComponent'));
 
       expect(resolved).to.be.true;
     });
 
     it('should throw RuntimeException when type is not stored in collection', () => {
       expect(
-        injector.loadInstance.bind(
-          injector,
-          'TestComponent',
-          module.components,
-          module,
-        ),
+        injector.loadInstance.bind(injector, 'Test', moduleDeps.components, moduleDeps),
       ).to.throw(RuntimeException);
     });
   });
 
   describe('loadPrototypeOfInstance', () => {
     @Component()
-    class TestComponent {}
+    class TestComponent { }
 
-    let module: ModuleDependency;
+    let moduleDeps: Module;
 
     beforeEach(() => {
-      module = {
-        instance: null,
-        components: new Map<any, InstanceWrapper<any>>(),
-      };
-      module.components.set(TestComponent, {
+      moduleDeps = new Module(TestComponent);
+      moduleDeps.components.set('TestComponent', {
+        metaType: TestComponent,
         instance: Object.create(TestComponent.prototype),
         resolved: false,
       });
@@ -100,13 +88,11 @@ describe('Injector', () => {
       const expectedResult = {
         instance: Object.create(TestComponent.prototype),
         resolved: false,
+        metaType: TestComponent,
       };
+      injector.loadPrototypeOfInstance(TestComponent, moduleDeps.components);
 
-      injector.loadPrototypeOfInstance(TestComponent, module.components);
-
-      expect(module.components.get(TestComponent)).to.deep.equal(
-        expectedResult,
-      );
+      expect(moduleDeps.components.get('TestComponent')).to.deep.equal(expectedResult);
     });
   });
 });

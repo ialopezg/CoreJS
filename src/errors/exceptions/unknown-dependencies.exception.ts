@@ -1,4 +1,5 @@
-import { RuntimeException } from '../../common/exceptions/runtime.exception';
+import { RuntimeException } from '../../common/exceptions';
+import { getUnkownDependenciesMessage } from '../messages';
 
 /**
  * Defines an error when dependency objects are unknown.
@@ -9,7 +10,7 @@ export class UnknownDependenciesException extends RuntimeException {
    *
    * @param target Instance with unknown dependencies.
    */
-  constructor(target: any) {
-    super(`Can't recognize dependencies of ${target.name}.`);
+  constructor(target: string) {
+    super(getUnkownDependenciesMessage(target));
   }
 }

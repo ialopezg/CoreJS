@@ -1,8 +1,14 @@
-import { RuntimeException } from '../../common/exceptions/runtime.exception';
+import { RuntimeException } from '../../common/exceptions';
+import { getUnkownExportMessage } from '../messages';
 
+/**
+ * Defines an error when exported dependencies as unknown or not declare in the module components list.
+ */
 export class UnknownExportException extends RuntimeException {
-  constructor() {
-    super('You are trying to export unknown component. Maybe ' +
-      'you forgot to place this one to components list also.');
+  /**
+   * Creates a new instance of this class.
+   */
+  constructor(name: string) {
+    super(getUnkownExportMessage(name));
   }
 }

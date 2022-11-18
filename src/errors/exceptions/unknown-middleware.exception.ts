@@ -1,4 +1,4 @@
-import { RuntimeException } from '../../common/exceptions/runtime.exception';
+import { RuntimeException } from '../../common/exceptions';
 
 /**
  * Defines an error when middleware is not recognized.

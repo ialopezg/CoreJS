@@ -1,12 +1,12 @@
 import { Response } from 'express';
 
-import { Exception } from './exception';
+import { HttpException } from '../../common';
 
 /**
  * Represents a custom handler for HTTP Exceptions.
  */
 export class ExceptionHandler {
-  private UNKNOWN_EXCEPTION_MSG = 'Unknown exception';
+  private UNKNOWN_EXCEPTION = 'Unknown exception';
 
   /**
    * Returns the exception result as a HTTP response.
@@ -14,9 +14,9 @@ export class ExceptionHandler {
    * @param exception Exception or error details.
    * @param response Object to be returned with the exception details.
    */
-  next(exception: Exception | Error, response: Response): void {
-    if (!(exception instanceof Exception)) {
-      response.status(500).json({ message: this.UNKNOWN_EXCEPTION_MSG });
+  next(exception: Error | HttpException, response: Response): void {
+    if (!(exception instanceof HttpException)) {
+      response.status(500).json({ message: this.UNKNOWN_EXCEPTION });
 
       return;
     }

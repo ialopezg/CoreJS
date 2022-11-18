@@ -1,4 +1,6 @@
-import { Gateway } from './interfaces';
+import { isConstructor, isFunction, isUndefined } from '../common';
+import { MESSAGE_MAPPING_METADATA, MESSAGE_METADATA, SOCKET_SERVER_METADATA } from './constants';
+import { AppGateway } from './interfaces';
 
 /**
  * Defines a prototype object for a message mapping property.
@@ -25,7 +27,7 @@ export class GatewayMetadataExplorer {
    *
    * @returns Returns a list of MessageMappingProperty objects.
    */
-  static explore(instance: Gateway): MessageMappingProperty[] {
+  static explore(instance: AppGateway): MessageMappingProperty[] {
     return this.scanForHandlersFromPrototype(instance, Object.getPrototypeOf(instance));
   }
 
@@ -38,11 +40,17 @@ export class GatewayMetadataExplorer {
    * @returns Returns a list of MessageMappingProperty objects.
    */
   static scanForHandlersFromPrototype(
-    instance: Gateway,
+    instance: AppGateway,
     prototype: any,
   ): MessageMappingProperty[] {
     return Object.getOwnPropertyNames(prototype)
-      .filter((method: string) => method !== 'constructor' && typeof prototype[method] === 'function')
+      .filter((method) => {
+        const descriptor = Object.getOwnPropertyDescriptor(prototype, method);
+        if (descriptor.set || descriptor.get) {
+          return false;
+        }
+        return !isConstructor(method) && isFunction(prototype[method]);
+      })
       .map((method: string) => this.exploreMethodMetadata(instance, prototype, method))
       .filter((mapper: MessageMappingProperty) => mapper !== null);
   }
@@ -57,18 +65,18 @@ export class GatewayMetadataExplorer {
    * @returns Returns a MessageMappingProperty object.
    */
   static exploreMethodMetadata(
-    instance: Gateway,
+    instance: AppGateway,
     prototype: any,
     method: string,
   ): MessageMappingProperty {
     const callback = prototype[method];
-    const isMessageMapping = Reflect.getMetadata('__isMessageMapping', callback);
+    const isMessageMapping = Reflect.getMetadata(MESSAGE_MAPPING_METADATA, callback);
 
-    if (typeof isMessageMapping === 'undefined') {
+    if (isUndefined(isMessageMapping)) {
       return null;
     }
 
-    const message = Reflect.getMetadata('message', callback);
+    const message = Reflect.getMetadata(MESSAGE_METADATA, callback);
 
     return {
       callback: (<Function>callback).bind(instance),
@@ -81,14 +89,14 @@ export class GatewayMetadataExplorer {
    *
    * @param instance Instance to be scanned.
    */
-  static * scanForServerHooks(instance: Gateway): IterableIterator<string> {
+  static *scanForServerHooks(instance: AppGateway): IterableIterator<string> {
     for (const property in instance) {
-      if (typeof property !== 'function') {
+      if (isFunction(property)) {
         continue;
       }
 
-      const isServer = Reflect.getMetadata('__isSocketServer', instance, String(property));
-      if (typeof isServer !== 'undefined') {
+      const isServer = Reflect.getMetadata(SOCKET_SERVER_METADATA, instance, String(property));
+      if (isUndefined(isServer)) {
         yield String(property);
       }
     }

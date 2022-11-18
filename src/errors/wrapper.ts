@@ -1,7 +1,15 @@
 import { ExceptionHandler } from './handler';
 
+/**
+ * Represents an error wrapper.
+ */
 export class ExceptionWrapper {
-  public static run(callback: () => void): void {
+  /**
+   * Runs applications or functions in a safe area.
+   *
+   * @param callback Callback to be checked by this wrapper.
+   */
+  static run(callback: () => void): void {
     try {
       callback();
     } catch (error) {

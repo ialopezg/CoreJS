@@ -1,12 +1,23 @@
-import { ColorService as color, RuntimeException } from '../common';
+import { LoggerService, RuntimeException } from '../common';
 
+/**
+ * Handles error type objects and resolve them according its behaviour.
+ */
 export class ExceptionHandler {
-  static handle(error: RuntimeException | Error) {
-    if (error instanceof RuntimeException) {
-      console.log(color.red('[CoreJS] Runtime error!'));
-      console.log(color.yellow(error.getMessage()));
+  private static readonly logger = new LoggerService(ExceptionHandler.name);
+
+  /**
+   * Handle given error object.
+   *
+   * @param exception Error object.
+   */
+  static handle(exception: Error | RuntimeException): void {
+    if (!(exception instanceof RuntimeException)) {
+      this.logger.error(exception.message, exception.stack);
+
+      return;
     }
-    console.log(color.bolder(color.red('Stack trace:')));
-    console.log(error.stack);
+
+    this.logger.error(exception.getMessage(), exception.stack);
   }
 }

@@ -6,7 +6,7 @@ import { UnknownRequestMappingException } from '../../../errors/exceptions';
 
 describe('RoutesMapper', () => {
   @Controller({ path: 'test' })
-  class TestRoute {
+  class TestController {
     @RequestMapping({ path: 'test' })
     getTest() {}
 
@@ -22,17 +22,17 @@ describe('RoutesMapper', () => {
 
   it('should map @Controller() to "ControllerMetadata" in forRoutes', () => {
     const config = {
-      middlewares: 'Test',
+      middlewares: 'TestMiddleware',
       forRoutes: [
         { path: 'test', method: RequestMethod.GET },
-        TestRoute,
+        TestController,
       ],
     };
 
     expect(mapper.mapControllerToControllerMetadata(config.forRoutes[0])).to.deep.equal([{
-      path: '/test', method: RequestMethod.GET,
+      path: '/test',
+      method: RequestMethod.GET,
     }]);
-
     expect(mapper.mapControllerToControllerMetadata(config.forRoutes[1])).to.deep.equal([
       { path: '/test/test', method: RequestMethod.GET },
       { path: '/test/another', method: RequestMethod.DELETE },
@@ -41,8 +41,10 @@ describe('RoutesMapper', () => {
 
   it('should throw exception when invalid object was passed as route', () => {
     const config = {
-      middlewares: 'Test',
-      forRoutes: [{ method: RequestMethod.GET }],
+      middlewares: 'TestMiddleware',
+      forRoutes: [
+        { method: RequestMethod.GET },
+      ],
     };
 
     expect(

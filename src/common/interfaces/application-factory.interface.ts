@@ -1,11 +1,18 @@
-import * as express from 'express';
+import { Application } from 'express';
 
 /**
- * Application Factory prototype.
+ * Defines a prototype for App objects.
  */
 export interface ApplicationFactory {
   /**
-   * Application constructor.
+   * Constructor method.
+   *
+   * @param app Express application to be implemented.
    */
-  new (app: express.Application);
+  new(app: Application);
+
+  /**
+   * Application name.
+   */
+  name?: string;
 }

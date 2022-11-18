@@ -18,6 +18,10 @@ export const isConstructor = (fn: any): boolean => {
 
     return true;
   } catch (error: any) {
-    return error.message.indexOf('is not a constructor') < 0;
+    try {
+      return fn === 'constructor';
+    } catch (e: any) {
+      return false;
+    }
   }
 };

@@ -1,17 +1,18 @@
 import 'reflect-metadata';
 
-import { InvalidModuleConfigurationException } from '../../errors';
+import { InvalidModuleConfigurationException } from '../../errors/exceptions';
+import { metadata } from '../constants';
 import { ModuleMetadata } from '../interfaces';
 
 /**
  * Define the module metadata on the target.
  *
- * @param metadata An object that contains attached metadata.
+ * @param props An object that contains attached metadata.
  * @constructor
  */
-export const Module = (metadata: ModuleMetadata): ClassDecorator => {
-  const properties = Object.keys(metadata);
-  const acceptableProperties = ['modules', 'components', 'controllers', 'exports'];
+export const Module = (props: ModuleMetadata): ClassDecorator => {
+  const properties = Object.keys(props);
+  const acceptableProperties = [metadata.MODULES, metadata.CONTROLLERS, metadata.COMPONENTS, metadata.EXPORTS];
 
   properties.forEach((property: string) => {
     if (acceptableProperties.findIndex((param: string) => param === property) < 0) {
@@ -20,9 +21,9 @@ export const Module = (metadata: ModuleMetadata): ClassDecorator => {
   });
 
   return (target: Object) => {
-    for (const property in metadata) {
-      if ({}.hasOwnProperty.call(metadata, property)) {
-        Reflect.defineMetadata(property, metadata[property], target);
+    for (const property in props) {
+      if ({}.hasOwnProperty.call(props, property)) {
+        Reflect.defineMetadata(property, props[property], target);
       }
     }
   };

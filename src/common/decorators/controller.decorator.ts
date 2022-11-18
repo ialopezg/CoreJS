@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import { PATH_METADATA } from '../constants';
 
 import { ControllerMetadata } from '../interfaces';
 
@@ -16,6 +17,6 @@ export const Controller = (metadata: ControllerMetadata = defaultMetadata): Clas
   }
 
   return (target: Object) => {
-    Reflect.defineMetadata('path', metadata.path, target);
+    Reflect.defineMetadata(PATH_METADATA, metadata.path, target);
   };
 };

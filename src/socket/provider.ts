@@ -1,5 +1,6 @@
 import { Namespace, Server } from 'socket.io';
-import { SocketIOAdapter } from './adapters';
+import { validatePath } from '../common';
+import { SocketAdapter } from './adapters';
 import { SocketContainer } from './container';
 import { ObservableSocketServer } from './interfaces';
 import { ObservableSocket } from './observable-socket';
@@ -11,7 +12,7 @@ export class SocketServerProvider {
   constructor(private readonly container: SocketContainer) {}
 
   /**
-   * Scans if an ObservaSocketServer exists for given namespace and port.
+   * Scans if an ObservableSocketServer exists for given namespace and port.
    *
    * @param namespace Server namespace.
    * @param port Server port.
@@ -19,13 +20,9 @@ export class SocketServerProvider {
    * @returns An instance of ObservableSocketServer object.
    */
   scanForSocketServer(namespace: string, port: number): ObservableSocketServer {
-    let observableServer = this.container.getSocketSubjects(namespace, port);
+    const observableServer = this.container.getSocketSubjects(namespace, port);
 
-    if (!observableServer) {
-      observableServer = this.createSocketServer(namespace, port);
-    }
-
-    return observableServer;
+    return observableServer || this.createSocketServer(namespace, port);
   }
 
   /**
@@ -55,20 +52,20 @@ export class SocketServerProvider {
    */
   private getServerOfNamespace(namespace: string, port: number): Server | Namespace {
     if (namespace) {
-      return SocketIOAdapter.createWithNamespace(this.validateNamespace(namespace), port);
+      return SocketAdapter.createWithNamespace(this.validateNamespace(namespace), port);
     }
 
-    return SocketIOAdapter.create(port);
+    return SocketAdapter.create(port);
   }
 
   /**
-   * Validate a namescpace.
+   * Validate a namespace.
    *
    * @param namespace Namespace to be evaluated.
    *
    * @returns A normalized namespace.
    */
   private validateNamespace(namespace: string): string {
-    return namespace.charAt(0) !== '/' ? `/${namespace}` : namespace
+    return validatePath(namespace);
   }
 }

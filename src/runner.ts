@@ -1,26 +1,32 @@
 import * as express from 'express';
 
-import { ApplicationFactory, Application, AppModule } from './common/interfaces';
+import { Application, ApplicationFactory, ModuleMetaType } from './common/interfaces';
+import { LoggerService } from './common';
 import { ExpressAdapter } from './core/adapters';
+import { APPLICATION_START, APPLICATION_READY } from './core/constants';
 import { AppContainer, InstanceLoader } from './core/injector';
-import { MiddlewareModule } from './core/middleware/module';
-import { RoutesResolver } from './core/router';
 import { DependencyScanner } from './core/scanner';
-import { ExceptionWrapper } from './errors/wrapper';
+import { RoutesResolver } from './core/router';
 import { SocketModule } from './socket/module';
+import { MiddlewareModule } from './core/middleware/module';
+import { ExceptionWrapper } from './errors';
 
 export class AppRunner {
+  private static readonly logger = new LoggerService(AppRunner.name);
   private static readonly container = new AppContainer();
-  private static readonly scanner = new DependencyScanner(AppRunner.container);
-  private static readonly loader = new InstanceLoader(AppRunner.container);
-  private static readonly resolver = new RoutesResolver(AppRunner.container, ExpressAdapter);
+  private static dependenciesScanner = new DependencyScanner(AppRunner.container);
+  private static instanceLoader = new InstanceLoader(AppRunner.container);
+  private static routesResolver = new RoutesResolver(AppRunner.container, ExpressAdapter);
 
   /**
-   * App entry point.
+   * Application entry point.
+   *
+   * @param prototype Application prototype.
+   * @param target Target Application module.
    */
-  static run(prototype: ApplicationFactory, module: AppModule | any): void {
+  static run(prototype: ApplicationFactory, target: ModuleMetaType): void {
     ExceptionWrapper.run(() => {
-      this.initialize((module));
+      this.initialize(target);
       this.setupModules();
       this.startApplication(prototype);
     });
@@ -29,59 +35,68 @@ export class AppRunner {
   /**
    * Initialize all modules and their dependencies/
    *
-   * @param module Module to be initialized.
+   * @param target Module to be initialized.
    */
-  private static initialize(module: AppModule): void {
-    this.scanner.scan(module);
-    this.loader.createInstancesOfDependencies();
+  private static initialize(target: ModuleMetaType) {
+    this.logger.log(APPLICATION_START);
+
+    this.dependenciesScanner.scan(target);
+    this.instanceLoader.createInstancesOfDependencies();
   }
 
   /**
    * Setup all additional modules.
    */
-  private static setupModules(): void {
-    SocketModule.setup(AppRunner.container);
-    MiddlewareModule.setup(AppRunner.container);
-  }
-
-  private static startApplication(prototype: ApplicationFactory): void {
-    const application = this.setupApplication(prototype);
-    application.start();
+  private static setupModules() {
+    SocketModule.setup(this.container);
+    MiddlewareModule.setup(this.container);
   }
 
   /**
-   * Set up the application to be loaded.
+   * Start the main application with given parameters.
    *
-   * @param prototype Application prototype.
-   *
-   * @returns The instance of requested application.
+   * @param prototype Application prototype to be loaded.
    */
-  private static setupApplication<T extends ApplicationFactory>(prototype: T): Application {
-    const expressInstance = express();
-    // eslint-disable-next-line new-cap
-    const application = new prototype(expressInstance);
+  private static startApplication(prototype: ApplicationFactory) {
+    const appInstance = this.setupApplication(prototype);
+
+    this.logger.log(APPLICATION_READY);
+
+    appInstance.start();
+  }
+
+  /**
+   * Set up the main application.
+   *
+   * @param app Application prototype to be set up.
+   *
+   * @returns An application base.
+   */
+  private static setupApplication<T extends ApplicationFactory>(app: T): Application {
+    const expressInstance = ExpressAdapter.create();
+    const appInstance = new app(expressInstance);
 
     this.setupMiddlewares(expressInstance);
     this.setupRoutes(expressInstance);
 
-    return application;
+    return appInstance;
   }
 
   /**
-   * Setup all middlewares for given Express application.
+   * Setup module middlewares.
    *
-   * @param application Express application to be used.
+   * @param expressInstance Express Application to be used.
    */
-  private static setupMiddlewares(application: express.Application): void {
-    MiddlewareModule.setupMiddlewares(application);
+  private static setupMiddlewares(expressInstance: express.Application) {
+    MiddlewareModule.setupMiddlewares(expressInstance);
   }
 
   /**
-   * Setup all routes for given Express application.
+   * Setup module routes.
    *
-   * @param application Express application to be used.
+   * @param expressInstance Express Application to be used.
    */
-  private static setupRoutes(application: express.Application): void {
-    this.resolver.resolve(application);
+  private static setupRoutes(expressInstance: express.Application) {
+    this.routesResolver.resolve(expressInstance);
   }
 }

@@ -1,35 +1,52 @@
-import { AppModule } from '../../common';
-import { Controller } from '../../common/interfaces';
-import { Middleware, MiddlewareConfiguration, MiddlewareProto } from './interfaces';
+import { Controller, MetaType } from '../../common/interfaces';
+import { AppMiddleware, MiddlewareConfiguration } from './interfaces';
 import { RoutesMapper } from './mapper';
+
+/**
+ * Defines a prototype for Middleware wrapper objects.
+ */
+export interface MiddlewareWrapper {
+  /**
+   * Middleware instance.
+   */
+  instance: AppMiddleware;
+
+  /**
+   * Middleware MetaType.
+   */
+  metaType: MetaType<AppMiddleware>;
+}
 
 /**
  * Represents a container for middleware configurations.
  */
 export class MiddlewareContainer {
-  private readonly middlewares = new Map<AppModule, Map<MiddlewareProto, Middleware>>();
-  private readonly configs = new Map<AppModule, Set<MiddlewareConfiguration>>();
+  private readonly middlewares = new Map<string, Map<string, MiddlewareWrapper>>();
+  private readonly configs = new Map<string, Set<MiddlewareConfiguration>>();
 
   /**
    * Creates a new instance of this class with given parameters.
    *
    * @param mapper RoutesMapper object.
    */
-  constructor(private readonly mapper: RoutesMapper) {}
+  constructor(private readonly mapper: RoutesMapper) { }
 
   /**
    * Add a configuration to current middlewares configuration.
    *
    * @param configList Configuration to be added.
-   * @param module Module that contains the configuration to be added.
+   * @param moduleName Module that contains the configuration to be added.
    */
-  addConfig(configList: MiddlewareConfiguration[], module: AppModule | any): void {
-    const middlewares = this.getCurrentMiddlewares(module);
-    const configs = this.getCurrentConfigs(module);
+  addConfig(configList: MiddlewareConfiguration[], moduleName: string): void {
+    const middlewares = this.getCurrentMiddlewares(moduleName);
+    const configs = this.getCurrentConfigs(moduleName) || new Set<MiddlewareConfiguration>();
 
     (configList || []).forEach((config: MiddlewareConfiguration) => {
-      [].concat(config.middlewares).forEach((middleware: any) => {
-        middlewares.set(middleware, null);
+      [].concat(config.middlewares).forEach((metaType: any) => {
+        middlewares.set(metaType.name, {
+          instance: null,
+          metaType,
+        });
       });
 
       config.forRoutes = this.mapControllersToFlatList(config.forRoutes);
@@ -42,42 +59,43 @@ export class MiddlewareContainer {
    *
    * @returns A collection of MiddlewareConfiguration.
    */
-  getConfigs(): Map<AppModule, Set<MiddlewareConfiguration>> {
+  getConfigs(): Map<string, Set<MiddlewareConfiguration>> {
     return this.configs;
   }
 
   /**
-   * Gets the collection of Middlewares for given module.
+   * Gets the collection of Middlewares for given module name.
    *
+   * @param module Module name.
    * @returns A collection of Middlewares.
    */
-  getMiddlewares(module: AppModule): Map<MiddlewareProto, Middleware> {
+  getMiddlewares(module: string): Map<string, MiddlewareWrapper> {
     return this.middlewares.get(module) || new Map();
   }
 
   /**
    * Get current middlewares for given module.
    *
-   * @param module Module to be analyzed.
+   * @param moduleName Module to be analyzed.
    *
    * @returns The middleware list.
    */
-  private getCurrentMiddlewares(module: AppModule): Map<MiddlewareProto, Middleware> {
-    if (!this.middlewares.has(module)) {
-      this.middlewares.set(module, new Map<MiddlewareProto, Middleware>());
+  private getCurrentMiddlewares(moduleName: string): Map<string, MiddlewareWrapper> {
+    if (!this.middlewares.has(moduleName)) {
+      this.middlewares.set(moduleName, new Map<string, MiddlewareWrapper>());
     }
 
-    return this.middlewares.get(module);
+    return this.middlewares.get(moduleName);
   }
 
   /**
-   * Get current configuration list for given module.
-   *
-   * @param module Module to be analyzed.
-   *
-   * @returns The configuration list.
-   */
-  private getCurrentConfigs(module: AppModule): Set<MiddlewareConfiguration> {
+  * Get current configuration list for given module.
+  *
+  * @param module Module to be analyzed.
+  *
+  * @returns The configuration list.
+  */
+  private getCurrentConfigs(module: string): Set<MiddlewareConfiguration> {
     if (!this.configs.has(module)) {
       this.configs.set(module, new Set<MiddlewareConfiguration>());
     }

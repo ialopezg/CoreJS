@@ -1,12 +1,16 @@
 import { Application } from 'express';
 
-import { AppModule, RequestMethod } from '../../common';
-import { ControllerMetadata } from '../../common/interfaces';
-import { InvalidMiddlewareException, UnknownMiddlewareException } from '../../errors/exceptions';
-import { AppContainer, ModuleDependency } from '../injector';
+import { AppModule, isUndefined, RequestMethod, RuntimeException } from '../../common';
+import { ControllerMetadata, MetaType } from '../../common/interfaces';
+import { InvalidMiddlewareException } from '../../errors/exceptions';
+import { ExceptionHandler } from '../exceptions';
+import { RouterMethodFactory } from '../helpers';
+import { AppContainer } from '../injector';
+import { Module } from '../injector/module';
+import { RouterProxy } from '../router';
 import { MiddlewareBuilder } from './builder';
-import { MiddlewareContainer } from './container';
-import { MiddlewareConfiguration } from './interfaces';
+import { MiddlewareContainer, MiddlewareWrapper } from './container';
+import { AppMiddleware, MiddlewareConfiguration } from './interfaces';
 import { RoutesMapper } from './mapper';
 import { MiddlewareResolver } from './resolver';
 
@@ -16,6 +20,8 @@ import { MiddlewareResolver } from './resolver';
 export class MiddlewareModule {
   private static readonly container = new MiddlewareContainer(new RoutesMapper());
   private static resolver: MiddlewareResolver;
+  private static proxy = new RouterProxy(new ExceptionHandler());
+  private static factory = new RouterMethodFactory();
 
   /**
    * Gets the current container object.
@@ -45,10 +51,10 @@ export class MiddlewareModule {
   static setupMiddlewares(application: Application): void {
     const configs = this.container.getConfigs();
 
-    configs.forEach((moduleConfig: Set<MiddlewareConfiguration>, module: AppModule) => {
-      [...moduleConfig].forEach((config: MiddlewareConfiguration) => {
-        config.forRoutes.forEach((controller: ControllerMetadata & { method?: RequestMethod }) => {
-          this.setupControllerMiddleware(controller, config, module, application);
+    configs.forEach((moduleConfig, moduleName) => {
+      [...moduleConfig].forEach((config) => {
+        config.forRoutes.forEach((controller: ControllerMetadata & { method: RequestMethod }) => {
+          this.setupControllerMiddleware(controller, config, moduleName, application);
         });
       });
     });
@@ -59,55 +65,51 @@ export class MiddlewareModule {
    *
    * @param controller Controller to be setup.
    * @param config Middleware configuration to be applied.
-   * @param module Module that contains the Controller.
+   * @param moduleName Module that contains the Controller.
    * @param application Express application to be used.
    */
   static setupControllerMiddleware(
-    controller: ControllerMetadata & { method?: RequestMethod },
+    controller: ControllerMetadata & { method: RequestMethod },
     config: MiddlewareConfiguration,
-    module: AppModule,
+    moduleName: string,
     application: Application,
   ): void {
     const { path, method } = controller;
-
     [].concat(config.middlewares).forEach((target: any) => {
-      const middlewares = this.container.getMiddlewares(module);
-      const middleware = middlewares.get(target);
-
-      if (typeof middleware === 'undefined') {
-        throw new UnknownMiddlewareException();
+      const middlewares = this.container.getMiddlewares(moduleName);
+      const middleware: MiddlewareWrapper = middlewares.get(target.name);
+      if (isUndefined(middleware)) {
+        throw new RuntimeException();
       }
 
-      if (typeof middleware.resolve === 'undefined') {
-        throw new InvalidMiddlewareException();
-      }
-
-      const router = this.findRouterMethod(application, method).bind(application);
-      router(path, middleware.resolve());
+      this.setupHandler(middleware.instance, target, application, method, path);
     });
   }
 
   /**
-   * Gets the callback for HTTP request method.
+   * Set up the handler for a express route.
    *
-   * @param application Express application.
-   * @param requestMethod HTTP Request method.
-   *
-   * @returns A callback for given HTTP request method.
+   * @param instance Application middleware instance,
+   * @param metaType Middleware MetaType information.
+   * @param app Express application.
+   * @param method HTTP Request method.
+   * @param path Route path.
    */
-  private static findRouterMethod(application: Application, requestMethod: RequestMethod) {
-    switch (requestMethod) {
-      case RequestMethod.ALL:
-        return application.all;
-      case RequestMethod.DELETE:
-        return application.delete;
-      case RequestMethod.POST:
-        return application.post;
-      case RequestMethod.PUT:
-        return application.put;
-      default:
-        return application.get;
+  private static setupHandler(
+    instance: AppMiddleware,
+    metaType: MetaType<AppMiddleware>,
+    app: Application,
+    method: RequestMethod,
+    path: string,
+  ) {
+    if (isUndefined(instance.resolve)) {
+      throw new InvalidMiddlewareException(metaType.name);
     }
+
+    const router = this.factory.get(app, method).bind(app);
+    const proxy = this.proxy.create(instance.resolve());
+
+    router(path, proxy);
   }
 
   /**
@@ -115,22 +117,22 @@ export class MiddlewareModule {
    *
    * @param modules Modules to be analyzed.
    */
-  static resolveMiddlewares(modules: Map<AppModule, ModuleDependency>): void {
-    modules.forEach((module: ModuleDependency, prototype: AppModule) => {
-      const instance = module.instance;
+  static resolveMiddlewares(modules: Map<string, Module>): void {
+    modules.forEach((target: Module, moduleName: string) => {
+      const instance = target.instance;
 
-      this.loadConfiguration(instance, prototype);
-      this.resolver.resolveInstances(module, prototype);
+      this.loadConfiguration(instance, moduleName);
+      this.resolver.resolveInstances(target, moduleName);
     });
   }
 
   /**
-   * Loads the configuration for given module instance.
+   * Loads the configuration for given module instansce.
    *
    * @param instance Module instance.
-   * @param prototype Module prototype.
+   * @param moduleName Module prototype.
    */
-  static loadConfiguration(instance: AppModule | any, prototype: AppModule): void {
+  static loadConfiguration(instance: AppModule, moduleName: string): void {
     if (!instance.configure) {
       return;
     }
@@ -139,7 +141,7 @@ export class MiddlewareModule {
     instance.configure(builder);
 
     if (builder instanceof MiddlewareBuilder) {
-      this.container.addConfig(builder.build(), prototype);
+      this.container.addConfig(builder.build(), moduleName);
     }
   }
 }

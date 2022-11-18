@@ -1,3 +1,4 @@
+import { Namespace, Server } from 'socket.io';
 import { ObservableSocketServer, SocketServerData } from './interfaces';
 
 /**

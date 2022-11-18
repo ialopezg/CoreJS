@@ -1,6 +1,7 @@
-import { isUndefined } from './index';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
+
+import { isUndefined } from './is-undefined.helper';
 
 /**
  * Hash a text with given parameters.

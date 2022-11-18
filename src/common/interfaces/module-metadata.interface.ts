@@ -1,15 +1,15 @@
-import { AppModule } from '../index';
+import { Module } from '../index';
 import { Controller } from './controller.interface';
 import { Injectable } from './injectable.interface';
 
 /**
- * Metadata information for a @Module anotation.
+ * Metadata information for a @Module annotation.
  */
 export interface ModuleMetadata {
   /**
    * Child module list.
    */
-  modules?: (AppModule | any)[];
+  modules?: (Module | any)[];
   /**
    * Component list.
    */

@@ -1,9 +1,9 @@
 import { expect } from 'chai';
-import { NextFunction, Request, Response } from 'express';
 import * as sinon from 'sinon';
 
 import { RouterProxy } from '../../router';
-import { ExceptionHandler, Exception } from '../../exceptions';
+import { ExceptionHandler } from '../../exceptions';
+import { HttpException } from '../../../common';
 
 describe('RouterProxy', () => {
   let routerProxy: RouterProxy;
@@ -17,25 +17,27 @@ describe('RouterProxy', () => {
 
   describe('createProxy', () => {
     it('should method return thunk', () => {
-      const proxy = routerProxy.create(() => {});
-
+      const proxy = routerProxy.create(() => { });
       expect(typeof proxy === 'function').to.be.true;
     });
 
     it('should method encapsulate callback passed as argument', () => {
       const expectation = handlerMock.expects('next').once();
-      const proxy = routerProxy.create((_request: Request, _response: Response, _next: NextFunction) => {
-        throw new Exception('test', 500);
+      const proxy = routerProxy.create((_req: any, _res: any, _next: any) => {
+        throw new HttpException('test', 500);
       });
+
       proxy(null, null, null);
+
       expectation.verify();
     });
 
     it('should method encapsulate async callback passed as argument', (done) => {
       const expectation = handlerMock.expects('next').once();
-      const proxy = routerProxy.create(async (_request: Request, _response: Response, _next: NextFunction) => {
-        throw new Exception('test', 500);
+      const proxy = routerProxy.create(async (_req, _res, next_) => {
+        throw new HttpException('test', 500);
       });
+
       proxy(null, null, null);
 
       setTimeout(() => {

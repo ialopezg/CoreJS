@@ -1,4 +1,4 @@
-import { RuntimeException } from '../../common/exceptions/runtime.exception';
+import { RuntimeException } from '../../common';
 
 /**
  * Defines an error when the Gateway port is invalid.

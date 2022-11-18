@@ -1,7 +1,7 @@
 /**
- * Defines the metadata for an injectable component in the target.
+ * Define the component metadata on the target.
  * @constructor
  */
 export const Component = (): ClassDecorator => {
-  return (_target: Object) => {};
+  return (_target: Object) => { };
 };

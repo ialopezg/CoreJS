@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+
 import { ExceptionHandler } from '../exceptions';
 
 /**
@@ -25,7 +26,7 @@ export class RouterProxy {
    * @param callback Callback to be used.
    * @returns
    */
-  create(callback: RouterProxyCallback): (request: Request, response: Response, next: NextFunction) => void {
+  create(callback: RouterProxyCallback): any {
     return (request: Request, response: Response, next: NextFunction) => {
       try {
         Promise.resolve(callback(request, response, next)).catch((error: any) => {

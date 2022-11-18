@@ -4,15 +4,19 @@ import { ReplaySubject, Subject } from 'rxjs';
 import { Namespace, Server } from 'socket.io';
 
 import { Injectable } from '../common/interfaces';
+import { NAMESPACE_METADATA, PORT_METADATA } from './constants';
 import { InvalidSocketPortException } from './exceptions';
 import { GatewayMetadataExplorer, MessageMappingProperty } from './explorer';
-import { Gateway, ObservableSocketServer } from './interfaces';
+import { AppGateway, ObservableSocketServer } from './interfaces';
 import { SocketServerProvider } from './provider';
 
 /**
  * Defines a subjects controller.
  */
 export class SubjectsController {
+  private readonly CONNECTION_EVENT = 'connection';
+  private readonly DISCONNECT_EVENT = 'disconnect';
+
   constructor(private readonly provider: SocketServerProvider) {}
 
   /**
@@ -21,9 +25,9 @@ export class SubjectsController {
    * @param instance Instance to be binded.
    * @param component Injectable object instance to be used.
    */
-  hookGatewayIntoServer(instance: Gateway, component: Injectable): void {
-    const namespace = Reflect.getMetadata('namespace', component) || '';
-    const port = Reflect.getMetadata('port', component) || 8080;
+  hookGatewayIntoServer(instance: AppGateway, component: Injectable): void {
+    const namespace = Reflect.getMetadata(NAMESPACE_METADATA, component) || '';
+    const port = Reflect.getMetadata(PORT_METADATA, component) || 3001;
 
     if (!Number.isInteger(port)) {
       throw new InvalidSocketPortException(port, component);
@@ -39,7 +43,7 @@ export class SubjectsController {
    * @param namespace Server namespace.
    * @param port Server port.
    */
-  private subscribeObservableServer(instance: Gateway, namespace: string, port: number): void {
+  private subscribeObservableServer(instance: AppGateway, namespace: string, port: number): void {
     const messageHandlers = GatewayMetadataExplorer.explore(instance);
     const observableServer = this.provider.scanForSocketServer(namespace, port);
 
@@ -53,7 +57,7 @@ export class SubjectsController {
    * @param instance Instance to be analyzed.
    * @param server Server IO object.
    */
-  private hookServerToProperties(instance: Gateway, server: Server | Namespace): void {
+  private hookServerToProperties(instance: AppGateway, server: Server | Namespace): void {
     for (const property of GatewayMetadataExplorer.scanForServerHooks(instance)) {
       Reflect.set(instance, property, server);
     }
@@ -67,22 +71,22 @@ export class SubjectsController {
    * @param observableServer ObservableSocketServer to be used.
    */
   private subscribeEvents(
-    instance: Gateway,
+    instance: AppGateway,
     messageHandlers: MessageMappingProperty[],
     observableServer: ObservableSocketServer,
   ): void {
     const { init, connection, disconnect, server } = observableServer;
 
     this.subscribeInitEvent(instance, init);
-    init.next(server);
 
-    server.on('connection', (client: any) => {
+    init.next(server);
+    server.on(this.CONNECTION_EVENT, (client: any) => {
       this.subscribeConnectionEvent(instance, connection);
       connection.next(client);
 
       this.subscribeMessages(messageHandlers, client, instance);
       this.subscribeDisconnectEvent(instance, disconnect);
-      client.on('disconnect', (client: any) => disconnect.next(client));
+      client.on(this.DISCONNECT_EVENT, (client: any) => disconnect.next(client));
     });
   }
 
@@ -92,7 +96,7 @@ export class SubjectsController {
    * @param instance Instance to be binded.
    * @param event Init event.
    */
-  private subscribeInitEvent(instance: Gateway, event: ReplaySubject<any>): void {
+  private subscribeInitEvent(instance: AppGateway, event: ReplaySubject<any>): void {
     if (instance.afterInit) {
       event.subscribe(instance.afterInit.bind(instance));
     }
@@ -104,7 +108,7 @@ export class SubjectsController {
    * @param instance Instance to be binded.
    * @param event Connection event.
    */
-  private subscribeConnectionEvent(instance: Gateway, event: Subject<any>): void {
+  private subscribeConnectionEvent(instance: AppGateway, event: Subject<any>): void {
     if (instance.handleConnection) {
       event.subscribe(instance.handleConnection.bind(instance));
     }
@@ -116,7 +120,7 @@ export class SubjectsController {
    * @param instance Instance to be binded.
    * @param event Disconnect event.
    */
-  private subscribeDisconnectEvent(instance: Gateway, event: Subject<any>) {
+  private subscribeDisconnectEvent(instance: AppGateway, event: Subject<any>) {
     if (instance.handleDisconnect) {
       event.subscribe(instance.handleDisconnect.bind(instance));
     }
@@ -132,7 +136,7 @@ export class SubjectsController {
   private subscribeMessages(
     messageHandlers: MessageMappingProperty[],
     client: any,
-    instance: Gateway,
+    instance: AppGateway,
   ) {
     messageHandlers.map(({ message, callback }: MessageMappingProperty) => {
       client.on(message, callback.bind(instance, client));

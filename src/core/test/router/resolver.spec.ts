@@ -1,17 +1,22 @@
-import { expect } from 'chai';
 import * as sinon from 'sinon';
-
+import { expect } from 'chai';
 import { RoutesResolver } from '../../router';
 import { Controller, RequestMapping, RequestMethod } from '../../../common';
+import { AppMode } from '../../../common/enums';
 
 describe('RoutesResolver', () => {
   @Controller({ path: 'global' })
   class TestController {
     @RequestMapping({ path: 'test' })
-    getTest() {}
+    getTest() {
+    }
 
-    @RequestMapping({ path: 'another-test', method: RequestMethod.POST })
-    anotherTest() {}
+    @RequestMapping({
+      path: 'another-test',
+      method: RequestMethod.POST,
+    })
+    anotherTest() {
+    }
   }
 
   let router: any;
@@ -27,14 +32,16 @@ describe('RoutesResolver', () => {
   beforeEach(() => {
     routesResolver = new RoutesResolver(null, {
       createRouter: () => router,
-    });
+    }, AppMode.TEST);
   });
 
-  describe('setupControllers', () => {
+  describe('setupRouters', () => {
     it('should method setup controllers to express application instance', () => {
       const routes = new Map();
-      routes.set(TestController, { instance: new TestController() });
-
+      routes.set('TestController', {
+        instance: new TestController(),
+        metaType: TestController,
+      });
       const use = sinon.spy();
       const applicationMock = { use };
 

@@ -1,6 +1,5 @@
-import {
-  InvalidMiddlewareConfigurationException,
-} from '../../errors/exceptions/invalid-middleware-configuration.exception';
+import { isUndefined } from '../../common';
+import { InvalidMiddlewareConfigurationException } from '../../errors/exceptions';
 import { MiddlewareConfiguration } from './interfaces';
 
 /**
@@ -12,16 +11,16 @@ export class MiddlewareBuilder {
   /**
    * Use given configuration over route collection in the collection.
    *
-   * @param config Configuration to be applied over the route or route collection.
+   * @param configuration Configuration to be applied over the route or route collection.
    *
    * @returns An instance of this class
    */
-  use(config: MiddlewareConfiguration): MiddlewareBuilder {
-    if (typeof config.middlewares === 'undefined' || typeof config.forRoutes === 'undefined') {
+  use(configuration: MiddlewareConfiguration): MiddlewareBuilder {
+    if (isUndefined(configuration.middlewares) || isUndefined(configuration.forRoutes)) {
       throw new InvalidMiddlewareConfigurationException();
     }
 
-    this.configs.add(config);
+    this.configs.add(configuration);
 
     return this;
   }
@@ -31,7 +30,7 @@ export class MiddlewareBuilder {
    *
    * @returns A MiddlewareConfiguration collection.
    */
-  build(): MiddlewareConfiguration[] {
+  build(): any {
     return [...this.configs];
   }
 }

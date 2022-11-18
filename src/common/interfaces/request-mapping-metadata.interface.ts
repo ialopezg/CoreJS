@@ -7,7 +7,7 @@ export interface RequestMappingMetadata {
   /**
    * Method or route path.
    */
-  path: string;
+  path?: string;
   /**
    * HTTP Request Method.
    */

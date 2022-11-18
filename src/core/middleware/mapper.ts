@@ -1,5 +1,5 @@
-import { RequestMethod } from '../../common';
-import { Controller } from '../../common/interfaces';
+import { RequestMethod, PATH_METADATA, isUndefined, validatePath } from '../../common';
+import { RequestMappingMetadata } from '../../common/interfaces';
 import { UnknownRequestMappingException } from '../../errors/exceptions';
 import { RouterBuilder } from '../router';
 
@@ -12,43 +12,44 @@ export class RoutesMapper {
   /**
    * Maps a Controller instance to middleware properties.
    *
-   * @param controller Controller instance to be mapped.
+   * @param route Controller instance to be mapped.
    *
-   * @returns A collection caontaining route properties.
+   * @returns A collection containing route properties.
    */
-  mapControllerToControllerMetadata(controller: Controller | any) {
-    const controllerPath = Reflect.getMetadata('path', controller);
-
-    if (typeof controllerPath === 'undefined') {
-      return [this.mapObjectToControllerProps(controller)];
+  mapControllerToControllerMetadata(route: any) {
+    const routePath: string = Reflect.getMetadata(PATH_METADATA, route);
+    if (isUndefined(routePath)) {
+      return [this.mapObjectToRouteProps(route)];
     }
 
-    const paths = this.builder.scanPathsFromPrototype(
-      Object.create(controller),
-      controller.prototype,
-    );
+    const paths = this.builder.scanPathsFromPrototype(Object.create(route), route.prototype);
 
-    return paths.map((route: any) => ({
-      path: `${this.validateRoutePath(controllerPath)}${this.validateRoutePath(route.path)}`,
-      method: route.method,
+    return paths.map((singlePath) => ({
+      path: this.validateRoutePath(routePath) + this.validateRoutePath(singlePath.path),
+      method: singlePath.method,
     }));
   }
 
   /**
-   * Map an object to ControllerMetadata properties.
+   * Map an object to RequestMappingMetadata properties.
    *
-   * @param controller Controller instance to be mapped.
+   * @param route Controller instance to be mapped.
    *
    * @returns An object containing the path and method requested.
    */
-  private mapObjectToControllerProps(controller: any) {
-    if (typeof controller.path === 'undefined') {
+  private mapObjectToRouteProps(route: RequestMappingMetadata) {
+    const {
+      path,
+      method,
+    } = route;
+
+    if (isUndefined(path)) {
       throw new UnknownRequestMappingException();
     }
 
     return {
-      path: this.validateRoutePath(controller.path),
-      method: (typeof controller.method === 'undefined') ? RequestMethod.ALL : controller.method,
+      path: this.validateRoutePath(path),
+      method: (isUndefined(method)) ? RequestMethod.ALL : method,
     };
   }
 
@@ -60,6 +61,6 @@ export class RoutesMapper {
    * @returns THe path properly validated.
    */
   private validateRoutePath(path: string): string {
-    return (path.charAt(0) !== '/') ? '/' + path : path;
+    return validatePath(path);
   }
 }

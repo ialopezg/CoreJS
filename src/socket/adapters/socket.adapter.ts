@@ -3,7 +3,7 @@ import { Namespace, Server } from 'socket.io';
 /**
  * Defines an object that creates Socket Server instances.
  */
-export class SocketIOAdapter {
+export class SocketAdapter {
   /**
    * Creates a Socket Server instance with given port number.
    *
@@ -18,7 +18,6 @@ export class SocketIOAdapter {
   /**
    * Creates a Socket Server instance with given namespace and port number.
    *
-   * @param namespace Namespace name.
    * @param port Server port.
    *
    * @returns An instance of Socket Server.
