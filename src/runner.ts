@@ -15,7 +15,7 @@ export class AppRunner {
   private static readonly logger = new LoggerService(AppRunner.name);
   private static readonly container = new AppContainer();
   private static dependenciesScanner = new DependencyScanner(AppRunner.container);
-  private static instanceLoader = new InstanceLoader(AppRunner.container);
+  private static loader = new InstanceLoader(AppRunner.container);
   private static routesResolver = new RoutesResolver(AppRunner.container, ExpressAdapter);
 
   /**
@@ -41,7 +41,7 @@ export class AppRunner {
     this.logger.log(APPLICATION_START);
 
     this.dependenciesScanner.scan(target);
-    this.instanceLoader.createInstancesOfDependencies();
+    this.loader.createInstancesOfDependencies();
   }
 
   /**
@@ -74,6 +74,7 @@ export class AppRunner {
    */
   private static setupApplication<T extends ApplicationFactory>(app: T): Application {
     const expressInstance = ExpressAdapter.create();
+    // eslint-disable-next-line new-cap
     const appInstance = new app(expressInstance);
 
     this.setupMiddlewares(expressInstance);

@@ -18,10 +18,7 @@ export class Injector {
    * @param instance Object to use as a prototype.
    * @param collection Collection that contains the prototype to be created.
    */
-  loadPrototypeOfInstance<T>(
-    instance: MetaType<T>,
-    collection: Map<string, InstanceWrapper<T>>,
-  ): void {
+  loadPrototypeOfInstance<T>(instance: MetaType<T>, collection: Map<string, InstanceWrapper<T>>): void {
     if (!collection || collection.get(instance.name).resolved) {
       return;
     }
@@ -86,11 +83,7 @@ export class Injector {
    * @param collection Component collection.
    * @param target Container Module.
    */
-  loadInstance<T>(
-    prototype: MetaType<T>,
-    collection: Map<any, InstanceWrapper<any>>,
-    target: Module,
-  ): void {
+  loadInstance<T>(prototype: MetaType<T>, collection: Map<any, InstanceWrapper<any>>, target: Module): void {
     const fetchedInstance = collection.get(prototype.name);
     if (isUndefined(fetchedInstance)) {
       throw new RuntimeException();
@@ -117,11 +110,7 @@ export class Injector {
    * @param target Container Module.
    * @param callback Actions to be executed after resolve the Injectable Component objects.
    */
-  private resolveConstructorParams<T>(
-    prototype: MetaType<T>,
-    target: Module,
-    callback: Function,
-  ): void {
+  private resolveConstructorParams<T>(prototype: MetaType<T>, target: Module, callback: Function): void {
     let params = Reflect.getMetadata(PARAM_TYPES_METADATA, prototype) || [];
     if ((<any>prototype).dependencies) {
       params = (<any>prototype).dependencies;
@@ -140,11 +129,7 @@ export class Injector {
    *
    * @returns An instance of Injectable.
    */
-  private resolveSingleParam<T>(
-    prototype: MetaType<T>,
-    param: MetaType<any>,
-    target: Module,
-  ): Injectable {
+  private resolveSingleParam<T>(prototype: MetaType<T>, param: MetaType<any>, target: Module): Injectable {
     if (isUndefined(param)) {
       throw new RuntimeException();
     }
@@ -161,11 +146,7 @@ export class Injector {
    *
    * @returns An instance of Injectable.
    */
-  private resolveComponentInstance<T>(
-    target: Module,
-    param: MetaType<any>,
-    prototype: MetaType<T>,
-  ): Injectable {
+  private resolveComponentInstance<T>(target: Module, param: MetaType<any>, prototype: MetaType<T>): Injectable {
     const components = target.components;
     const instanceWrapper = this.scanForComponent<T>(components, param, target, prototype);
 
@@ -179,7 +160,7 @@ export class Injector {
   /**
    * Scan for a Component (Injectable) object.
    *
-   * @param components
+   * @param components Component list.
    * @param param Component to be looked up.
    * @param target Container Module.
    * @param prototype Component requesting the parameter Component.
@@ -209,12 +190,10 @@ export class Injector {
    *
    * @param target Container Module.
    * @param prototype Component to be looked up.
+   *
    * @returns An instance of InstanceWrapper<Injectable>.
    */
-  private scanForComponentInSubModules(
-    target: Module,
-    prototype: MetaType<any>,
-  ): InstanceWrapper<Injectable> {
+  private scanForComponentInSubModules(target: Module, prototype: MetaType<any>): InstanceWrapper<Injectable> {
     const modules = target.modules;
     let instanceWrapper = null;
 

@@ -12,10 +12,12 @@ export const metadata = {
  * Path metadata key name for Controller and RequestMapping decorators.
  */
 export const PATH_METADATA = 'path';
+
 /**
- * Param types metadata key name for constructor parammeters.
+ * Param types metadata key name for constructor parameters.
  */
 export const PARAM_TYPES_METADATA = 'design:paramtypes';
+
 /**
  * Method metadata key name for Controller and RequestMapping decorators.
  */

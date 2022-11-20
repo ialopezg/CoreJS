@@ -13,9 +13,15 @@ export class InstanceLoader {
   private readonly logger = new LoggerService(InstanceLoader.name);
   private injector = new Injector();
 
+  /**
+   * Creates an object that has the specified prototype.
+   *
+   * @param container Module container.
+   * @param mode Application execution mode.
+   */
   constructor(
     private readonly container: AppContainer,
-    private mode = AppMode.RUN
+    private mode = AppMode.RUN,
   ) { }
 
   /**
@@ -33,7 +39,7 @@ export class InstanceLoader {
    * @param modules Module object that contains the prototypes to be created.
    */
   private createPrototypes(modules: Map<string, Module>): void {
-    modules.forEach((module: Module) => {
+    modules.forEach((module) => {
       this.createPrototypesOfComponents(module);
       this.createPrototypesOfControllers(module);
     });
@@ -45,7 +51,7 @@ export class InstanceLoader {
    * @param modules ModuleDependency that contains the object to be instantiated.
    */
   private createInstances(modules: Map<string, Module>): void {
-    modules.forEach((module: Module, name: string) => {
+    modules.forEach((module, name) => {
       this.createInstancesOfComponents(module);
       this.createInstancesOfRoutes(module);
 
@@ -61,7 +67,7 @@ export class InstanceLoader {
    * @param target Module object that contains the Injectable prototypes to be created.
    */
   private createPrototypesOfComponents(target: Module): void {
-    target.components.forEach((wrapper: InstanceWrapper<Injectable>) => {
+    target.components.forEach((wrapper) => {
       this.injector.loadPrototypeOfInstance<Injectable>(wrapper.metaType, target.components);
     });
   }
@@ -72,7 +78,7 @@ export class InstanceLoader {
    * @param target Container Module.
    */
   private createInstancesOfComponents(target: Module): void {
-    target.components.forEach((wrapper: InstanceWrapper<Injectable>) => {
+    target.components.forEach((wrapper) => {
       this.injector.loadInstanceOfComponent(wrapper.metaType, target);
     });
   }
@@ -94,7 +100,7 @@ export class InstanceLoader {
    * @param target Container Module.
    */
   private createInstancesOfRoutes(target: Module) {
-    target.controllers.forEach((wrapper: InstanceWrapper<Controller>): void => {
+    target.controllers.forEach((wrapper): void => {
       this.injector.loadInstanceOfController(wrapper.metaType, target);
     });
   }
