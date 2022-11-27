@@ -46,7 +46,7 @@ describe('MiddlewareModule', () => {
   });
 
   describe('setupControllerMiddleware', () => {
-    it('should throw "UnknownMiddlewareException" exception when middlewares is not stored in container', () => {
+    it('should throw "RuntimeException" exception when middlewares is not stored in container', () => {
       @Component()
       class InvalidMiddleware {}
 
