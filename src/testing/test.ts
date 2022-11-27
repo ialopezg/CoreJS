@@ -1,8 +1,7 @@
 import { AppContainer, InstanceLoader, InstanceWrapper } from '../core/injector';
-import { Metatype, ModuleMetadata } from '../common/interfaces';
-import { Module } from '../common/decorators';
+import { MetaType, ModuleMetadata } from '../common/interfaces';
+import { AppMode, Module } from '../common';
 import { DependencyScanner } from '../core/scanner';
-import { AppMode } from '../common/enums';
 
 export class Test {
   private static container = new AppContainer();
@@ -17,7 +16,7 @@ export class Test {
     this.instanceLoader.createInstancesOfDependencies();
   }
 
-  static get<T>(metatype: Metatype<T>): T {
+  static get<T>(metatype: MetaType<T>): T {
     const modules = this.container.getModules();
     return this.findInstanceByPrototype<T>(metatype, modules);
   }
@@ -26,10 +25,10 @@ export class Test {
     this.container.clear();
   }
 
-  private static findInstanceByPrototype<T>(metatype: Metatype<T>, modules) {
+  private static findInstanceByPrototype<T>(metaType: MetaType<T>, modules) {
     for (const [_, module] of modules) {
       const dependencies = new Map([...module.components, ...module.routes]);
-      const instanceWrapper = dependencies.get(metatype);
+      const instanceWrapper = dependencies.get(metaType);
 
       if (instanceWrapper) {
         return (<InstanceWrapper<any>>instanceWrapper).instance;
@@ -46,4 +45,3 @@ export class Test {
     return TestModule;
   }
 }
-
