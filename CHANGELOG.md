@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.6](https://github.com/ialopezg/corejs/compare/v1.0.0-alpha.5...v1.0.0-alpha.6) (2022-11-27)
+
+
+### Features
+
+* refactor SocketServer to GatewayServer ([f124653](https://github.com/ialopezg/corejs/commits/f12465304897fd851d0e234f3e1aacfe80e319f2))
+
+
+### Bug Fixes
+
+* improve behavior ([dcb88ec](https://github.com/ialopezg/corejs/commits/dcb88ec83857d41bffaf1e59e84d091ea103c0ff))
+* update main test ([8ec2245](https://github.com/ialopezg/corejs/commits/8ec22455c416aedeb344ea3b0acd6f356504d317))
+
 ## [1.0.0-alpha.5](https://github.com/ialopezg/corejs/compare/v1.0.0-alpha.4...v1.0.0-alpha.5) (2022-11-19)
 
 ## [1.0.0-alpha.4](https://github.com/ialopezg/corejs/compare/v1.0.0-alpha.3...v1.0.0-alpha.4) (2022-11-18)
