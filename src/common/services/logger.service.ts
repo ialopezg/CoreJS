@@ -4,8 +4,6 @@ import { ColorService as Color } from './color.service';
  * Defines a service that logs messages.
  */
 export class LoggerService {
-  private readonly yellow = Color.brightYellow;
-
   /**
    * Creates a new instance to the class LoggerService.
    *
@@ -51,7 +49,7 @@ export class LoggerService {
   private logMessage(message: string, color: Function) {
     process.stdout.write(color(`[CoreJS] ${process.pid}   - `));
     process.stdout.write(`${new Date(Date.now()).toLocaleString()}   `);
-    process.stdout.write(this.yellow(`[${this.context}] `));
+    process.stdout.write(Color.yellow(`[${this.context}] `));
     process.stdout.write(color(message));
     process.stdout.write('\n');
   }
