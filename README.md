@@ -113,6 +113,8 @@ CoreJS is very much still a work in progress. There is still some things to fini
 - Better test utilities
 - Validation helpers
 - Starter repos
+- Increase test coverage
+- Gateway middlewares
 - and more...
 
 ## People
