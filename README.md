@@ -111,6 +111,7 @@ class UsersController {
 CoreJS is very much still a work in progress. There is still some things to finish:
 
 - Better test utilities
+- Exception filters
 - Validation helpers
 - Starter repos
 - Increase test coverage
