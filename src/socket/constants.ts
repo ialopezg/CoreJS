@@ -9,7 +9,7 @@ export const MESSAGE_METADATA = 'message';
 /**
  * Is socket server metadata key.
  */
-export const SOCKET_SERVER_METADATA = '__isSocketServer';
+export const GATEWAY_SERVER_METADATA = '__isSocketServer';
 /**
  * Gateway metadata key.
  */

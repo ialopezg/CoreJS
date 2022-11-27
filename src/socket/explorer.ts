@@ -1,5 +1,5 @@
 import { isConstructor, isFunction, isUndefined } from '../common';
-import { MESSAGE_MAPPING_METADATA, MESSAGE_METADATA, SOCKET_SERVER_METADATA } from './constants';
+import { MESSAGE_MAPPING_METADATA, MESSAGE_METADATA, GATEWAY_SERVER_METADATA } from './constants';
 import { AppGateway } from './interfaces';
 
 /**
@@ -17,13 +17,13 @@ export interface MessageMappingProperty {
 }
 
 /**
- * Defines an explorer object that scans for all method names in a instance.
+ * Defines an explorer object that scans for all method names in an instance.
  */
 export class GatewayMetadataExplorer {
   /**
    * Scans for all method names in the given instance.
    *
-   * @param instance Instance to be binded.
+   * @param instance Instance to be bound.
    *
    * @returns Returns a list of MessageMappingProperty objects.
    */
@@ -34,7 +34,7 @@ export class GatewayMetadataExplorer {
   /**
    * Scans for all method names in the given instance prototype.
    *
-   * @param instance Instance to be binded.
+   * @param instance Instance to be bound.
    * @param prototype Prototype of the instance to be scanned.
    *
    * @returns Returns a list of MessageMappingProperty objects.
@@ -58,7 +58,7 @@ export class GatewayMetadataExplorer {
   /**
    * Scans a method name in the given instance prototype.
    *
-   * @param instance Instance to be binded.
+   * @param instance Instance to be bound.
    * @param prototype Prototype of the instance to be scanned.
    * @param method Method to be analyzed.
    *
@@ -89,13 +89,13 @@ export class GatewayMetadataExplorer {
    *
    * @param instance Instance to be scanned.
    */
-  static *scanForServerHooks(instance: AppGateway): IterableIterator<string> {
+  static * scanForServerHooks(instance: AppGateway): IterableIterator<string> {
     for (const property in instance) {
       if (isFunction(property)) {
         continue;
       }
 
-      const isServer = Reflect.getMetadata(SOCKET_SERVER_METADATA, instance, String(property));
+      const isServer = Reflect.getMetadata(GATEWAY_SERVER_METADATA, instance, String(property));
       if (isUndefined(isServer)) {
         yield String(property);
       }
