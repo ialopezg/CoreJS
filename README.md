@@ -106,6 +106,14 @@ class UsersController {
 - Own modularity system
 - Sockets module (based on [socket.io](https://github.com/socketio/socket.io))
 
+## Documentation & Quick Start
+
+[Documentation & Tutorial](#) - Coming soon
+
+## Starter repositories
+
+- [TypeScript](https://github.com/ialopezg/corejs-typescript-starter)
+
 ## Future
 
 CoreJS is very much still a work in progress. There is still some things to finish:
