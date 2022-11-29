@@ -102,7 +102,7 @@
     "typescript": "^4.9.3"
   },
   "files": [
-    "lib",
+    "node_modules/@ialopezg/corejs",
     "CHANGELOG.md",
     "README.md",
     "LICENSE"
