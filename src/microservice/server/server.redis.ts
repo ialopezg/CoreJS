@@ -7,7 +7,7 @@ import { Server } from './server';
 /**
  * Redis Server for Microservices implementation.
  */
-export class RedisServer extends Server {
+export class ServerRedis extends Server {
   private readonly defaultUrl = 'redis://localhost:6379';
   private readonly url: string;
 
@@ -50,7 +50,7 @@ export class RedisServer extends Server {
    * @param subscriber Subscriber stream.
    * @param publisher Publisher stream.
    */
-  private handleConnection(callback: () => void, subscriber: any, publisher: any) {
+  handleConnection(callback: () => void, subscriber: any, publisher: any) {
     subscriber.on('message', this.getMessageHandler(publisher).bind(this));
 
     const patterns = Object.keys(this.messageHandlers);
@@ -76,7 +76,7 @@ export class RedisServer extends Server {
    *
    * @returns A string value containing the ack queue name.
    */
-  private getAckQueueName(pattern: string): string {
+  getAckQueueName(pattern: string): string {
     return `${pattern}_ack`;
   }
 
@@ -110,7 +110,7 @@ export class RedisServer extends Server {
    *
    * @returns A callback to be executed when a message is handled.
    */
-  getMessageHandlerCallback(publisher: any, pattern: any): any {
+  getMessageHandlerCallback(publisher: any, pattern: any) {
     return (error: any, response: any) => {
       const publish = this.getPublisher(publisher, pattern);
       if (!response) {
@@ -121,7 +121,10 @@ export class RedisServer extends Server {
 
         return;
       }
-      publish(error, response);
+      publish({
+        error,
+        response,
+      });
     };
   }
 

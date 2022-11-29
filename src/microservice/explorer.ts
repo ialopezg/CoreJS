@@ -41,7 +41,7 @@ export interface PatternProperties {
 /**
  * Metadata explorer scanner.
  */
-export class ListenersMetadataExplorer {
+export class ListenerMetadataExplorer {
   /**
    * Explore an instance for metadata information.
    *
@@ -128,7 +128,7 @@ export class ListenersMetadataExplorer {
 
       const property = String(key);
       const isClient = Reflect.getMetadata(CLIENT_METADATA, instance, property);
-      if (!isUndefined(isClient)) {
+      if (isUndefined(isClient)) {
         continue;
       }
 

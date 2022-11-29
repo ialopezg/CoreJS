@@ -1,8 +1,8 @@
 import { Transport } from '../../common';
 import { MicroserviceConfiguration } from '../interfaces';
-import { RedisServer } from './redis.server';
+import { ServerRedis } from './server.redis';
 import { Server } from './server';
-import { TCPServer } from './tcp.server';
+import { ServerTCP } from './server.tcp';
 
 /**
  * Factory creator for Server instances.
@@ -20,9 +20,9 @@ export class ServerFactory {
 
     switch (transport) {
       case Transport.REDIS:
-        return new RedisServer(config);
+        return new ServerRedis(config);
       default:
-        return new TCPServer(config);
+        return new ServerTCP(config);
     }
   }
 }

@@ -8,7 +8,7 @@ import { Server } from './server';
 /**
  * Represents a TCP Server for Microservices implementation
  */
-export class TCPServer extends Server {
+export class ServerTCP extends Server {
   private readonly defaultPort = 3000;
   private readonly port: number;
   private server: NetServer;

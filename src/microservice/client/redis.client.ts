@@ -11,8 +11,8 @@ export class RedisClient extends ProxyClient {
   private readonly logger = new LoggerService(ProxyClient.name);
   private readonly defaultUrl = 'redis://localhost:6379';
   private readonly url: string;
-  private publisher: RedisClientType;
-  private subscriber: RedisClientType;
+  publisher: RedisClientType;
+  subscriber: RedisClientType;
 
   /**
    * Creates a new instance of the ClientRedis instance.
@@ -33,22 +33,21 @@ export class RedisClient extends ProxyClient {
    * @param message Message to be sent.
    * @param callback Function to be executed.
    */
-  sendSingleMessage(message: any, callback: Function): void {
+  sendSingleMessage(message: any, callback: Function): any {
     const pattern = JSON.stringify(message.pattern);
     const subscription = (channel: any, message: any) => {
       const { error, response } = JSON.parse(message);
       callback(error, response);
 
-      this.subscriber.unsubscribe(RedisClient.getResPatternName(pattern))
-        .then((result) => result);
+      this.subscriber.unsubscribe(this.getResPatternName(pattern));
       this.subscriber.removeListener('message', subscription);
     };
 
     this.subscriber.on('message', subscription);
-    this.subscriber.subscribe(RedisClient.getResPatternName(pattern), subscription)
-      .then((result) => result);
-    this.publisher.publish(RedisClient.getAckPatternName(pattern), JSON.stringify(message))
-      .then((result) => result);
+    this.subscriber.subscribe(this.getResPatternName(pattern), subscription);
+    this.publisher.publish(this.getAckPatternName(pattern), JSON.stringify(message));
+
+    return subscription;
   }
 
   /**
@@ -58,7 +57,7 @@ export class RedisClient extends ProxyClient {
    *
    * @returns A normalized pattern name.
    */
-  static getAckPatternName(pattern: string): string {
+  getAckPatternName(pattern: string): string {
     return `${pattern}_ack`;
   }
 
@@ -69,7 +68,7 @@ export class RedisClient extends ProxyClient {
    *
    * @returns A normalized pattern name.
    */
-  static getResPatternName(pattern: string): string {
+  getResPatternName(pattern: string): string {
     return `${pattern}_res`;
   }
 

@@ -1,15 +1,15 @@
 import 'reflect-metadata';
 
 import { Controller } from '../common/interfaces';
-import { ProxyClientFactory } from './client/proxy-client.factory';
-import { ListenersMetadataExplorer } from './explorer';
+import { ProxyClientFactory } from './client';
+import { ListenerMetadataExplorer } from './explorer';
 import { Server } from './server';
 
 /**
  * Listeners Controller.
  */
 export class ListenersController {
-  private readonly explorer = new ListenersMetadataExplorer();
+  private readonly explorer = new ListenerMetadataExplorer();
 
   /**
    * Bind client object to properties.
