@@ -5,7 +5,7 @@ import { Module } from '../../../common';
 import { UnknownModuleException } from '../../../errors/exceptions';
 import { Container } from '../../injector';
 
-describe('NestContainer', () => {
+describe('Container', () => {
   let container: Container;
 
   @Module({})
@@ -18,6 +18,7 @@ describe('NestContainer', () => {
   it('should not add module if already exists in collection', () => {
     const modules = new Map();
     const setSpy = sinon.spy(modules, 'set');
+    // eslint-disable-next-line dot-notation
     (container as any)['modules'] = modules;
 
     container.addModule(TestModule);
