@@ -14,7 +14,8 @@ export const getModuleInitMessage = (module: string) => `${module} dependencies 
  * @param method Controller method path.
  * @returns The message requested.
  */
-export const getRouteMappedMessage = (path: string, method: RequestMethod) => `Mapped {${path}, ${RequestMethod[method]}} route`;
+export const getRouteMappedMessage =
+  (path: string, method: RequestMethod) => `Mapped {${path}, ${RequestMethod[method]}} route`;
 /**
  * Get controller mapping message.
  * @param name Controller name.

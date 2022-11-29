@@ -1,4 +1,3 @@
-import { Namespace, Server } from 'socket.io';
 import { ObservableSocketServer, SocketServerData } from './interfaces';
 
 /**
@@ -16,7 +15,10 @@ export class SocketContainer {
    * @returns An instance of ObservableSocketServer object.
    */
   getSocketSubjects(namespace: string, port: number): ObservableSocketServer {
-    return this.subjects.get({ namespace, port });
+    return this.subjects.get({
+      namespace,
+      port,
+    });
   }
 
   /**
@@ -27,6 +29,9 @@ export class SocketContainer {
    * @param server ObservableSocketServer instance.
    */
   setSocketSubjects(namespace: string, port: number, server: ObservableSocketServer): void {
-    this.subjects.set({ namespace, port }, server);
+    this.subjects.set({
+      namespace,
+      port,
+    }, server);
   }
 }

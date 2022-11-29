@@ -18,7 +18,7 @@ describe('@Controller', () => {
   @Controller()
   class EmptyDecoratorController {}
 
-  it('should decorate type with expected path metadata', () => {
+  it('should enhance transport with expected path metadata', () => {
     const path = Reflect.getMetadata(PATH_METADATA, TestController);
 
     expect(path).to.be.eql(metadata.path);

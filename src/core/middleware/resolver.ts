@@ -1,4 +1,3 @@
-import { AppMode } from '../../common/enums';
 import { LoggerService } from '../../common';
 import { getMiddlewareInitMessage } from '../helpers';
 import { Injector } from '../injector';
@@ -17,13 +16,8 @@ export class MiddlewareResolver {
    * Creates a new instance of this app with given parameters.
    *
    * @param container Middleware container.
-   * @param mode Application execution mode
    */
-  constructor(
-    private readonly container: MiddlewareContainer,
-    private mode = AppMode.RUN,
-  ) {
-  }
+  constructor(private readonly container: MiddlewareContainer) {}
 
   /**
    * Resolve a middleware instance for given module.
@@ -37,9 +31,7 @@ export class MiddlewareResolver {
     middlewares.forEach(({ metaType }) => {
       this.resolveMiddlewareInstance(metaType, middlewares, target);
 
-      if (this.mode === AppMode.RUN) {
-        this.logger.log(getMiddlewareInitMessage(metaType.name, target.metaType.name));
-      }
+      this.logger.log(getMiddlewareInitMessage(metaType.name, target.metaType.name));
     });
   }
 

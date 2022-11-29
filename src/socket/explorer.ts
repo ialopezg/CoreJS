@@ -27,7 +27,7 @@ export class GatewayMetadataExplorer {
    *
    * @returns Returns a list of MessageMappingProperty objects.
    */
-  static explore(instance: AppGateway): MessageMappingProperty[] {
+  explore(instance: AppGateway): MessageMappingProperty[] {
     return this.scanForHandlersFromPrototype(instance, Object.getPrototypeOf(instance));
   }
 
@@ -39,7 +39,7 @@ export class GatewayMetadataExplorer {
    *
    * @returns Returns a list of MessageMappingProperty objects.
    */
-  static scanForHandlersFromPrototype(
+  scanForHandlersFromPrototype(
     instance: AppGateway,
     prototype: any,
   ): MessageMappingProperty[] {
@@ -64,7 +64,7 @@ export class GatewayMetadataExplorer {
    *
    * @returns Returns a MessageMappingProperty object.
    */
-  static exploreMethodMetadata(
+  exploreMethodMetadata(
     instance: AppGateway,
     prototype: any,
     method: string,
@@ -89,15 +89,16 @@ export class GatewayMetadataExplorer {
    *
    * @param instance Instance to be scanned.
    */
-  static * scanForServerHooks(instance: AppGateway): IterableIterator<string> {
-    for (const property in instance) {
-      if (isFunction(property)) {
+  * scanForServerHooks(instance: AppGateway): IterableIterator<string> {
+    for (const propertyKey in instance) {
+      if (isFunction(propertyKey)) {
         continue;
       }
 
-      const isServer = Reflect.getMetadata(GATEWAY_SERVER_METADATA, instance, String(property));
+      const property = String(propertyKey);
+      const isServer = Reflect.getMetadata(GATEWAY_SERVER_METADATA, instance, String(propertyKey));
       if (isUndefined(isServer)) {
-        yield String(property);
+        yield property;
       }
     }
   }

@@ -1,15 +1,22 @@
+import { AppMode } from '../enums';
 import { ColorService as Color } from './color.service';
 
 /**
  * Defines a service that logs messages.
  */
 export class LoggerService {
+  private static mode = AppMode.RUN;
+
   /**
    * Creates a new instance to the class LoggerService.
    *
    * @param context Application context to be used.
    */
-  constructor(private readonly context: string) { }
+  constructor(private readonly context: string) {}
+
+  public static setMode(mode: AppMode): void {
+    this.mode = mode;
+  }
 
   /**
    * Prints a log message into the current terminal console.
@@ -26,7 +33,7 @@ export class LoggerService {
    * @param message Message to be printed.
    * @param trace Tracing error details
    */
-  error(message: string, trace: string) {
+  error(message: string, trace = '') {
     this.logMessage(message, Color.red);
     this.printStackTrace(trace);
   }
@@ -47,6 +54,10 @@ export class LoggerService {
    * @param color Default text color.
    */
   private logMessage(message: string, color: Function) {
+    if (LoggerService.mode === AppMode.TEST) {
+      return;
+    }
+
     process.stdout.write(color(`[CoreJS] ${process.pid}   - `));
     process.stdout.write(`${new Date(Date.now()).toLocaleString()}   `);
     process.stdout.write(Color.yellow(`[${this.context}] `));
@@ -60,6 +71,10 @@ export class LoggerService {
    * @param trace Stack trace information to be printed.
    */
   private printStackTrace(trace: string) {
+    if (LoggerService.mode === AppMode.TEST) {
+      return;
+    }
+
     process.stdout.write(trace);
     process.stdout.write('\n');
   }

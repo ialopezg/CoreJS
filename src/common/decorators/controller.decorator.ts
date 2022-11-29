@@ -1,9 +1,10 @@
 import 'reflect-metadata';
 import { PATH_METADATA } from '../constants';
+import { isUndefined } from '../helpers';
 
 import { ControllerMetadata } from '../interfaces';
 
-const defaultMetadata: ControllerMetadata = { path: '/' };
+const defaultMetadata: ControllerMetadata = { [PATH_METADATA]: '/' };
 
 /**
  * Define the controller metadata on the target.
@@ -12,11 +13,11 @@ const defaultMetadata: ControllerMetadata = { path: '/' };
  * @constructor
  */
 export const Controller = (metadata: ControllerMetadata = defaultMetadata): ClassDecorator => {
-  if (typeof metadata.path === 'undefined') {
-    metadata.path = '/';
+  if (isUndefined(metadata[PATH_METADATA])) {
+    metadata[PATH_METADATA] = '/';
   }
 
   return (target: Object) => {
-    Reflect.defineMetadata(PATH_METADATA, metadata.path, target);
+    Reflect.defineMetadata(PATH_METADATA, metadata[PATH_METADATA], target);
   };
 };

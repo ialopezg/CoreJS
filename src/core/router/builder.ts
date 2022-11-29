@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import { Router } from 'express';
 
 import {
-  isConstructor,
+  isConstructor, isFunction,
   isUndefined,
   LoggerService,
   METHOD_METADATA,
@@ -16,7 +16,6 @@ import { UnknownRequestMappingException } from '../../errors/exceptions';
 import { ExpressAdapter } from '../adapters';
 import { getRouteMappedMessage, RouterMethodFactory } from '../helpers';
 import { RouterProxy, RouterProxyCallback } from './proxy';
-import { AppMode } from '../../common/enums';
 
 /**
  * Defines a Route path properties.
@@ -48,12 +47,10 @@ export class RouterBuilder {
    *
    * @param proxy Router proxy object.
    * @param adapter Express adapter object.
-   * @param mode Application execution mode.
    */
   constructor(
     private readonly proxy?: RouterProxy,
     private readonly adapter?: ExpressAdapter,
-    private mode = AppMode.RUN,
   ) {}
 
   /**
@@ -107,9 +104,7 @@ export class RouterBuilder {
 
     routerMethod(path, proxy);
 
-    if (this.mode === AppMode.RUN) {
-      this.logger.log(getRouteMappedMessage(path, method));
-    }
+    this.logger.log(getRouteMappedMessage(path, method));
   }
 
   /**
@@ -139,7 +134,7 @@ export class RouterBuilder {
           return false;
         }
 
-        return !isConstructor(method);
+        return !isConstructor(method) && isFunction(prototype[method]);
       })
       .map((method: string) => this.exploreMethodMetadata(instance, prototype, method))
       .filter((path: RoutePathProperties) => path !== null);

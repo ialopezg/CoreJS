@@ -7,10 +7,29 @@ import {
 import { UnknownModuleException } from '../../errors/exceptions';
 import { Module } from './module';
 
+
+/**
+ * Define a MtaType prototype for MetaType based objects.
+ */
+export interface InstanceWrapper<T> {
+  /**
+   * MetaType information.
+   */
+  metaType: MetaType<T>;
+  /**
+   * Object instance.
+   */
+  instance: T;
+  /**
+   *
+   */
+  resolved: boolean;
+}
+
 /**
  * Represents a Container that stores Modules and their dependencies.
  */
-export class AppContainer {
+export class Container {
   private readonly modules = new Map<string, Module>();
   /**
    * Register an object as root Module.
@@ -108,22 +127,4 @@ export class AppContainer {
   getModules(): Map<string, Module> {
     return this.modules;
   }
-}
-
-/**
- * Define a MtaType prototype for MetaType based objects.
- */
-export interface InstanceWrapper<T> {
-  /**
-   * MetaType information.
-   */
-  metaType: MetaType<T>;
-  /**
-   * Object instance.
-   */
-  instance: T;
-  /**
-   *
-   */
-  resolved: boolean;
 }

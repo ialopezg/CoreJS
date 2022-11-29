@@ -2,7 +2,7 @@ import 'reflect-metadata';
 
 import { ModuleMetaType, Controller, Injectable, MetaType } from '../common/interfaces';
 import { metadata } from '../common';
-import { AppContainer } from './injector';
+import { Container } from './injector';
 
 /**
  * Defines an object that scans deeply modules and its related dependencies.
@@ -12,7 +12,7 @@ export class DependencyScanner {
    * Creates a new instance for the class DependenciesScanner.
    * @param container Module container.
    */
-  constructor(private readonly container: AppContainer) { }
+  constructor(private readonly container: Container) { }
 
   /**
    * Scans a base module for its dependencies.

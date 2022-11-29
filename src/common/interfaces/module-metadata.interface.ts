@@ -17,7 +17,7 @@ export interface ModuleMetadata {
   /**
    * Controller list
    */
-  controllers?: Controller[];
+  controllers?: (Controller | any)[];
   /**
    * Exported component list.
    */

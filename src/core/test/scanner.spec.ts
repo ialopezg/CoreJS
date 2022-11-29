@@ -1,7 +1,7 @@
 import * as sinon from 'sinon';
 
 import { AppModule, Component, Controller, Module } from '../../common';
-import { AppContainer } from '../injector';
+import { Container } from '../injector';
 import { DependencyScanner } from '../scanner';
 
 describe('DependencyScanner', () => {
@@ -27,10 +27,10 @@ describe('DependencyScanner', () => {
 
   let scanner: DependencyScanner;
   let mockContainer: sinon.SinonMock;
-  let container: AppContainer;
+  let container: Container;
 
   before(() => {
-    container = new AppContainer();
+    container = new Container();
     mockContainer = sinon.mock(container);
   });
 

@@ -3,7 +3,6 @@ import * as sinon from 'sinon';
 
 import { RouterBuilder } from '../../router';
 import { Controller, RequestMapping, RequestMethod } from '../../../common';
-import { AppMode } from '../../../common/enums';
 
 describe('RouterBuilder', () => {
   @Controller({ path: 'global' })
@@ -22,7 +21,7 @@ describe('RouterBuilder', () => {
 
   let routerBuilder: RouterBuilder;
   beforeEach(() => {
-    routerBuilder = new RouterBuilder(null, null, AppMode.TEST);
+    routerBuilder = new RouterBuilder(null, null);
   });
 
   describe('scanForPathsFromPrototype', () => {

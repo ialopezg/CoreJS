@@ -1,8 +1,7 @@
-import { AppMode } from '../../common/enums';
+import { AppMode, LoggerService } from '../../common';
 import { Controller, Injectable } from '../../common/interfaces';
-import { LoggerService } from '../../common';
 import { getModuleInitMessage } from '../helpers';
-import { AppContainer, InstanceWrapper } from './container';
+import { Container } from './container';
 import { Injector } from './injector';
 import { Module } from './module';
 
@@ -17,12 +16,8 @@ export class InstanceLoader {
    * Creates an object that has the specified prototype.
    *
    * @param container Module container.
-   * @param mode Application execution mode.
    */
-  constructor(
-    private readonly container: AppContainer,
-    private mode = AppMode.RUN,
-  ) { }
+  constructor(private readonly container: Container) {}
 
   /**
    * Creates prototypes and instances of Injectable and Controller objects.
@@ -55,9 +50,7 @@ export class InstanceLoader {
       this.createInstancesOfComponents(module);
       this.createInstancesOfRoutes(module);
 
-      if (this.mode === AppMode.RUN) {
-        this.logger.log(getModuleInitMessage(name));
-      }
+      this.logger.log(getModuleInitMessage(name));
     });
   }
 

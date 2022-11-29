@@ -18,7 +18,8 @@ export class RouterProxy {
    *
    * @param exceptionHandler Exception handler.
    */
-  constructor(private readonly exceptionHandler: ExceptionHandler) {}
+  constructor(private readonly exceptionHandler: ExceptionHandler) {
+  }
 
   /**
    * Creates a proxy instance with given callback.
@@ -29,9 +30,11 @@ export class RouterProxy {
   create(callback: RouterProxyCallback): any {
     return (request: Request, response: Response, next: NextFunction) => {
       try {
-        Promise.resolve(callback(request, response, next)).catch((error: any) => {
-          this.exceptionHandler.next(error, response);
-        });
+        Promise
+          .resolve(callback(request, response, next))
+          .catch((error: any) => {
+            this.exceptionHandler.next(error, response);
+          });
       } catch (error: any) {
         this.exceptionHandler.next(error, response);
       }

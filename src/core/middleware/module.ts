@@ -5,7 +5,7 @@ import { ControllerMetadata, MetaType } from '../../common/interfaces';
 import { InvalidMiddlewareException } from '../../errors/exceptions';
 import { ExceptionHandler } from '../exceptions';
 import { RouterMethodFactory } from '../helpers';
-import { AppContainer } from '../injector';
+import { Container } from '../injector';
 import { Module } from '../injector/module';
 import { RouterProxy } from '../router';
 import { MiddlewareBuilder } from './builder';
@@ -37,7 +37,7 @@ export class MiddlewareModule {
    *
    * @param container Modules container.
    */
-  static setup(container: AppContainer): void {
+  static setup(container: Container): void {
     this.resolver = new MiddlewareResolver(this.container);
 
     this.resolveMiddlewares(container.getModules());
@@ -87,7 +87,7 @@ export class MiddlewareModule {
   }
 
   /**
-   * Set up the handler for a express route.
+   * Set up the handler for an express route.
    *
    * @param instance Application middleware instance,
    * @param metaType Middleware MetaType information.
@@ -127,7 +127,7 @@ export class MiddlewareModule {
   }
 
   /**
-   * Loads the configuration for given module instansce.
+   * Loads the configuration for given module instance.
    *
    * @param instance Module instance.
    * @param moduleName Module prototype.

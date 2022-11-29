@@ -1,14 +1,13 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 
-import { AppContainer, Injector, InstanceLoader } from '../../injector';
-import { AppMode } from '../../../common/enums';
-import { Component, Controller } from '../../../common';
+import { Container, Injector, InstanceLoader } from '../../injector';
+import { AppMode, Component, Controller, LoggerService } from '../../../common';
 import { Module } from '../../injector/module';
 
 describe('InstanceLoader', () => {
   let loader: InstanceLoader;
-  let container: AppContainer;
+  let container: Container;
   let mockContainer: sinon.SinonMock;
 
   @Controller({ path: '' })
@@ -17,9 +16,11 @@ describe('InstanceLoader', () => {
   @Component()
   class TestComponent { }
 
+  before(() => LoggerService.setMode(AppMode.TEST));
+
   beforeEach(() => {
-    container = new AppContainer();
-    loader = new InstanceLoader(container, AppMode.TEST);
+    container = new Container();
+    loader = new InstanceLoader(container);
     mockContainer = sinon.mock(container);
   });
 

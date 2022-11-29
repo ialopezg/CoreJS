@@ -1,8 +1,8 @@
 import * as sinon from 'sinon';
 import { expect } from 'chai';
+
 import { RoutesResolver } from '../../router';
 import { Controller, RequestMapping, RequestMethod } from '../../../common';
-import { AppMode } from '../../../common/enums';
 
 describe('RoutesResolver', () => {
   @Controller({ path: 'global' })
@@ -32,7 +32,7 @@ describe('RoutesResolver', () => {
   beforeEach(() => {
     routesResolver = new RoutesResolver(null, {
       createRouter: () => router,
-    }, AppMode.TEST);
+    });
   });
 
   describe('setupRouters', () => {

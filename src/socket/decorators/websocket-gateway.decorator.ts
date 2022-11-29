@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import { GATEWAY_METADATA, NAMESPACE_METADATA, PORT_METADATA } from '../constants';
 import { GatewayMetadata } from '../interfaces';
 
-export const SocketGateway = (metadata?: GatewayMetadata): ClassDecorator => {
+export const WebSocketGateway = (metadata?: GatewayMetadata): ClassDecorator => {
   metadata = metadata || {};
 
   return (target: Object) => {

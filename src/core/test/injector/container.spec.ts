@@ -3,16 +3,16 @@ import * as sinon from 'sinon';
 
 import { Module } from '../../../common';
 import { UnknownModuleException } from '../../../errors/exceptions';
-import { AppContainer } from '../../injector/container';
+import { Container } from '../../injector';
 
 describe('NestContainer', () => {
-  let container: AppContainer;
+  let container: Container;
 
   @Module({})
   class TestModule { }
 
   beforeEach(() => {
-    container = new AppContainer();
+    container = new Container();
   });
 
   it('should not add module if already exists in collection', () => {
@@ -26,11 +26,11 @@ describe('NestContainer', () => {
     expect(setSpy.calledOnce).to.be.true;
   });
 
-  it('should "addComponent" throw "UnkownModuleException" when module is not stored in collection', () => {
+  it('should "addComponent" throw "UnknownModuleException" when module is not stored in collection', () => {
     expect(() => container.addComponent(null, TestModule)).throw(UnknownModuleException);
   });
 
-  it('should "addRoute" throw "UnkownModuleException" when module is not stored in collection', () => {
+  it('should "addRoute" throw "UnknownModuleException" when module is not stored in collection', () => {
     expect(() => container.addController(null, TestModule)).throw(UnknownModuleException);
   });
 

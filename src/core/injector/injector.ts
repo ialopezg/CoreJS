@@ -110,12 +110,8 @@ export class Injector {
    * @param target Container Module.
    * @param callback Actions to be executed after resolve the Injectable Component objects.
    */
-  private resolveConstructorParams<T>(prototype: MetaType<T>, target: Module, callback: Function): void {
-    let params = Reflect.getMetadata(PARAM_TYPES_METADATA, prototype) || [];
-    if ((<any>prototype).dependencies) {
-      params = (<any>prototype).dependencies;
-    }
-
+  resolveConstructorParams<T>(prototype: MetaType<T>, target: Module, callback: Function): void {
+    const params = Reflect.getMetadata(PARAM_TYPES_METADATA, prototype) || [];
     const args = params.map((param: any) => this.resolveSingleParam<T>(prototype, param, target));
     callback(args);
   }
@@ -129,7 +125,7 @@ export class Injector {
    *
    * @returns An instance of Injectable.
    */
-  private resolveSingleParam<T>(prototype: MetaType<T>, param: MetaType<any>, target: Module): Injectable {
+  resolveSingleParam<T>(prototype: MetaType<T>, param: MetaType<any>, target: Module): Injectable {
     if (isUndefined(param)) {
       throw new RuntimeException();
     }
@@ -146,7 +142,7 @@ export class Injector {
    *
    * @returns An instance of Injectable.
    */
-  private resolveComponentInstance<T>(target: Module, param: MetaType<any>, prototype: MetaType<T>): Injectable {
+  resolveComponentInstance<T>(target: Module, param: MetaType<any>, prototype: MetaType<T>): Injectable {
     const components = target.components;
     const instanceWrapper = this.scanForComponent<T>(components, param, target, prototype);
 
@@ -167,7 +163,7 @@ export class Injector {
    *
    * @returns An Instance of InstanceWrapper<Injectable>.
    */
-  private scanForComponent<T>(
+  scanForComponent<T>(
     components: Map<string, InstanceWrapper<Injectable>>,
     param: MetaType<any>,
     target: Module,
@@ -193,11 +189,11 @@ export class Injector {
    *
    * @returns An instance of InstanceWrapper<Injectable>.
    */
-  private scanForComponentInSubModules(target: Module, prototype: MetaType<any>): InstanceWrapper<Injectable> {
-    const modules = target.modules;
+  scanForComponentInSubModules(target: Module, prototype: MetaType<any>): InstanceWrapper<Injectable> {
+    const modules = target.modules || [];
     let instanceWrapper = null;
 
-    modules.forEach((module: Module) => {
+    (<Array<any>>modules).forEach((module: Module) => {
       const { components, exports } = module;
 
       if (!exports.has(prototype.name) || !components.has(prototype.name)) {

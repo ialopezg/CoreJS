@@ -9,10 +9,10 @@ describe('Module', () => {
   let module: Module;
 
   @ModuleDecorator({})
-  class TestModule { }
+  class TestModule {}
 
   @Component()
-  class TestComponent { }
+  class TestComponent {}
 
   beforeEach(() => {
     module = new Module(TestModule);
@@ -30,7 +30,8 @@ describe('Module', () => {
     // eslint-disable-next-line dot-notation
     (<any>module)['_controllers'] = collection;
 
-    class TestController { }
+    class TestController {}
+
     module.addController(TestController);
 
     expect(setSpy.getCall(0).args).to.deep.equal(['TestController', {
@@ -52,6 +53,40 @@ describe('Module', () => {
       metaType: TestComponent,
       instance: null,
       resolved: false,
+    }]);
+  });
+
+  it('should add provider instead component when object is passed', () => {
+    const addProvider = sinon.spy();
+    module.addProvider = addProvider;
+
+    const type = () => {};
+    const provider = {
+      provide: type,
+      useValue: 'test',
+    };
+    module.addComponent(<any>provider);
+
+    expect((<sinon.SinonSpy>addProvider).called).to.be.true;
+  });
+
+  it('should add provider', () => {
+    const collection = new Map();
+    const setSpy = sinon.spy(collection, 'set');
+    // eslint-disable-next-line dot-notation
+    (<any>module)['_components'] = collection;
+
+    const type = () => {};
+    const provider = {
+      provide: type,
+      useValue: 'test',
+    };
+    module.addProvider(provider);
+
+    expect(setSpy.getCall(0).args).to.deep.equal([type.name, {
+      metaType: type,
+      instance: provider.useValue,
+      resolved: true,
     }]);
   });
 });
