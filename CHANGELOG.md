@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.7](https://github.com/ialopezg/corejs/compare/v1.0.0-alpha.6...v1.0.0-alpha.7) (2022-11-29)
+
+
+### Features
+
+* application refactor ([7743f16](https://github.com/ialopezg/corejs/commits/7743f16d667f2397dd09c1fd0ec4f3e070d84bac))
+* update exports ([7697acd](https://github.com/ialopezg/corejs/commits/7697acd2904c8b82a9118cdfac1038164843ee86))
+* update main documentation ([8ff0579](https://github.com/ialopezg/corejs/commits/8ff0579dd779bf2a56455f4d5eacd7fad99b4424))
+
+
+### Bug Fixes
+
+* hotfix in LoggerService ([779fec4](https://github.com/ialopezg/corejs/commits/779fec488af3b4d1d297fe43aa7471d58ff85288))
+* update middleware module test ([d4fd7e9](https://github.com/ialopezg/corejs/commits/d4fd7e91fc5cfa1b06121db295e71fa4412df620))
+
+
+### Documentation
+
+* update main documentation ([76eb1b7](https://github.com/ialopezg/corejs/commits/76eb1b72abf7b27d8607a00aad6be09b945d5ad8))
+
 ## [1.0.0-alpha.6](https://github.com/ialopezg/corejs/compare/v1.0.0-alpha.5...v1.0.0-alpha.6) (2022-11-27)
 
 
