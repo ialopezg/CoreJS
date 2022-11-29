@@ -43,7 +43,7 @@ export interface PatternProperties {
  */
 export class ListenersMetadataExplorer {
   /**
-   * Explorer an instance for metadata information.
+   * Explore an instance for metadata information.
    *
    * @param instance Instance to be explored.
    *
@@ -80,7 +80,7 @@ export class ListenersMetadataExplorer {
       .map((methodName) =>
         this.exploreMethodMetadata(instance, prototype, methodName),
       )
-      .filter((mapper) => mapper !== null);
+      .filter((metadata) => metadata !== null);
   }
 
   /**
@@ -129,9 +129,11 @@ export class ListenersMetadataExplorer {
       const property = String(key);
       const isClient = Reflect.getMetadata(CLIENT_METADATA, instance, property);
       if (!isUndefined(isClient)) {
-        const metadata = Reflect.getMetadata(CLIENT_CONFIGURATION_METADATA, instance, property);
-        yield { property, metadata };
+        continue;
       }
+
+      const metadata = Reflect.getMetadata(CLIENT_CONFIGURATION_METADATA, instance, property);
+      yield { property, metadata };
     }
   }
 }

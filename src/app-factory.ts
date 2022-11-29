@@ -10,7 +10,7 @@ import { Microservice } from './microservice';
 import { MicroserviceConfiguration } from './microservice/interfaces';
 
 /**
- * Application Factory for Apps or Microservices.
+ * Application Factory for Applications or Microservices instances.
  */
 export class AppFactory {
   private static readonly logger = new LoggerService(AppFactory.name);

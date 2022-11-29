@@ -1,7 +1,11 @@
+import { LoggerService } from '../../common';
+
 /**
- * Represents a Microservice Server instance.
+ * Microservice Server.
  */
 export abstract class Server {
+  private readonly logger = new LoggerService(Server.name);
+
   /**
    * Message collector.
    * @protected
@@ -19,12 +23,21 @@ export abstract class Server {
   }
 
   /**
+   * Get current registered handlers.
+   *
+   * @returns An object with current registered handlers.
+   */
+  getHandlers(): any {
+    return this.messageHandlers;
+  }
+
+  /**
    * Handle and monitoring given error.
    *
    * @param error Error to be displayed.
    */
   protected handleError(error: any): void {
-    console.log(error);
+    this.logger.error(error);
   }
 
   /**
@@ -32,5 +45,5 @@ export abstract class Server {
    *
    * @param callback Action to be deployed after initialization.
    */
-  abstract listen(callback: () => void);
+  abstract listen(callback: () => void): void;
 }

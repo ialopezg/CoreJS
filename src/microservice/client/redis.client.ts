@@ -11,8 +11,8 @@ export class RedisClient extends ProxyClient {
   private readonly logger = new LoggerService(ProxyClient.name);
   private readonly defaultUrl = 'redis://localhost:6379';
   private readonly url: string;
-  private pub: RedisClientType;
-  private sub: RedisClientType;
+  private publisher: RedisClientType;
+  private subscriber: RedisClientType;
 
   /**
    * Creates a new instance of the ClientRedis instance.
@@ -35,31 +35,53 @@ export class RedisClient extends ProxyClient {
    */
   sendSingleMessage(message: any, callback: Function): void {
     const pattern = JSON.stringify(message.pattern);
-    const listener = (channel: any, message: any) => {
+    const subscription = (channel: any, message: any) => {
       const { error, response } = JSON.parse(message);
       callback(error, response);
 
-      this.sub.unsubscribe(RedisClient.getResPatternName(pattern))
+      this.subscriber.unsubscribe(RedisClient.getResPatternName(pattern))
         .then((result) => result);
-      this.sub.removeListener('message', listener);
+      this.subscriber.removeListener('message', subscription);
     };
-    this.sub.on('message', listener);
 
-    this.sub.subscribe(RedisClient.getResPatternName(pattern), listener)
+    this.subscriber.on('message', subscription);
+    this.subscriber.subscribe(RedisClient.getResPatternName(pattern), subscription)
       .then((result) => result);
-    this.pub.publish(RedisClient.getAckPatternName(pattern), JSON.stringify(message))
+    this.publisher.publish(RedisClient.getAckPatternName(pattern), JSON.stringify(message))
       .then((result) => result);
+  }
+
+  /**
+   * Get the Ack patterns name normalized.
+   *
+   * @param pattern Pattern name.
+   *
+   * @returns A normalized pattern name.
+   */
+  static getAckPatternName(pattern: string): string {
+    return `${pattern}_ack`;
+  }
+
+  /**
+   * Get the resource patterns name normalized.
+   *
+   * @param pattern Pattern name.
+   *
+   * @returns A normalized pattern name.
+   */
+  static getResPatternName(pattern: string): string {
+    return `${pattern}_res`;
   }
 
   /**
    * Initialize a ClientRedis instance.
    */
   private init(): void {
-    this.pub = this.createClient();
-    this.sub = this.createClient();
+    this.publisher = this.createClient();
+    this.subscriber = this.createClient();
 
-    this.handleErrors(this.pub);
-    this.handleErrors(this.sub);
+    this.handleErrors(this.publisher);
+    this.handleErrors(this.subscriber);
   }
 
   /**
@@ -78,27 +100,5 @@ export class RedisClient extends ProxyClient {
    */
   private handleErrors(stream: RedisClientType): void {
     stream.on('error', (error) => this.logger.error(error));
-  }
-
-  /**
-   * Get the resource patterns name normalized.
-   *
-   * @param pattern Pattern name.
-   *
-   * @returns A normalized pattern name.
-   */
-  private static getResPatternName(pattern: string): string {
-    return `${pattern}_res`;
-  }
-
-  /**
-   * Get the Ack patterns name normalized.
-   *
-   * @param pattern Pattern name.
-   *
-   * @returns A normalized pattern name.
-   */
-  private static getAckPatternName(pattern: string): string {
-    return `${pattern}_ack`;
   }
 }

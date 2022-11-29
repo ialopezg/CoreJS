@@ -5,6 +5,8 @@
  * MIT Licensed
  */
 
-export * from './app-factory';
 export * from './common';
 export * from './core';
+export * from './app-factory';
+export * from './application';
+export * from './microservice';

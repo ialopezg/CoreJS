@@ -34,30 +34,33 @@ export class RoutesResolver {
   /**
    * Resolve all routes from registered module controllers.
    *
-   * @param application Express application to be used.
+   * @param express Express application to be used.
    */
-  resolve(application: Application): void {
+  resolve(express: Application): void {
     const modules = this.container.getModules();
 
-    modules.forEach(({ controllers }: Module) => this.setupControllers(controllers, application));
+    modules.forEach(({ controllers }: Module) => this.setupControllers(controllers, express));
   }
 
   /**
    * Setup given controllers as routes.
    *
    * @param controllers Controllers to be setup.
-   * @param application Express application to be used.
+   * @param express Express application to be used.
    */
-  setupControllers(
-    controllers: Map<Controller, InstanceWrapper<Controller>>,
-    application: Application,
-  ) {
-    controllers.forEach(({ instance, metaType }: InstanceWrapper<Controller>) => {
+  setupControllers(controllers: Map<Controller, InstanceWrapper<Controller>>, express: Application): void {
+    controllers.forEach(({
+      instance,
+      metaType,
+    }) => {
       this.logger.log(getControllerMappingMessage(metaType.name));
 
-      const { path, router } = this.builder.build(instance, metaType);
+      const {
+        path,
+        router,
+      } = this.builder.build(instance, metaType);
 
-      application.use(path, router);
+      express.use(path, router);
     });
   }
 }

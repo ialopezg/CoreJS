@@ -1,5 +1,5 @@
-import { createClient } from 'redis';
-import { NO_MESSAGE_PATTERN } from '../constants';
+import { createClient, RedisClientType } from 'redis';
+import { NO_PATTERN_MESSAGE } from '../constants';
 
 import { MicroserviceConfiguration } from '../interfaces';
 import { Server } from './server';
@@ -28,10 +28,19 @@ export class RedisServer extends Server {
    * @param callback Action to be executed after initializes.
    */
   listen(callback: () => void) {
-    const subscriber = createClient({ url: this.url });
-    const publisher = createClient({ url: this.url });
+    const subscriber = this.createRedisClient();
+    const publisher = this.createRedisClient();
 
     subscriber.on('connect', () => this.handleConnection(callback, subscriber, publisher));
+  }
+
+  /**
+   * Creates a Redis client type.
+   *
+   * @returns An instance of a RedisClientType.
+   */
+  createRedisClient(): RedisClientType {
+    return createClient({ url: this.url });
   }
 
   /**
@@ -42,9 +51,7 @@ export class RedisServer extends Server {
    * @param publisher Publisher stream.
    */
   private handleConnection(callback: () => void, subscriber: any, publisher: any) {
-    subscriber.on('message', (channel: any, buffer: any) =>
-      this.handleMessage(channel, buffer, publisher),
-    );
+    subscriber.on('message', this.getMessageHandler(publisher).bind(this));
 
     const patterns = Object.keys(this.messageHandlers);
     patterns.forEach((pattern: string) =>
@@ -54,7 +61,16 @@ export class RedisServer extends Server {
   }
 
   /**
-   * Gets the Ack Queue name.
+   * Get the message handler for given publisher.
+   *
+   * @param publisher
+   */
+  getMessageHandler(publisher: any) {
+    return (channel: string, buffer: any) => this.handleMessage(channel, buffer, publisher);
+  }
+
+  /**
+   * Gets the Acknowledgment Queue name.
    *
    * @param pattern Pattern name;
    *
@@ -71,19 +87,19 @@ export class RedisServer extends Server {
    * @param buffer Buffer content.
    * @param publisher Publisher stream.
    */
-  private handleMessage(channel: string, buffer: any, publisher: any) {
+  handleMessage(channel: string, buffer: any, publisher: any) {
     const message = this.tryParse(buffer);
     const pattern = channel.replace(/_ack$/, '');
     const publish = this.getPublisher(publisher, pattern);
 
     if (!this.messageHandlers[pattern]) {
-      publish({ error: NO_MESSAGE_PATTERN });
+      publish({ error: NO_PATTERN_MESSAGE });
 
       return;
     }
 
     const handler = this.messageHandlers[pattern];
-    handler(message.data, this.handleMessageCallback(publisher, pattern).bind(this));
+    handler(message.data, this.getMessageHandlerCallback(publisher, pattern).bind(this));
   }
 
   /**
@@ -94,14 +110,13 @@ export class RedisServer extends Server {
    *
    * @returns A callback to be executed when a message is handled.
    */
-  handleMessageCallback(publisher: any, pattern: any): any {
+  getMessageHandlerCallback(publisher: any, pattern: any): any {
     return (error: any, response: any) => {
       const publish = this.getPublisher(publisher, pattern);
       if (!response) {
-        const respond = error;
         publish({
           error: null,
-          respond: response,
+          response: error,
         });
 
         return;
@@ -118,7 +133,7 @@ export class RedisServer extends Server {
    *
    * @returns The publisher object.
    */
-  private getPublisher(publisher: any, pattern: any): any {
+  getPublisher(publisher: any, pattern: any): any {
     return (respond: any) => {
       publisher.publish(this.getResQueueName(pattern), JSON.stringify(respond));
     };
@@ -131,7 +146,7 @@ export class RedisServer extends Server {
    *
    * @returns A string value containing the response queue name.
    */
-  private getResQueueName(pattern: string): string {
+  getResQueueName(pattern: string): string {
     return `${pattern}_res`;
   }
 
@@ -142,7 +157,7 @@ export class RedisServer extends Server {
    *
    * @returns An value containing the parsed content.
    */
-  private tryParse(content: any): any {
+  tryParse(content: any): any {
     try {
       return JSON.parse(content);
     } catch (error) {

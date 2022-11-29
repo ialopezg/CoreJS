@@ -17,7 +17,10 @@ export class TCPClient extends ProxyClient {
    *
    * @param config Client metadata information.
    */
-  constructor({ port, host }: ClientMetadata) {
+  constructor({
+    port,
+    host,
+  }: ClientMetadata) {
     super();
 
     this.host = host || this.defaultHost;
@@ -31,14 +34,24 @@ export class TCPClient extends ProxyClient {
    * @param callback Function to be executed.
    */
   sendSingleMessage(message: any, callback: Function): void {
-    jsonSocket.sendSingleMessageAndReceive(this.port, this.host, message, (error: any, response: any) => {
-      if (error) {
-        callback(error);
+    jsonSocket.sendSingleMessageAndReceive(this.port, this.host, message, this.createCallback(callback));
+  }
 
+  /**
+   * Creates a callback function to be used while a message is being sent.
+   *
+   * @param callback Callback reference.
+   *
+   * @returns A callback function.
+   */
+  createCallback(callback: Function) {
+    return (err, res) => {
+      if (err) {
+        callback(err);
         return;
       }
 
-      callback(response.error, response.response);
-    });
+      callback(res.err, res.response);
+    };
   }
 }
