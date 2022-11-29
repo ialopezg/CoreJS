@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.10](https://github.com/ialopezg/corejs/compare/v1.0.0-alpha.9...v1.0.0-alpha.10) (2022-11-29)
+
+
+### Features
+
+* improve and add more tests ([b3b22fa](https://github.com/ialopezg/corejs/commits/b3b22fa9ec2e975abace15f3d760ed6d0046c881))
+* improve microservices ([e991296](https://github.com/ialopezg/corejs/commits/e991296a8dd26f9bf5daa7e9f7013014c542c4eb))
+* improve microservices ([6ba9903](https://github.com/ialopezg/corejs/commits/6ba990357893a3bdca73933cfaa35b116c5353ea))
+
 ## [1.0.0-alpha.9](https://github.com/ialopezg/corejs/compare/v1.0.0-alpha.8...v1.0.0-alpha.9) (2022-11-29)
 
 ## [1.0.0-alpha.8](https://github.com/ialopezg/corejs/compare/v1.0.0-alpha.7...v1.0.0-alpha.8) (2022-11-29)
