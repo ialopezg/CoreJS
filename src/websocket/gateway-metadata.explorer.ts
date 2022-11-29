@@ -1,6 +1,6 @@
 import { isConstructor, isFunction, isUndefined } from '../common';
 import { MESSAGE_MAPPING_METADATA, MESSAGE_METADATA, GATEWAY_SERVER_METADATA } from './constants';
-import { AppGateway } from './interfaces';
+import { Gateway } from './interfaces';
 
 /**
  * Defines a prototype object for a message mapping property.
@@ -27,7 +27,7 @@ export class GatewayMetadataExplorer {
    *
    * @returns Returns a list of MessageMappingProperty objects.
    */
-  explore(instance: AppGateway): MessageMappingProperty[] {
+  explore(instance: Gateway): MessageMappingProperty[] {
     return this.scanForHandlersFromPrototype(instance, Object.getPrototypeOf(instance));
   }
 
@@ -40,7 +40,7 @@ export class GatewayMetadataExplorer {
    * @returns Returns a list of MessageMappingProperty objects.
    */
   scanForHandlersFromPrototype(
-    instance: AppGateway,
+    instance: Gateway,
     prototype: any,
   ): MessageMappingProperty[] {
     return Object.getOwnPropertyNames(prototype)
@@ -52,7 +52,7 @@ export class GatewayMetadataExplorer {
         return !isConstructor(method) && isFunction(prototype[method]);
       })
       .map((method: string) => this.exploreMethodMetadata(instance, prototype, method))
-      .filter((mapper: MessageMappingProperty) => mapper !== null);
+      .filter((metadata) => metadata !== null);
   }
 
   /**
@@ -65,7 +65,7 @@ export class GatewayMetadataExplorer {
    * @returns Returns a MessageMappingProperty object.
    */
   exploreMethodMetadata(
-    instance: AppGateway,
+    instance: Gateway,
     prototype: any,
     method: string,
   ): MessageMappingProperty {
@@ -89,7 +89,7 @@ export class GatewayMetadataExplorer {
    *
    * @param instance Instance to be scanned.
    */
-  * scanForServerHooks(instance: AppGateway): IterableIterator<string> {
+  * scanForServerHooks(instance: Gateway): IterableIterator<string> {
     for (const propertyKey in instance) {
       if (isFunction(propertyKey)) {
         continue;
@@ -98,8 +98,10 @@ export class GatewayMetadataExplorer {
       const property = String(propertyKey);
       const isServer = Reflect.getMetadata(GATEWAY_SERVER_METADATA, instance, String(propertyKey));
       if (isUndefined(isServer)) {
-        yield property;
+        continue;
       }
+
+      yield property;
     }
   }
 }

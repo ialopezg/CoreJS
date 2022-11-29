@@ -60,7 +60,7 @@ export class Application implements ApplicationFactory {
 }
 ```
 
-### app.module.ts
+### app.socket.module.ts
 
 ```ts
 import { Module } from '@ialopezg/corejs';

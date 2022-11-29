@@ -5,7 +5,7 @@ import { Container, InstanceWrapper } from '../core/injector';
 import { Module } from '../core/injector/module';
 import { GATEWAY_METADATA } from './constants';
 import { SocketsContainer } from './sockets.container';
-import { WebSocketsController } from './websocket.controller';
+import { WebSocketsController } from './websockets.controller';
 import { Gateway } from './interfaces';
 import { SocketServerProvider } from './socket-server.provider';
 

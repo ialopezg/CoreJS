@@ -7,7 +7,7 @@ import { Container } from './core/injector';
 import { MiddlewareModule } from './core/middleware/module';
 import { RoutesResolver } from './core/router';
 import { MicroservicesModule } from './microservice/module';
-import { SocketModule } from './socket/module';
+import { SocketModule } from './websocket/socket.module';
 
 export class Application {
   private readonly logger = new LoggerService(Application.name);

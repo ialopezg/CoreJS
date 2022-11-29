@@ -12,8 +12,8 @@ export class Test {
     LoggerService.setMode(AppMode.TEST);
 
     this.restart();
-    const module = this.createModule(metadata);
 
+    const module = this.createModule(metadata);
     this.scanner.scan(module);
     this.loader.createInstancesOfDependencies();
   }

@@ -15,7 +15,7 @@
     "./src/index.ts"
   ],
   "include": [
-    "src/socket/**/*.ts",
+    "src/websocket/**/*.ts",
     "src/testing/*.ts"
   ],
   "exclude": [
