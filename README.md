@@ -1,4 +1,4 @@
-<div align="center">
+<div style="text-align:center">
   <img height="150" src="https://ialopezg.com/packages/corejs/corejs-logo.png" alt="CoreJS Logo" />
 </div>
 
