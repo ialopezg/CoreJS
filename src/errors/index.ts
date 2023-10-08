@@ -1,1 +1,0 @@
-export { ExceptionWrapper } from './wrapper';
