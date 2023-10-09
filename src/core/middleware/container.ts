@@ -1,37 +1,72 @@
-import { IMiddleware, MiddlewareConfiguration } from './builder';
+import { IController, ControllerMetadata, IModule } from '../../common/interfaces';
+import { IMiddleware, MiddlewareConfiguration, IMiddlewareProto } from './interfaces';
+import { RoutesMapper } from './mapper';
+import { UnknownModuleException } from '../../errors';
+import { RequestMethod } from '../../common';
 
-/**
- * Stores middlewares and their configurations.
- */
 export class MiddlewareContainer {
-  private readonly middlewares: Map<IMiddleware, IMiddleware> = new Map<IMiddleware, IMiddleware>();
-  private readonly configurations: MiddlewareConfiguration[] = [];
+  private readonly middlewares = new Map<IModule, Map<IMiddlewareProto, IMiddleware>>();
+  private readonly configs = new Map<IModule, Set<MiddlewareConfiguration>>;
+
+  constructor(private readonly mapper: RoutesMapper) {}
 
   /**
-   * Add configurations to container.
+   * Adds and register configurations for middleware objects.
    *
-   * @param {MiddlewareConfiguration[]} configurations Middleware configurations to be added.
+   * @param {Array<MiddlewareConfiguration>} configurations Configurations to be registered.
+   * @param {IModule} parent Parent module.
    */
-  public add(configurations: MiddlewareConfiguration[]): void {
-    configurations.forEach((configuration) => {
-      (<IMiddleware[]>configuration.middlewares).forEach((middleware) => {
-        this.middlewares.set(middleware, null);
+  public addConfig(configurations: MiddlewareConfiguration[], parent: IModule): void {
+    const middlewares = this.getCurrentMiddlewares(parent);
+    const configs = this.getCurrentConfig(parent);
+
+    (configurations ?? []).map((configuration) => {
+      [].concat(configuration.middlewares).map((middleware) => {
+        middlewares.set(middleware, null);
       });
-      this.configurations.push(configuration);
+
+      configuration.forRoutes = this.mapRoutesToFlatList(configuration.forRoutes);
+      configs.add(configuration);
     });
   }
 
   /**
-   * Return current middleware configurations.
+   * Get the list of middleware already registered.
    */
-  public getConfigurations(): MiddlewareConfiguration[] {
-    return this.configurations.slice(0);
+  public getMiddlewares(parent: IModule): Map<IMiddlewareProto, IMiddleware> {
+    if (!this.middlewares.has(parent)) {
+      throw new UnknownModuleException((<any>parent).name);
+    }
+
+    return this.middlewares.get(parent);
   }
 
   /**
-   * Return registered middlewares.
+   * Gets the list of middleware configurations already registered.
    */
-  public getMiddlewares(): Map<IMiddleware, IMiddleware> {
-    return this.middlewares;
+  public getConfigs(): Map<IModule, Set<MiddlewareConfiguration>> {
+    return this.configs;
+  }
+
+  private getCurrentMiddlewares(parent: IModule): Map<IMiddlewareProto, IMiddleware> {
+    if (!this.middlewares.has(parent)) {
+      this.middlewares.set(parent, new Map<IMiddlewareProto, IMiddleware>());
+    }
+
+    return this.middlewares.get(parent);
+  }
+
+  private getCurrentConfig(parent: IModule): Set<MiddlewareConfiguration> {
+    if (!this.configs.has(parent)) {
+      this.configs.set(parent, new Set<MiddlewareConfiguration>());
+    }
+
+    return this.configs.get(parent);
+  }
+
+  private mapRoutesToFlatList(forRoutes: (IController | ControllerMetadata & { request?: RequestMethod })[]) {
+    return forRoutes
+      .map((route) => this.mapper.map(route))
+      .reduce((a, b) => a.concat(b));
   }
 }

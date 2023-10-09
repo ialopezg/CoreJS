@@ -1,48 +1,35 @@
-import { Namespace, Server } from 'socket.io';
-import { ReplaySubject, Subject } from 'rxjs';
+import { ObservableSocketServer, SocketServerData } from './interfaces';
 
 /**
  * Subject Server Container.
  */
-export class SocketsContainer {
-  private sockets: Map<string, SocketEvents> = new Map<string, SocketEvents>();
+export class SocketContainer {
+  private subjects = new Map<SocketServerData, ObservableSocketServer>();
 
   /**
    * Get the socket subjects hooked into the given namespace.
    *
-   * @param {string} namespace Namespace to scan.
+   * @param {string} namespace Namespace.
+   * @param {number} port Port number.
    *
-   * @returns {SocketEvents} The socket events or null if not exists.
+   * @returns {ObservableSocketServer} The socket events or null if not exists.
    */
-  public get(namespace: string): SocketEvents {
-    return this.sockets.get(namespace);
+  public get(namespace: string, port: number): ObservableSocketServer {
+    return this.subjects.get({ namespace, port });
   }
 
   /**
    * Register an observable server by given namespace.
    *
    * @param {string} namespace Server namespace.
-   * @param {SocketEvents} server Server object to be registered.
+   * @param {number} port Port number.
+   * @param {ObservableSocketServer} server Server object to be registered.
    */
-  public register(namespace: string, server: SocketEvents) {
-    this.sockets.set(namespace, server);
+  public register(
+    namespace: string,
+    port: number,
+    server: ObservableSocketServer,
+  ) {
+    this.subjects.set({ namespace, port }, server);
   }
-}
-
-/**
- * Represents an Observable Server
- */
-export interface SocketEvents {
-  /**
-   * Server object definition.
-   */
-  server: Namespace | Server;
-  /**
-   * Init event.
-   */
-  init: ReplaySubject<any>;
-  /**
-   * Connection event.
-   */
-  connection: Subject<any>;
 }

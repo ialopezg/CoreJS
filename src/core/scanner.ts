@@ -1,17 +1,12 @@
 import 'reflect-metadata';
 
-import { ModuleContainer } from './container';
-import { IModule, IComponent, IController } from './interfaces';
+import { ModuleContainer } from './injector';
+import { IModule, IController, IInjectable } from '../common/interfaces';
 
 /**
  * Module Dependencies Scanner.
  */
 export class DependencyScanner {
-  /**
-   * Creates a new instance of Scanner class.
-   *
-   * @param {ModuleContainer} container Container for modules.
-   */
   constructor(private readonly container: ModuleContainer) {}
 
   /**
@@ -28,42 +23,81 @@ export class DependencyScanner {
     this.registerModule(target);
 
     (Reflect.getMetadata('modules', target) || [])
-      .map((child) => this.scanModule(child));
+      .map((child: any) => this.scanModule(child));
   }
 
-  private registerModule(target: IModule) {
-    this.container.addModule(target);
+  private registerModule(module: IModule) {
+    this.container.addModule(module);
   }
 
   private scanDependencies() {
-    this.container.getModules().forEach((_, parent) => {
-      (Reflect.getMetadata('modules', parent) || [])
-        .forEach((target) => this.registerChildModule(target, parent));
-
-      (Reflect.getMetadata('components', parent) || [])
-        .forEach((target) => this.registerComponent(target, parent));
-
-      (Reflect.getMetadata('controllers', parent) || [])
-        .forEach((target) => this.registerController(target, parent));
-
-      (Reflect.getMetadata('exports', parent) || [])
-        .forEach((target) => this.registerExportComponent(target, parent));
-    });
+    this.container.getModules().forEach(
+      (_dependencies, parent) => {
+        this.reflectChildModules(parent);
+        this.reflectComponents(parent);
+        this.reflectControllers(parent);
+        this.reflectExportedComponents(parent);
+      },
+    );
   }
 
-  private registerChildModule(target: IModule, parent: IModule) {
-    this.container.addChildModule(target, parent);
+  private reflectChildModules(parent: IModule): void {
+    (Reflect.getMetadata('modules', parent) || [])
+      .map((child: any) => this.registerChildModule(child, parent));
   }
 
-  private registerComponent(component: IComponent, parent: IModule) {
-    this.container.addComponent(component, parent);
+  private reflectComponents(parent: IModule): void {
+    (Reflect.getMetadata('components', parent) || [])
+      .map((component: any) => this.registerComponent(component, parent));
   }
 
-  private registerController(route: IController, parent: IModule) {
-    this.container.addController(route, parent);
+  private reflectControllers(parent: IModule): void {
+    (Reflect.getMetadata('controllers', parent) || [])
+      .map((route: any) => this.registerController(route, parent));
   }
 
-  private registerExportComponent(target: IComponent, parent: IModule) {
-    this.container.addExportComponent(target, parent);
+  reflectExportedComponents(parent: IModule): void {
+    (Reflect.getMetadata('exports', parent) || [])
+      .map((component: any) => this.registerExportedComponent(component, parent));
+  }
+
+  /**
+   * Registered a child module on given parent module.
+   *
+   * @param {IModule} child Child module.
+   * @param {IModule} parent Parent module.
+   */
+  private registerChildModule(child: IModule, parent: IModule): void {
+    this.container.addChildModule(child, parent);
+  }
+
+  /**
+   * Register a component.
+   *
+   * @param {IInjectable} target Component to be registered.
+   * @param {IModule} parent Parent module.
+   */
+  registerComponent(target: IInjectable, parent: IModule): void {
+    this.container.addComponent(target, parent);
+  }
+
+  /**
+   * Registered a controller on the parent.
+   *
+   * @param {IController} target Controller to be registered.
+   * @param {IModule} parent Parent module.
+   */
+  registerController(target: IController, parent: IModule) {
+    this.container.addController(target, parent);
+  }
+
+  /**
+   * Register a component as an exported component.
+   *
+   * @param {IInjectable} target Component to be exported.
+   * @param {IModule} parent Parent module.
+   */
+  registerExportedComponent(target: IInjectable, parent: IModule) {
+    this.container.addExportedComponent(target, parent);
   }
 }

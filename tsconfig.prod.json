@@ -1,24 +1,16 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "module": "commonjs",
     "declaration": true,
-    "noImplicitAny": false,
     "removeComments": false,
-    "noLib": false,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "target": "es6",
     "sourceMap": false,
-    "outDir": "./lib"
+    "outDir": "node_modules/@ialopezg/corejs",
+    "allowJs": false
   },
   "files": [
     "./src/index.ts"
   ],
   "include": [
-    "src/websocket/**/*.ts",
-    "src/testing/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
+    "src/socket/**/*.ts"
   ]
 }

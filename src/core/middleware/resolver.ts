@@ -1,33 +1,34 @@
+import { IModule } from '../../common';
+import { Injector, ModuleDependencies } from '../injector';
 import { MiddlewareContainer } from './container';
-import { IModuleDependencies, ModuleContainer } from '../container';
-import { InstanceLoader } from '../loader';
 
 /**
- * Middleware instance resolver.
+ * Resolves middleware instances.
  */
 export class MiddlewareResolver {
-  private readonly loader = new InstanceLoader();
-
+  private injector = new Injector();
   /**
-   * Creates a new instance of MiddlewareResolver class.
+   * Creates a new instance of the MiddlewareResolver class.
    *
-   * @param {MiddlewareContainer} middlewareContainer Middleware container.
-   * @param {ModuleContainer} moduleContainer Module container.
+   * @param {MiddlewareContainer} container Middleware container.
    */
-  constructor(
-    private readonly middlewareContainer: MiddlewareContainer,
-    private readonly moduleContainer: ModuleContainer,
-  ) {}
+  constructor(private readonly container: MiddlewareContainer) {}
 
   /**
-   * Resolve a middleware instance.
-   * @param target
+   * Resolves middleware instances.
+   *
+   * @param {ModuleDependencies} parent Parent
+   * @param {IModule} module Module prototype.
    */
-  public resolve(target: IModuleDependencies): void {
-    const middlewares = this.middlewareContainer.getMiddlewares();
+  public resolve(parent: ModuleDependencies, module: IModule) {
+    const middlewares = this.container.getMiddlewares(module);
 
-    middlewares.forEach((_, middleware) => {
-      this.loader.loadMiddlewareInstance(middleware, middlewares, target);
+    middlewares.forEach((_instance, prototype) => {
+      this.injector.loadInstanceOfMiddleware(
+        prototype,
+        middlewares,
+        parent,
+      );
     });
   }
 }

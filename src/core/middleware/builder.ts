@@ -1,56 +1,34 @@
-import { NextFunction, Request, Response } from 'express';
-import { ControllerProps, IController } from '../interfaces';
+import { InvalidMiddlewareConfigurationException } from '../../errors';
+import { MiddlewareConfiguration } from './interfaces';
 
 /**
- * Middleware configuration builder.
+ * Creates and applies middleware configurations
  */
 export class MiddlewareBuilder {
-  private readonly configurations: MiddlewareConfiguration[] = [];
-
-
-  /**
-   * Builds the middleware configurations.
-   */
-  public build() {
-    return this.configurations.slice(0);
-  }
+  private readonly configs = new Set<MiddlewareConfiguration>();
 
   /**
-   * Sets the middleware configuration for routes.
+   * Set the middleware configuration to be used.
    *
-   * @param {MiddlewareConfiguration} configuration Configuration to be used.
+   * @param {MiddlewareConfiguration} configuration Configuration to be applied.
    */
-  public use(configuration: MiddlewareConfiguration): MiddlewareBuilder {
-    this.configurations.push(configuration);
+  public use(configuration: MiddlewareConfiguration) {
+    if (
+      typeof configuration.middlewares === 'undefined' ||
+      typeof configuration.forRoutes === 'undefined'
+    ) {
+      throw new InvalidMiddlewareConfigurationException();
+    }
+
+    this.configs.add(configuration);
 
     return this;
   }
-}
 
-/**
- * Middleware configuration.
- */
-export interface MiddlewareConfiguration {
   /**
-   * Registered middlewares.
+   * Builds the middleware configuration.
    */
-  middlewares: IMiddleware | IMiddleware[];
-  /**
-   * Routes to apply the middlewares.
-   */
-  forRoutes: (IController | ControllerProps)[];
-}
-
-/**
- * Represents a middleware instance that will be applied to request routes.
- */
-export interface IMiddleware {
-  /**
-   * Resolve a middleware instance.
-   *
-   * @param {Request} request Request object.
-   * @param {Response} response Response object.
-   * @param {NextFunction} next Next function.
-   */
-  resolve: () => (request: Request, response: Response, next: NextFunction) => void;
+  public build(): MiddlewareConfiguration[] {
+    return [...this.configs];
+  }
 }

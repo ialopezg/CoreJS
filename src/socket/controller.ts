@@ -1,11 +1,11 @@
 import 'reflect-metadata';
 
-import { ReplaySubject, Subject } from 'rxjs';
-import { Namespace, Server } from 'socket.io';
-
-import { IComponent } from '../core/interfaces';
-import { SocketsContainer, SocketEvents } from './container';
-import { IGateway } from './interfaces';
+import { IInjectable } from '../common/interfaces';
+import { InvalidServerSocketPortException } from './exceptions';
+import { GatewayMetadataExplorer, MessageMappingProperties } from './explorer';
+import { IGateway, ObservableSocketServer } from './interfaces';
+import { SocketServerProvider } from './provider';
+import { Subject } from 'rxjs';
 
 /**
  * Observable Socket Servers Controller
@@ -14,71 +14,87 @@ export class SubjectsController {
   /**
    * Creates a new instance of SubjectsController class.
    *
-   * @param {SocketsContainer} container Container for sockets.
-   * @param {Server} server Observable Socket Server.
+   * @param {SocketServerProvider} provider Socket Server Provider.
    */
-  constructor(
-    private readonly container: SocketsContainer,
-    private readonly server: Server,
-  ) {}
+  constructor(private readonly provider: SocketServerProvider) {}
 
   /**
    * Register a gateway service into the socket module.
    *
-   * @param {IGateway} target Gateway service to be registered.
-   * @param {IComponent} prototype Component that contains the gateway service.
+   * @param {IGateway} instance Gateway service to be registered.
+   * @param {IInjectable} prototype Component that contains the gateway service.
    */
-  public hook(target: IGateway, prototype: IComponent) {
+  public hookGateway(instance: IGateway, prototype: IInjectable): void {
     const namespace = Reflect.getMetadata('namespace', prototype) || '';
-    const observableServer = this.scan(namespace);
+    const port = Reflect.getMetadata('port', prototype) || 80;
 
-    const { init, connection } = observableServer;
-    init.subscribe(target.onInit.bind(target));
-    connection.subscribe(target.connection?.bind(target));
-  }
-
-  private scan(namespace: string): SocketEvents {
-    let observableServer: SocketEvents = this.container.get(namespace);
-    if (!observableServer) {
-      observableServer = this.create(namespace);
+    if (!Number.isInteger(port)) {
+      throw new InvalidServerSocketPortException(port, (<any>prototype).name);
     }
 
-    return observableServer;
+    this.subscribeServer(instance, namespace, port);
   }
 
-  private create(namespace: string): SocketEvents {
-    const server = this.getByNamespace(namespace);
-    const observableServer = {
-      server,
-      init: new ReplaySubject(),
-      connection: new Subject(),
-    };
+  private subscribeServer(instance: IGateway, namespace: string, port: number): void {
+    const messages = GatewayMetadataExplorer.explore(instance);
+    const server = this.provider.scanForSocketServer(namespace, port);
 
-    const { init, connection } = observableServer;
+    this.hookServerToProperties(instance, server);
+    this.subscribeEvents(instance, messages, server);
+  }
+
+  private hookServerToProperties(instance: IGateway, server: ObservableSocketServer): void {
+    for (const property of GatewayMetadataExplorer.scanForServerHooks(instance)) {
+      Reflect.set(instance, property, server);
+    }
+  }
+
+  private subscribeEvents(
+    instance: IGateway,
+    messages: MessageMappingProperties[],
+    socketServer: ObservableSocketServer,
+  ) {
+    const {
+      init,
+      disconnect,
+      connection,
+      server,
+    } = socketServer;
+
+    this.subscribeInitEvent(instance, init);
     init.next(server);
 
-    server.on('connection', (client: any) => {
+    server.on('connection', (client) => {
+      this.subscribeConnectionEvent(instance, connection);
       connection.next(client);
+
+      this.subscribeMessages(messages, client, instance);
+      this.subscribeDisconnectEvent(instance, disconnect);
+      client.on('disconnect', (client) => disconnect.next(client));
     });
-
-    this.container.register(namespace, observableServer);
-
-    return observableServer;
   }
 
-  private getByNamespace(namespace: string): Namespace | Server {
-    if (namespace) {
-      return this.server.of(this.validateNamespace(namespace));
+  private subscribeInitEvent(instance: IGateway, event: Subject<any>) {
+    if (instance.afterInit) {
+      event.subscribe(instance.afterInit.bind(instance));
     }
-
-    return this.server;
   }
 
-  private validateNamespace(namespace: string): string {
-    if (namespace.charAt(0) !== '/') {
-      return `/${namespace}`;
+  private subscribeConnectionEvent(instance: IGateway, event: Subject<any>) {
+    if (instance.handleConnection) {
+      event.subscribe(instance.handleConnection.bind(instance));
     }
+  }
 
-    return namespace;
+  private subscribeDisconnectEvent(instance: IGateway, event: Subject<any>) {
+    if (instance.handleDisconnect) {
+      event.subscribe(instance.handleDisconnect.bind(instance));
+    }
+  }
+
+  private subscribeMessages(messageHandlers: MessageMappingProperties[], client: any, instance: IGateway) {
+    messageHandlers.map(({ message, callback }) => {
+      client.on(message, callback.bind(instance, client));
+    });
   }
 }

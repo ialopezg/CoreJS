@@ -1,61 +1,112 @@
 import 'reflect-metadata';
 
-import { Express } from 'express';
+import { Application, IRouterMatcher } from 'express';
 
-import { ModuleContainer } from '../container';
-import { MiddlewareResolver } from './resolver';
+import { ControllerMetadata, IModule } from '../../common/interfaces';
+import { RequestMethod } from '../../common';
+import { InvalidMiddlewareException, UnknownMiddlewareException } from '../../errors';
+import { ModuleContainer, ModuleDependencies } from '../injector';
+import { MiddlewareBuilder } from './builder';
 import { MiddlewareContainer } from './container';
-import { ControllerProps, IModule } from '../interfaces';
-import { IMiddleware, MiddlewareBuilder } from './builder';
+import { MiddlewareConfiguration } from './interfaces';
+import { RoutesMapper } from './mapper';
+import { MiddlewareResolver } from './resolver';
 
 export class MiddlewareModule {
-  private static readonly container: MiddlewareContainer = new MiddlewareContainer();
+  private static container = new MiddlewareContainer(new RoutesMapper());
   private static resolver: MiddlewareResolver;
 
   /**
-   * Setup middleware module.
+   * Get the current container of middlewares.
+   */
+  public static getContainer(): MiddlewareContainer {
+    return this.container;
+  }
+
+  /**
+   * Prepares and configures middleware module.
    *
-   * @param {ModuleContainer} container Module container.
+   * @param {ModuleContainer} container Modules container.
    */
   public static setup(container: ModuleContainer): void {
-    this.resolver = new MiddlewareResolver(this.container, container);
+    this.resolver = new MiddlewareResolver(this.container);
 
-    container.getModules().forEach((target) => {
-      this.load(target.instance);
-      this.resolver.resolve(target);
+    this.resolveMiddlewares(container.getModules());
+  }
+
+  /**
+   * Setup all registered middlewares.
+   *
+   * @param {Express} app Application where the middlewares will be applied.
+   */
+  public static setupMiddlewares(app: Application): void {
+    this.container.getConfigs().forEach((configs, parent) => {
+      [...configs].forEach((config) => {
+        config.forRoutes.forEach((controller: ControllerMetadata & { method: RequestMethod }) => {
+          this.setupControllerMiddleware(controller, config, parent, app);
+        });
+      });
     });
   }
 
-  public static setupMiddlewares(app: Express): void {
-    this.container
-      .getConfigurations()
-      .forEach((configuration) => {
-        configuration.forRoutes.forEach((route: ControllerProps) => {
-          const path = route.path;
+  private static setupControllerMiddleware(
+    controller: ControllerMetadata & { method: RequestMethod },
+    config: MiddlewareConfiguration,
+    parent: IModule,
+    app: Application,
+  ) {
+    const { path, method } = controller;
 
-          (<IMiddleware[]>configuration.middlewares).forEach((target) => {
-            const middlewares = this.container.getMiddlewares();
-            const middleware = middlewares.get(target);
+    [].concat(config.middlewares).forEach((prototype) => {
+      const middleware = this.container.getMiddlewares(parent).get(prototype);
 
-            if (!middleware) {
-              throw new Error('Runtime error. Middleware not found!');
-            }
+      if (typeof middleware === 'undefined') {
+        throw new UnknownMiddlewareException();
+      }
+      if (typeof middleware.resolve === 'undefined') {
+        throw new InvalidMiddlewareException((<any>middleware).name);
+      }
 
-            app.use(path, middleware.resolve());
-          });
-
-        });
-      });
+      const router = this.findRouterMethod(app, method).bind(app);
+      router(path, middleware.resolve());
+    });
   }
 
-  private static load(target: IModule) {
-    if (!target['configure']) {
+  private static findRouterMethod(
+    app: Application,
+    requestMethod: RequestMethod,
+  ): IRouterMatcher<Application> {
+    switch(requestMethod) {
+      case RequestMethod.POST:
+        return app.post;
+      case RequestMethod.ALL:
+        return app.all;
+      case RequestMethod.DELETE:
+        return app.delete;
+      case RequestMethod.PUT:
+        return app.put;
+      default:
+        return app.get;
+    }
+  }
+
+  private static resolveMiddlewares(modules: Map<IModule, ModuleDependencies>): void {
+    modules.forEach((module, prototype) => {
+      this.loadConfiguration(module.instance, prototype);
+      this.resolver.resolve(module, prototype);
+    });
+  }
+
+  private static loadConfiguration(parent: IModule, module: IModule) {
+    if (!parent.configure) {
       return;
     }
 
-    const builder = (<any>target).configure(new MiddlewareBuilder());
-    if (builder) {
-      this.container.add(builder.build());
+    const builder = new MiddlewareBuilder();
+    parent.configure(builder);
+
+    if (builder instanceof MiddlewareBuilder) {
+      this.container.addConfig(builder.build(), module);
     }
   }
 }

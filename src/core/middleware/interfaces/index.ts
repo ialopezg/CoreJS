@@ -1,2 +1,3 @@
-export * from './gateway-props.interface';
-export * from './gateway.interface';
+export * from './middleware-configuration.interface';
+export * from './middleware-proto.interface';
+export * from './middleware.interface';

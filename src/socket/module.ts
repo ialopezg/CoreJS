@@ -1,45 +1,41 @@
 import 'reflect-metadata';
 
-import { Server } from 'socket.io';
-
-import { ModuleContainer, IInstanceWrapper } from '../core/container';
-import { IComponent } from '../core/interfaces';
+import { ModuleContainer, InstanceWrapper } from '../core/injector';
+import { IInjectable } from '../common/interfaces';
 import { SubjectsController } from './controller';
-import { SocketsContainer } from './container';
+import { SocketContainer } from './container';
 import { IGateway } from './interfaces';
+import { SocketServerProvider } from './provider';
 
 /**
- * Represents a module that could listen gateway services.
+ * Represents a module that could listen to gateway services.
  */
 export class SocketModule {
-  private static port = 80;
-  private static container = new SocketsContainer();
-  private static server: Server;
+  private static container = new SocketContainer();
   private static controller: SubjectsController;
 
   /**
    * Configure the Socket Module for gateway services.
    *
-   * @param {SocketsContainer} container Container for Observable Socket Servers.
+   * @param {SocketContainer} container Container for Observable Socket Servers.
    */
-  public static setup(container: ModuleContainer): void {
-    this.server = new Server().listen(this.port);
-    this.controller = new SubjectsController(this.container, this.server);
+  public static setup(container: ModuleContainer) {
+    this.controller = new SubjectsController(new SocketServerProvider(this.container));
 
     container.getModules().forEach(
-      ({ components }) => this.scan(components),
+      ({ components }) => this.hookGatewaysIntoServers(components),
     );
   }
 
-  private static scan(
-    components: Map<IComponent, IInstanceWrapper<IComponent>>,
-  ): void {
-    components.forEach(({ instance }, component) => {
-      const keys = Reflect.getMetadataKeys(component);
+  private static hookGatewaysIntoServers(components: Map<IInjectable, InstanceWrapper<IInjectable>>): void {
+    components.forEach(({ instance }, prototype) => {
+      const keys = Reflect.getMetadataKeys(prototype);
 
-      if (keys.includes('__isGateway')) {
-        this.controller.hook(<IGateway>instance, component);
+      if (!keys.includes('__isGateway')) {
+        return;
       }
+
+      this.controller.hookGateway(<IGateway>instance, prototype);
     });
   }
 }

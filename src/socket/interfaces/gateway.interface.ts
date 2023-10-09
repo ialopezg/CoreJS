@@ -5,15 +5,21 @@ import { Server } from 'socket.io';
  */
 export interface IGateway {
   /**
-   * On init event.
+   * After init event.
    *
    * @param {Server} server Server object
    */
-  onInit: (server: Server) => void;
+  afterInit: (server: Server) => void;
   /**
-   * On connection event.
+   * Handle connection event.
    *
    * @param {any} client Client object.
    */
-  connection: (client: any) => void;
+  handleConnection: (client: any) => void;
+  /**
+   * Handle disconnect event.
+   *
+   * @param {any} client Client object.
+   */
+  handleDisconnect: (client: any) => void;
 }

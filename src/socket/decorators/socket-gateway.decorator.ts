@@ -1,19 +1,20 @@
 import 'reflect-metadata';
 
-import { GatewayProps } from '../interfaces';
+import { GatewayMetadata } from '../interfaces';
 
 /**
  * Provides the functionality as a Gateway service object.
  *
- * @param {GatewayProps} props Gateway feature definitions.
+ * @param {GatewayMetadata} metadata Gateway feature definitions.
  *
  * @constructor
  */
-export const SocketGateway = (props?: GatewayProps): ClassDecorator => {
-  props = props ?? {};
+export const SocketGateway = (metadata?: GatewayMetadata): ClassDecorator => {
+  metadata = metadata ?? {};
 
   return (target) => {
     Reflect.defineMetadata('__isGateway', true, target);
-    Reflect.defineMetadata('namespace', props.namespace, target);
+    Reflect.defineMetadata('namespace', metadata.namespace, target);
+    Reflect.defineMetadata('port', metadata.port, target);
   };
 };
