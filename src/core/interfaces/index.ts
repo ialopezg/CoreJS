@@ -4,4 +4,4 @@ export * from './application.interface';
 export * from './component.interface';
 export * from './controller-props.interface';
 export * from './controller.interface';
-export * from './path-props.interface';
+export * from './request-mapping-props.interface';

@@ -1,6 +1,6 @@
 import { Application, Express } from 'express';
 
-import { ModulesContainer, IInstanceWrapper } from './container';
+import { ModuleContainer, IInstanceWrapper } from './container';
 import { IController } from './interfaces';
 import { RouterBuilder } from './router-builder';
 
@@ -13,11 +13,11 @@ export class RoutesResolver {
   /**
    * Creates a new instance of RoutesResolver class.
    *
-   * @param {ModulesContainer} container Container for modules.
+   * @param {ModuleContainer} container Container for modules.
    * @param {Function} factory Router factory.
    */
   constructor(
-    private readonly container: ModulesContainer,
+    private readonly container: ModuleContainer,
     private readonly factory: Function,
   ) {
     this.builder = new RouterBuilder(factory);

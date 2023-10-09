@@ -2,7 +2,7 @@ import 'reflect-metadata';
 
 import { Server } from 'socket.io';
 
-import { ModulesContainer, IInstanceWrapper } from '../core/container';
+import { ModuleContainer, IInstanceWrapper } from '../core/container';
 import { IComponent } from '../core/interfaces';
 import { SubjectsController } from './controller';
 import { SocketsContainer } from './container';
@@ -22,7 +22,7 @@ export class SocketModule {
    *
    * @param {SocketsContainer} container Container for Observable Socket Servers.
    */
-  public static setup(container: ModulesContainer): void {
+  public static setup(container: ModuleContainer): void {
     this.server = new Server().listen(this.port);
     this.controller = new SubjectsController(this.container, this.server);
 

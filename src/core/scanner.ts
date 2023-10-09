@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { ModulesContainer } from './container';
+import { ModuleContainer } from './container';
 import { IModule, IComponent, IController } from './interfaces';
 
 /**
@@ -10,9 +10,9 @@ export class DependencyScanner {
   /**
    * Creates a new instance of Scanner class.
    *
-   * @param {ModulesContainer} container Container for modules.
+   * @param {ModuleContainer} container Container for modules.
    */
-  constructor(private readonly container: ModulesContainer) {}
+  constructor(private readonly container: ModuleContainer) {}
 
   /**
    * Scan given module for dependencies (components, services, and routes).
@@ -36,13 +36,23 @@ export class DependencyScanner {
   }
 
   private scanDependencies() {
-    this.container.getModules().forEach((dependencies, parent) => {
+    this.container.getModules().forEach((_, parent) => {
+      (Reflect.getMetadata('modules', parent) || [])
+        .forEach((target) => this.registerChildModule(target, parent));
+
       (Reflect.getMetadata('components', parent) || [])
-        .map((component) => this.registerComponent(component, parent));
+        .forEach((target) => this.registerComponent(target, parent));
 
       (Reflect.getMetadata('controllers', parent) || [])
-        .map((route) => this.registerController(route, parent));
+        .forEach((target) => this.registerController(target, parent));
+
+      (Reflect.getMetadata('exports', parent) || [])
+        .forEach((target) => this.registerExportComponent(target, parent));
     });
+  }
+
+  private registerChildModule(target: IModule, parent: IModule) {
+    this.container.addChildModule(target, parent);
   }
 
   private registerComponent(component: IComponent, parent: IModule) {
@@ -50,6 +60,10 @@ export class DependencyScanner {
   }
 
   private registerController(route: IController, parent: IModule) {
-    this.container.addRoute(route, parent);
+    this.container.addController(route, parent);
+  }
+
+  private registerExportComponent(target: IComponent, parent: IModule) {
+    this.container.addExportComponent(target, parent);
   }
 }

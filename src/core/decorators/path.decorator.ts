@@ -10,7 +10,7 @@ import { RequestMethod } from '../enums';
  *
  * @constructor
  */
-export const Path = (props: PathProps): MethodDecorator => {
+export const RequestMapping = (props: PathProps): MethodDecorator => {
   const requestMethod = props.method || RequestMethod.GET;
 
   return (target, key, descriptor) => {

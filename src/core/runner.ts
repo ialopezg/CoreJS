@@ -2,14 +2,15 @@ import * as express from 'express';
 import { Application, Router } from 'express';
 
 import { IApplication, IModule } from './interfaces';
-import { ModulesContainer } from './container';
+import { ModuleContainer } from './container';
 import { DependencyScanner } from './scanner';
 import { Injector } from './injector';
 import { SocketModule } from '../socket/module';
 import { RoutesResolver } from './routes-resolver';
+import { MiddlewareModule } from './middleware/module';
 
 export class Runner {
-  private static container = new ModulesContainer();
+  private static container = new ModuleContainer();
 
   private static scanner = new DependencyScanner(Runner.container);
   private static injector = new Injector(Runner.container);
@@ -17,7 +18,7 @@ export class Runner {
 
   static run<T extends IApplication>(prototype: any, module: IModule) {
     this.scanner.scan(module);
-    this.injector.createInstances();
+    this.injector.initialize();
 
     this.setupModules();
 
@@ -25,15 +26,20 @@ export class Runner {
   }
 
   private static setupModules(): void {
-    SocketModule.setup(Runner.container);
+    SocketModule.setup(this.container);
+    MiddlewareModule.setup(this.container)
   }
 
   private static setupApplication<T extends IApplicationFactory>(app: { new(app): T }): IApplication {
     try {
       const expressInstance = express();
+      const appInstance = new app(expressInstance);
+
+      MiddlewareModule.setupMiddlewares(expressInstance);
+
       this.resolver.resolve(expressInstance);
 
-      return new app(expressInstance);
+      return appInstance;
     } catch (error: any) {
       throw new Error('Invalid application class passed as parameter!');
     }

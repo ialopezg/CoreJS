@@ -19,29 +19,21 @@ export class RouterBuilder {
    */
   public build(target: IController, prototype: IController): { path: string, router: Function } {
     const router = this.factory();
+    const path = this.fetchControllerPath(prototype);
+    const paths = this.scanControllerPaths(target);
 
-    let path = Reflect.getMetadata('path', prototype);
-    path = this.validatePath(path);
-
-    const paths = this.scan(target);
     this.apply(router, paths);
 
     return { path, router };
   }
 
-  private validatePath(path: string): string {
-    if (!path) {
-      throw new Error('Path not defined in @Path() annotation!');
-    }
+  private fetchControllerPath(target: IController) {
+    const path = Reflect.getMetadata('path', target);
 
-    if (path.charAt(0) !== '/') {
-      return `/${path}`;
-    }
-
-    return path;
+    return this.validateControllerPath(path);
   }
 
-  private scan(target: IController) {
+  private scanControllerPaths(target: IController) {
     const paths: ControllerPathProperties[] = [];
 
     const prototype = Object.getPrototypeOf(target);
@@ -49,7 +41,7 @@ export class RouterBuilder {
       .filter((method) => method !== 'constructor');
 
     for (const method of methods) {
-      const controllerPath = this.getPath(target, prototype, method);
+      const controllerPath = this.exploreMethodMetadata(target, prototype, method);
       if (controllerPath) {
         paths.push(controllerPath);
       }
@@ -58,7 +50,7 @@ export class RouterBuilder {
     return paths;
   }
 
-  private getPath(
+  private exploreMethodMetadata(
     target: IController,
     prototype: any,
     methodName: string,
@@ -70,7 +62,7 @@ export class RouterBuilder {
       return;
     }
 
-    path = this.validatePath(path);
+    path = this.validateControllerPath(path);
     const method: RequestMethod = Reflect.getMetadata('method', methodHandler);
 
     return {
@@ -81,20 +73,39 @@ export class RouterBuilder {
   }
 
   private apply(router: Router, paths: ControllerPathProperties[]) {
-    (paths ?? []).map((pathProperties) => {
-      const { path, method, callback } = pathProperties;
-
-      switch (method) {
-        case RequestMethod.GET:
-          router.get(path, callback);
-          break;
-      }
+    (paths ?? []).forEach((pathProperties) => {
+      this.bindMethodToRouter(router, pathProperties);
     });
+  }
+
+  private bindMethodToRouter(router: Router, pathProperties: ControllerPathProperties) {
+    const { path, method, callback } = pathProperties;
+
+    const routerMethod = this.getRequestMethod(router, method);
+
+    routerMethod(path, callback);
+  }
+
+  private getRequestMethod(router: Router, method: RequestMethod) {
+    switch (method) {
+      case RequestMethod.POST:
+        return router.post.bind(router);
+      default:
+        return router.get.bind(router);
+    }
+  }
+
+  private validateControllerPath(path: string): string {
+    if (!path) {
+      throw new Error('Path not defined in @Path() annotation!');
+    }
+
+    return (path.charAt(0) !== '/') ? '/' + path : path;
   }
 }
 
 interface ControllerPathProperties {
   path: string;
   method: RequestMethod;
-  callback: RequestHandler | ErrorRequestHandler;
+  callback: RequestHandler | ErrorRequestHandler | any;
 }

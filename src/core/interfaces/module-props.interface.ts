@@ -18,4 +18,8 @@ export interface ModuleProps {
    * Routes.
    */
   controllers?: IController[];
+  /**
+   * Exportable components.
+   */
+  exports?: IComponent[];
 }
