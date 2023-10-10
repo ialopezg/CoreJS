@@ -1,7 +1,6 @@
 import { IController, ControllerMetadata, IModule } from '../../common/interfaces';
 import { IMiddleware, MiddlewareConfiguration, IMiddlewareProto } from './interfaces';
 import { RoutesMapper } from './mapper';
-import { UnknownModuleException } from '../../errors';
 import { RequestMethod } from '../../common';
 
 export class MiddlewareContainer {
@@ -34,11 +33,7 @@ export class MiddlewareContainer {
    * Get the list of middleware already registered.
    */
   public getMiddlewares(parent: IModule): Map<IMiddlewareProto, IMiddleware> {
-    if (!this.middlewares.has(parent)) {
-      throw new UnknownModuleException((<any>parent).name);
-    }
-
-    return this.middlewares.get(parent);
+    return this.middlewares.get(parent) ?? new Map<IMiddlewareProto, IMiddleware>();
   }
 
   /**
