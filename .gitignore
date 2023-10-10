@@ -37,6 +37,7 @@ lerna-debug.log*
 
 # Local data
 /database/*
+/example
 .env
 .env.development
 .env.test
