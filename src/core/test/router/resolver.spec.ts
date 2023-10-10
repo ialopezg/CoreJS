@@ -6,7 +6,7 @@ import { RouteResolver } from '../../router';
 
 describe('RoutesResolver', () => {
   @Controller({ path: 'global' })
-  class TestRoute {
+  class TestController {
     @RequestMapping({ path: 'test' })
     getTest() {}
 
@@ -20,6 +20,7 @@ describe('RoutesResolver', () => {
   before(() => {
     router = {
       get() {},
+      post() {},
     };
   });
 
@@ -30,14 +31,14 @@ describe('RoutesResolver', () => {
   });
 
   describe('setupRouters', () => {
-    it('should method setup controllers to express application instance', () => {
-      const routes = new Map();
-      routes.set(TestRoute, { instance: new TestRoute() });
+    it('should method "setupControllers" to express application instance', () => {
+      const controllers = new Map();
+      controllers.set(TestController, { instance: new TestController() });
 
       const use = sinon.spy();
       const applicationMock = { use };
 
-      routesResolver['setupControllers'](routes, <any>applicationMock);
+      routesResolver['setupControllers'](controllers, <any>applicationMock);
 
       expect(use.calledOnce).to.be.true;
       expect(use.calledWith('/global', router)).to.be.true;

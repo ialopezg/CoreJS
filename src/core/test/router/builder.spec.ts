@@ -6,7 +6,7 @@ import { RouterBuilder } from '../../router';
 
 describe('RouterBuilder', () => {
   @Controller({ path: 'global' })
-  class TestRoute {
+  class TestController {
     @RequestMapping({ path: 'test' })
     getTest() {}
 
@@ -26,7 +26,7 @@ describe('RouterBuilder', () => {
 
   describe('scanForPathsFromPrototype', () => {
     it('should method return expected list of route paths', () => {
-      const paths = builder.scanForPathsFromPrototype(new TestRoute(), TestRoute.prototype);
+      const paths = builder.scanForPathsFromPrototype(new TestController(), TestController.prototype);
 
       expect(paths).to.have.length(3);
 
@@ -43,10 +43,10 @@ describe('RouterBuilder', () => {
 
   describe('exploreMethodMetadata', () => {
     it('should method return expected object which represent single route', () => {
-      const instance = new TestRoute();
+      const instance = new TestController();
       const instanceProto = Object.getPrototypeOf(instance);
 
-      const route = builder['exploreMethodMetadata'](new TestRoute(), instanceProto, 'getTest');
+      const route = builder['exploreMethodMetadata'](new TestController(), instanceProto, 'getTest');
 
       expect(route.path).to.eql('/test');
       expect(route.method).to.eql(RequestMethod.GET);

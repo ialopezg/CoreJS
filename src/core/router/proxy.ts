@@ -9,9 +9,9 @@ export class RouterProxy {
   /**
    * Creates a new instance of the RouterProxy class.
    *
-   * @param {ExceptionHandler} errorHandler Error handler.
+   * @param {ExceptionHandler} handler Error handler.
    */
-  constructor(private readonly errorHandler: ExceptionHandler) {}
+  constructor(private readonly handler: ExceptionHandler) {}
 
   /**
    * Creates a router proxy to execute a custom function.
@@ -21,13 +21,13 @@ export class RouterProxy {
   public createProxy(
     callback: RouterProxyCallback,
   ): (request: Request, response: Response, next: NextFunction) => void {
-    return (request: Request, response: Response, next: NextFunction) => {
+    return (request, response, next) => {
       try {
-        Promise.resolve(callback(request, response, next)).catch((error) => {
-          this.errorHandler.next(error, response);
+        Promise.resolve(callback(request, response, next)).catch((error: any) => {
+          this.handler.next(error, response);
         });
       } catch (error: any) {
-        this.errorHandler.next(error, response);
+        this.handler.next(error, response);
       }
     };
   }

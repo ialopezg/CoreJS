@@ -89,7 +89,7 @@ export class RouterBuilder {
     const method: RequestMethod = Reflect.getMetadata('method', callback);
 
     return {
-      path,
+      path: this.validateRoutePath(path),
       method,
       callback: (<Function>callback).bind(controller),
     };

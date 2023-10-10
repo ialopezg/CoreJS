@@ -13,7 +13,7 @@ describe('@Injectable', () => {
   it('should decorate type with "design:paramtypes" metadata', () => {
     const params = Reflect.getMetadata('design:paramtypes', TestComponent);
 
-    expect(params[0].to.be.eql(Number));
-    expect(params[1].to.be.eql(String));
+    expect(params[0]).to.be.eql(Number);
+    expect(params[1]).to.be.eql(String);
   });
 });

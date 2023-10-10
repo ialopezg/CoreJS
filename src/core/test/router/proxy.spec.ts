@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
+import { NextFunction, Request, Response } from 'express';
 
-import { Exception } from '../../exceptions';
+import { Exception, ExceptionHandler } from '../../exceptions';
 import { RouterProxy } from '../../router';
-import { ExceptionHandler } from '../../../errors';
 
 describe('RouterProxy', () => {
   let routerProxy: RouterProxy;
@@ -24,7 +24,7 @@ describe('RouterProxy', () => {
 
     it('should method encapsulate callback passed as argument', () => {
       const expectation = handlerMock.expects('next').once();
-      const proxy = routerProxy.createProxy((_request, _response, _next) => {
+      const proxy = routerProxy.createProxy((request: Request, response: Response, next: NextFunction) => {
         throw new Exception('test', 500);
       });
       proxy(null, null, null);
@@ -34,7 +34,7 @@ describe('RouterProxy', () => {
 
     it('should method encapsulate async callback passed as argument', (done) => {
       const expectation = handlerMock.expects('next').once();
-      const proxy = routerProxy.createProxy(async (_request, _response, _next) => {
+      const proxy = routerProxy.createProxy(async (request: Request, response: Response, next: NextFunction) => {
         throw new Exception('test', 500);
       });
       proxy(null, null, null);

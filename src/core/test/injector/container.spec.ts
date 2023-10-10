@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { InstanceWrapper, ModuleContainer, ModuleDependencies } from '../../injector';
 import { IModule, Module } from '../../../common';
-import { IController, IInjectable } from '../../../common';
+import { IController, IInjectable } from '../../../common/interfaces';
 import { UnknownExportableComponentException } from '../../../errors';
 
 describe('ModuleContainer', () => {
@@ -20,9 +20,9 @@ describe('ModuleContainer', () => {
 
     expect(container['modules'].get(<IModule>TestModule)).to.be.deep.equal({
       instance: new TestModule(),
-      relatedModules: new Set<ModuleDependencies>(),
+      modules: new Set<ModuleDependencies>(),
       components: new Map<IInjectable, InstanceWrapper<any>>(),
-      routes: new Map<IController, InstanceWrapper<IController>>(),
+      controllers: new Map<IController, InstanceWrapper<IController>>(),
       exports: new Set<IInjectable>(),
     });
   });
