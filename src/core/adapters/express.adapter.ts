@@ -7,14 +7,14 @@ export class ExpressAdapter {
   /**
    * Creates an express instance.
    */
-  static create() {
+  public static create() {
     return express();
   }
 
   /**
    * Creates an express router instance.
    */
-  static createRouter(): express.Router {
+  public static createRouter() {
     return express.Router();
   }
 }

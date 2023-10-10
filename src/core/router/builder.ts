@@ -123,8 +123,20 @@ export class RouterBuilder {
   }
 }
 
-interface RoutePathProperties {
+/**
+ * Route path properties.
+ */
+export interface RoutePathProperties {
+  /**
+   * Path.
+   */
   path: string;
+  /**
+   * HTTP method.
+   */
   method: RequestMethod;
+  /**
+   * Callback.
+   */
   callback: RouterProxyCallback;
 }
