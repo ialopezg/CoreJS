@@ -6,7 +6,7 @@ import { IGateway } from './interfaces';
 import {
   MESSAGE_MAPPING_METADATA,
   MESSAGE_METADATA,
-  SOCKET_SERVER_METADATA,
+  GATEWAY_SERVER_METADATA,
 } from './constants';
 
 /**
@@ -38,7 +38,7 @@ export class GatewayMetadataExplorer {
       }
 
       const isServer = Reflect.getMetadata(
-        SOCKET_SERVER_METADATA,
+        GATEWAY_SERVER_METADATA,
         instance,
         String(property),
       );
