@@ -1,3 +1,4 @@
+import { getUnknownExportMessage } from '../messages';
 import { RuntimeException } from './runtime.exception';
 
 /**
@@ -8,7 +9,6 @@ export class UnknownExportableComponentException extends RuntimeException {
    * Creates a new instance of UnknownExportableComponentException class.
    */
   constructor(component: string) {
-    super(`Unknown ${component} component. Maybe ` +
-      `you forgot to place this one to components list also!`);
+    super(getUnknownExportMessage(component));
   }
 }

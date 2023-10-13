@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 
-import { Controller, RequestMapping, RequestMethod } from '../../../common';
+import { ApplicationMode, Controller, RequestMapping, RequestMethod } from '../../../common';
 import { RouteResolver } from '../../router';
 
 describe('RoutesResolver', () => {
@@ -25,15 +25,21 @@ describe('RoutesResolver', () => {
   });
 
   beforeEach(() => {
-    routesResolver = new RouteResolver(null, {
-      createRouter: () => router,
-    });
+    routesResolver = new RouteResolver(
+      null, {
+        createRouter: () => router,
+      },
+      ApplicationMode.TEST,
+    );
   });
 
-  describe('setupRouters', () => {
+  describe('setupControllers', () => {
     it('should method "setupControllers" to express application instance', () => {
       const controllers = new Map();
-      controllers.set(TestController, { instance: new TestController() });
+      controllers.set('TestController', {
+        instance: new TestController(),
+        metaType: TestController,
+      });
 
       const use = sinon.spy();
       const applicationMock = { use };

@@ -1,3 +1,4 @@
+import { getInvalidMiddlewareMessage } from '../messages';
 import { RuntimeException } from './runtime.exception';
 
 /**
@@ -8,8 +9,6 @@ export class InvalidMiddlewareException extends RuntimeException {
    * Creates a new instance of the class InvalidMiddlewareException.
    */
   constructor(middleware: string) {
-    super(
-      `Middleware ${middleware} has been setup without "resolve()" method.!`,
-    );
+    super(getInvalidMiddlewareMessage(middleware));
   }
 }

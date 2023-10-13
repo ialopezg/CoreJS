@@ -3,6 +3,7 @@ import { ObservableSocketServer } from './interfaces';
 import { SocketIOAdapter } from './adapters';
 import { Namespace, Server } from 'socket.io';
 import { ObservableSocket } from './observable-socket';
+import { validatePath } from '../common';
 
 /**
  * Represents an object that provides ObservableSocketServer instances.
@@ -18,16 +19,13 @@ export class SocketServerProvider {
    *
    * @returns An instance of ObservableSocketServer object.
    */
-  public scanForSocketServer(namespace: string, port: number): ObservableSocketServer {
-    let server = this.container.get(namespace, port);
-    if (!server) {
-      server = this.createServer(namespace, port);
-    }
+  public scan(namespace: string, port: number): ObservableSocketServer {
+    const server = this.container.get(namespace, port);
 
-    return server;
+    return server ? server : this.create(namespace, port);
   }
 
-  private createServer(namespace: string, port: number): ObservableSocketServer {
+  private create(namespace: string, port: number): ObservableSocketServer {
     const server = this.getServerOfNamespace(namespace, port);
     const socket = ObservableSocket.create(server);
 
@@ -45,9 +43,6 @@ export class SocketServerProvider {
   }
 
   private validateNamespace(namespace: string): string {
-    if (namespace.charAt(0) !== '/') {
-      return '/' + namespace;
-    }
-    return namespace;
+    return validatePath(namespace);
   }
 }

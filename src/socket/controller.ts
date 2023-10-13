@@ -6,11 +6,15 @@ import { GatewayMetadataExplorer, MessageMappingProperties } from './explorer';
 import { IGateway, ObservableSocketServer } from './interfaces';
 import { SocketServerProvider } from './provider';
 import { Subject } from 'rxjs';
+import { NAMESPACE_METADATA, PORT_METADATA } from './constants';
 
 /**
  * Observable Socket Servers Controller
  */
 export class SubjectsController {
+  private readonly CONNECTION_EVENT = 'connection';
+  private readonly DISCONNECT_EVENT = 'disconnect';
+
   /**
    * Creates a new instance of SubjectsController class.
    *
@@ -25,8 +29,8 @@ export class SubjectsController {
    * @param {IInjectable} prototype Component that contains the gateway service.
    */
   public hookGateway(instance: IGateway, prototype: IInjectable): void {
-    const namespace = Reflect.getMetadata('namespace', prototype) || '';
-    const port = Reflect.getMetadata('port', prototype) || 80;
+    const namespace = Reflect.getMetadata(NAMESPACE_METADATA, prototype) ?? '';
+    const port = Reflect.getMetadata(PORT_METADATA, prototype) ?? 80;
 
     if (!Number.isInteger(port)) {
       throw new InvalidServerSocketPortException(port, (<any>prototype).name);
@@ -35,22 +39,22 @@ export class SubjectsController {
     this.subscribeServer(instance, namespace, port);
   }
 
-  private subscribeServer(instance: IGateway, namespace: string, port: number): void {
-    const messages = GatewayMetadataExplorer.explore(instance);
-    const server = this.provider.scanForSocketServer(namespace, port);
+  private subscribeServer(target: IGateway, namespace: string, port: number): void {
+    const messages = GatewayMetadataExplorer.explore(target);
+    const server = this.provider.scan(namespace, port);
 
-    this.hookServerToProperties(instance, server);
-    this.subscribeEvents(instance, messages, server);
+    this.hookServer(target, server);
+    this.subscribeEvents(target, messages, server);
   }
 
-  private hookServerToProperties(instance: IGateway, server: ObservableSocketServer): void {
-    for (const property of GatewayMetadataExplorer.scanForServerHooks(instance)) {
-      Reflect.set(instance, property, server);
+  private hookServer(target: IGateway, server: ObservableSocketServer): void {
+    for (const property of GatewayMetadataExplorer.scanForServerHooks(target)) {
+      Reflect.set(target, property, server);
     }
   }
 
   private subscribeEvents(
-    instance: IGateway,
+    target: IGateway,
     messages: MessageMappingProperties[],
     socketServer: ObservableSocketServer,
   ) {
@@ -61,40 +65,41 @@ export class SubjectsController {
       server,
     } = socketServer;
 
-    this.subscribeInitEvent(instance, init);
-    init.next(server);
+    this.subscribeInitEvent(target, init);
 
-    server.on('connection', (client) => {
-      this.subscribeConnectionEvent(instance, connection);
+    init.next(server);
+    server.on(this.CONNECTION_EVENT, (client) => {
+      this.subscribeConnectionEvent(target, connection);
       connection.next(client);
 
-      this.subscribeMessages(messages, client, instance);
-      this.subscribeDisconnectEvent(instance, disconnect);
-      client.on('disconnect', (client) => disconnect.next(client));
+      this.subscribeMessages(messages, client, target);
+      this.subscribeDisconnectEvent(target, disconnect);
+
+      client.on(this.DISCONNECT_EVENT, (client) => disconnect.next(client));
     });
   }
 
-  private subscribeInitEvent(instance: IGateway, event: Subject<any>) {
-    if (instance.afterInit) {
-      event.subscribe(instance.afterInit.bind(instance));
+  private subscribeInitEvent(target: IGateway, event: Subject<any>) {
+    if (target.afterInit) {
+      event.subscribe(target.afterInit.bind(target));
     }
   }
 
-  private subscribeConnectionEvent(instance: IGateway, event: Subject<any>) {
-    if (instance.handleConnection) {
-      event.subscribe(instance.handleConnection.bind(instance));
+  private subscribeConnectionEvent(target: IGateway, event: Subject<any>) {
+    if (target.handleConnection) {
+      event.subscribe(target.handleConnection.bind(target));
     }
   }
 
-  private subscribeDisconnectEvent(instance: IGateway, event: Subject<any>) {
-    if (instance.handleDisconnect) {
-      event.subscribe(instance.handleDisconnect.bind(instance));
+  private subscribeDisconnectEvent(target: IGateway, event: Subject<any>) {
+    if (target.handleDisconnect) {
+      event.subscribe(target.handleDisconnect.bind(target));
     }
   }
 
-  private subscribeMessages(messageHandlers: MessageMappingProperties[], client: any, instance: IGateway) {
+  private subscribeMessages(messageHandlers: MessageMappingProperties[], client: any, target: IGateway) {
     messageHandlers.map(({ message, callback }) => {
-      client.on(message, callback.bind(instance, client));
+      client.on(message, callback.bind(target, client));
     });
   }
 }

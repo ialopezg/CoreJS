@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 
-import { Exception, ExceptionHandler } from '../../exceptions';
+import { HttpException, ExceptionHandler } from '../../exceptions';
 
 describe('ExceptionsHandler', () => {
   let handler: ExceptionHandler;
@@ -31,11 +31,11 @@ describe('ExceptionsHandler', () => {
       expect(jsonStub.calledWith({ message: 'Unknown exception' })).to.be.true;
     });
 
-    it('should method send expected response status code and message when exception is instance of Exception', () => {
+    it('should method send expected response status code and message when exception is instance of HttpException', () => {
       const status = 401;
       const message = 'Unauthorized';
 
-      handler.next(new Exception(message, status), response);
+      handler.next(new HttpException(message, status), response);
 
       expect(statusStub.calledWith(status)).to.be.true;
       expect(jsonStub.calledWith({ message })).to.be.true;

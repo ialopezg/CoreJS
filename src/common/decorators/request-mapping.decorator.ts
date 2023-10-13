@@ -2,7 +2,9 @@ import 'reflect-metadata';
 
 import { RequestMappingMetadata } from '../interfaces';
 import { RequestMethod } from '../enums';
-import { InvalidRequestMappingPathException } from '../../errors/exceptions/invalid-request-mapping-path.exception';
+import { METHOD_METADATA, PATH_METADATA } from '../constants';
+
+const defaultMetadata: RequestMappingMetadata = { path: '/', method: RequestMethod.GET };
 
 /**
  * Provides the functionality to a route path.
@@ -11,15 +13,15 @@ import { InvalidRequestMappingPathException } from '../../errors/exceptions/inva
  *
  * @constructor
  */
-export const RequestMapping = (metadata: RequestMappingMetadata): MethodDecorator => {
-  if (typeof metadata.path === 'undefined') {
-    throw new InvalidRequestMappingPathException();
-  }
-  const requestMethod = metadata.method || RequestMethod.GET;
+export const RequestMapping = (
+  metadata: RequestMappingMetadata = defaultMetadata,
+): MethodDecorator => {
+  const path = metadata.path ?? '/';
+  const method = metadata.method || RequestMethod.GET;
 
-  return (target, key, descriptor) => {
-    Reflect.defineMetadata('path', metadata.path, descriptor.value);
-    Reflect.defineMetadata('method', requestMethod, descriptor.value);
+  return (_target, _key, descriptor) => {
+    Reflect.defineMetadata(PATH_METADATA, path, descriptor.value);
+    Reflect.defineMetadata(METHOD_METADATA, method, descriptor.value);
 
     return descriptor;
   };

@@ -5,7 +5,7 @@ import * as sinon from 'sinon';
 import { Component, Controller, RequestMapping, RequestMethod } from '../../../common';
 import { IMiddleware } from '../../middleware';
 import { MiddlewareBuilder, MiddlewareModule } from '../../middleware';
-import { InvalidMiddlewareException, UnknownMiddlewareException } from '../../../errors';
+import { InvalidMiddlewareException, RuntimeException } from '../../../errors';
 
 describe('MiddlewareModule', () => {
   @Controller({ path: 'test' })
@@ -23,13 +23,11 @@ describe('MiddlewareModule', () => {
   @Component()
   class TestMiddleware implements IMiddleware {
     resolve() {
-      return (_request: Request, _response: Response, _next: NextFunction) => {
-      };
+      return (_request: Request, _response: Response, _next: NextFunction) => {};
     }
   }
 
   describe('loadConfiguration', () => {
-
     it('should call "configure" method if method is implemented', () => {
       const configureSpy = sinon.spy();
       const mockModule = {
@@ -44,8 +42,7 @@ describe('MiddlewareModule', () => {
   });
 
   describe('setupRouteMiddleware', () => {
-
-    it('should throw "UnknownMiddlewareException" exception when middlewares is not stored in container', () => {
+    it('should throw "RuntimeException" exception when middlewares is not stored in container', () => {
       const route = { path: 'Test' };
       const configuration = {
         middlewares: [TestMiddleware],
@@ -57,7 +54,7 @@ describe('MiddlewareModule', () => {
 
       expect(MiddlewareModule['setupControllerMiddleware'].bind(
         MiddlewareModule, route, configuration, <any>'Test', <any>app,
-      )).throws(UnknownMiddlewareException);
+      )).throws(RuntimeException);
     });
 
     it('should throw "InvalidMiddlewareException" exception when middlewares does not have "resolve" method', () => {
@@ -78,7 +75,10 @@ describe('MiddlewareModule', () => {
       container.addConfig([<any>configuration], moduleKey);
 
       const instance = new InvalidMiddleware();
-      container.getMiddlewares(moduleKey).set(<any>InvalidMiddleware, <any>instance);
+      container.getMiddlewares(moduleKey).set('InvalidMiddleware', <any>{
+        instance,
+        metaType: InvalidMiddleware,
+      });
 
       expect(MiddlewareModule['setupControllerMiddleware'].bind(
         MiddlewareModule, route, configuration, moduleKey, <any>app,
@@ -102,7 +102,10 @@ describe('MiddlewareModule', () => {
       container.addConfig([configuration], moduleKey);
 
       const instance = new TestMiddleware();
-      container.getMiddlewares(moduleKey).set(TestMiddleware, instance);
+      container.getMiddlewares(moduleKey).set('TestMiddleware', {
+        instance,
+        metaType: TestMiddleware,
+      });
 
       MiddlewareModule['setupControllerMiddleware'](route, configuration, moduleKey, <any>app);
 

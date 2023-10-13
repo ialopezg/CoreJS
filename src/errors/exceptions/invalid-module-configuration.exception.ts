@@ -1,4 +1,5 @@
 import { RuntimeException } from './runtime.exception';
+import { getInvalidModuleConfigMessage } from '../messages';
 
 /**
  * Represents an error when the annotation has invalid configuration.
@@ -10,6 +11,6 @@ export class InvalidModuleConfigurationException extends RuntimeException {
    * @param {string} property Module property name.
    */
   constructor(property: string) {
-    super(`Invalid property [${property}] in @Module({}) annotation.`);
+    super(getInvalidModuleConfigMessage(property));
   }
 }

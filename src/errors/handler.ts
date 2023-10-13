@@ -1,24 +1,26 @@
-import { Color } from 'custom-console-colors';
+import { LoggerService } from '../common';
 import { RuntimeException } from './exceptions';
 
 /**
- * Handles errors in an exception zone wrapper.
+ * Handles error type objects and resolve them according its behaviour.
  */
 export class ExceptionHandler {
-  /**
-   * Handle any un-handled error.
-   *
-   * @param {RuntimeException|Error} exception Error info.
-   */
-  public handle(exception: RuntimeException | Error) {
-    const { red: error, yellow: warning, bold } = Color;
+  private logger: LoggerService;
 
-    if (exception instanceof RuntimeException) {
-      console.log(bold(error('[CoreJS] Runtime error!')));
-      console.log(warning(exception.getMessage()));
+  /**
+   * Handle given error object.
+   *
+   * @param exception Error object.
+   */
+  public handle(exception: Error | RuntimeException): void {
+    this.logger = new LoggerService(ExceptionHandler.name);
+
+    if (!(exception instanceof RuntimeException)) {
+      this.logger.error(exception.message, exception.stack);
+
+      return;
     }
 
-    console.log(error('Stack trace:'));
-    console.log(exception.stack);
+    this.logger.error(exception.getMessage(), exception.stack);
   }
 }

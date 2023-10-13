@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 
-import { Controller, RequestMapping, RequestMethod } from '../../../common';
+import { ApplicationMode, Controller, RequestMapping, RequestMethod } from '../../../common';
 import { RouterBuilder } from '../../router';
 
 describe('RouterBuilder', () => {
@@ -21,7 +21,11 @@ describe('RouterBuilder', () => {
 
   let builder: RouterBuilder;
   beforeEach(() => {
-    builder = new RouterBuilder(null, null);
+    builder = new RouterBuilder(
+      null,
+      null,
+      ApplicationMode.TEST,
+    );
   });
 
   describe('scanForPathsFromPrototype', () => {

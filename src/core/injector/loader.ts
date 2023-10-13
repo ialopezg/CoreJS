@@ -1,21 +1,30 @@
 import 'reflect-metadata';
 
-import { IController, IInjectable, IModule } from '../../common/interfaces';
-import { ModuleDependencies, ModuleContainer } from './container';
+import { IController, IInjectable } from '../../common/interfaces';
+import { ModuleContainer } from './container';
 import { Injector } from './injector';
+import { ApplicationMode, LoggerService } from '../../common';
+import { Module } from './module';
+import { getInitializedModuleMessage } from '../helpers/messages.helper';
 
 /**
- * Dependencies Instance Loader.
+ * Instance Loader.
  */
 export class InstanceLoader {
-  private injector = new Injector();
+  private readonly logger: LoggerService = new LoggerService(InstanceLoader.name);
+  private injector: Injector = new Injector();
 
   /**
    * Creates a new instance of the class InstanceLoader.
    *
    * @param {ModuleContainer} container Modules container.
+   * @param {ApplicationMode} mode Application execution context.
    */
-  constructor(private readonly container: ModuleContainer) {}
+  constructor(
+    private readonly container: ModuleContainer,
+    private readonly mode: ApplicationMode = ApplicationMode.RUN,
+  ) {
+  }
 
   /**
    * Create the instances for all registered dependencies.
@@ -27,53 +36,59 @@ export class InstanceLoader {
     this.createInstances(modules);
   }
 
-  private createPrototypes(modules: Map<IModule, ModuleDependencies>): void {
-    modules.forEach((module) => {
+  private createPrototypes(modules: Map<string, Module>): void {
+    modules.forEach((module, name) => {
       this.createPrototypesOfComponents(module);
       this.createPrototypesOfControllers(module);
+
+      if (this.mode === ApplicationMode.RUN) {
+        this.logger.log(getInitializedModuleMessage(name));
+      }
     });
   }
 
-  private createInstances(modules: Map<IModule, ModuleDependencies>): void {
+  private createInstances(modules: Map<string, Module>): void {
     modules.forEach((module) => {
       this.createInstancesOfComponents(module);
       this.createInstancesOfControllers(module);
     });
   }
 
-  private createPrototypesOfComponents(module: ModuleDependencies): void {
-    module.components.forEach(
-      (
-        _wrapper,
-        prototype,
-      ) => this.injector.loadPrototypeOfInstance<IInjectable>(prototype, module.components),
-    );
+  private createPrototypesOfComponents(parent: Module): void {
+    parent.components.forEach((
+      wrapper,
+    ) => this.injector.loadPrototypeOfInstance<IInjectable>(
+      wrapper.metaType,
+      parent.components,
+    ));
   }
 
-  private createInstancesOfComponents(module: ModuleDependencies): void {
-    module.components.forEach(
-      (
-        _wrapper,
-        prototype,
-      ) => this.injector.loadInstanceOfComponent(prototype, module),
-    );
+  private createInstancesOfComponents(parent: Module): void {
+    parent.components.forEach((
+      wrapper,
+    ) => this.injector.loadInstanceOfComponent(
+      wrapper.metaType,
+      parent,
+    ));
   }
 
-  private createPrototypesOfControllers(module: ModuleDependencies): void {
-    module.controllers.forEach(
+  private createPrototypesOfControllers(parent: Module): void {
+    parent.controllers.forEach(
       (
-        _wrapper,
-        prototype,
-      ) => this.injector.loadPrototypeOfInstance<IController>(prototype, module.controllers),
-    );
+        wrapper,
+      ) => this.injector.loadPrototypeOfInstance<IController>(
+        wrapper.metaType,
+        parent.controllers,
+      ));
   }
 
-  private createInstancesOfControllers(module: ModuleDependencies): void {
-    module.controllers.forEach(
+  private createInstancesOfControllers(parent: Module): void {
+    parent.controllers.forEach(
       (
-        _wrapper,
-        prototype,
-      ) => this.injector.loadInstanceOfController(prototype, module),
-    );
+        wrapper,
+      ) => this.injector.loadInstanceOfController(
+        wrapper.metaType,
+        parent,
+      ));
   }
 }

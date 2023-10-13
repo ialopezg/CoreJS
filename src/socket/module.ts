@@ -6,6 +6,7 @@ import { SubjectsController } from './controller';
 import { SocketContainer } from './container';
 import { IGateway } from './interfaces';
 import { SocketServerProvider } from './provider';
+import { GATEWAY_METADATA } from './constants';
 
 /**
  * Represents a module that could listen to gateway services.
@@ -27,15 +28,14 @@ export class SocketModule {
     );
   }
 
-  private static hookGatewaysIntoServers(components: Map<IInjectable, InstanceWrapper<IInjectable>>): void {
-    components.forEach(({ instance }, prototype) => {
-      const keys = Reflect.getMetadataKeys(prototype);
-
-      if (!keys.includes('__isGateway')) {
+  private static hookGatewaysIntoServers(components: Map<string, InstanceWrapper<IInjectable>>): void {
+    components.forEach(({ instance, metaType }) => {
+      const keys = Reflect.getMetadataKeys(metaType);
+      if (!keys.includes(GATEWAY_METADATA)) {
         return;
       }
 
-      this.controller.hookGateway(<IGateway>instance, prototype);
+      this.controller.hookGateway(<IGateway>instance, metaType);
     });
   }
 }

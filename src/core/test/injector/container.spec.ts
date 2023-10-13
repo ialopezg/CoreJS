@@ -1,9 +1,10 @@
 import { expect } from 'chai';
 
-import { InstanceWrapper, ModuleContainer, ModuleDependencies } from '../../injector';
-import { IModule, Module } from '../../../common';
-import { IController, IInjectable } from '../../../common/interfaces';
-import { UnknownExportableComponentException } from '../../../errors';
+import * as sinon from 'sinon';
+
+import { ModuleContainer } from '../../injector';
+import { Module } from '../../../common';
+import { UnknownModuleException } from '../../../errors';
 
 describe('ModuleContainer', () => {
   let container: ModuleContainer;
@@ -15,24 +16,27 @@ describe('ModuleContainer', () => {
     container = new ModuleContainer();
   });
 
-  it('should create module instance and collections for dependencies', () => {
+  it('should not add module if already exists in collection', () => {
+    const modules = new Map();
+    const setSpy = sinon.spy(modules, 'set');
+    (container as any)['modules'] = modules;
+
+    container.addModule(TestModule);
     container.addModule(TestModule);
 
-    expect(container['modules'].get(<IModule>TestModule)).to.be.deep.equal({
-      instance: new TestModule(),
-      modules: new Set<ModuleDependencies>(),
-      components: new Map<IInjectable, InstanceWrapper<any>>(),
-      controllers: new Map<IController, InstanceWrapper<IController>>(),
-      exports: new Set<IInjectable>(),
-    });
+   expect(setSpy.calledOnce).to.be.true;
   });
 
 
-  it('should throw "UnknownExportException" when given exported component is not a part of components array', () => {
-    container.addModule(TestModule);
+  it('should "addComponent" throw "UnknownModuleException" when module is not stored in collection', () => {
+    expect(() => container.addComponent(null, TestModule)).throw(UnknownModuleException);
+  });
 
-    expect(
-      container.addExportedComponent.bind(container, <any>'Test', TestModule),
-    ).throws(UnknownExportableComponentException);
+  it('should "addComponent" throw "UnknownModuleException" when module is not stored in collection', () => {
+    expect(() => container.addController(null, TestModule)).throw(UnknownModuleException);
+  });
+
+  it('should "addExportedComponent" throw "UnknownModuleException" when module is not stored in collection', () => {
+    expect(() => container.addExportedComponent(null, TestModule)).throw(UnknownModuleException);
   });
 });

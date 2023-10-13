@@ -3,7 +3,7 @@ version: "3.8"
 services:
   mongo:
     image: mongo:5.0
-    container_name: mongo
+    container_name: test-mongo
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=password
@@ -16,7 +16,7 @@ services:
       - ./database/production:/Databases/production
   mongo-express:
     image: mongo-express
-    container_name: mexpress
+    container_name: test-mongo-express
     environment:
       - ME_CONFIG_MONGODB_ADMINUSERNAME=root
       - ME_CONFIG_MONGODB_ADMINPASSWORD=password

@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import * as sinon from 'sinon';
 
 import { Injector, InstanceLoader, ModuleContainer } from '../../injector';
-import { Component, Controller } from '../../../common';
+import { ApplicationMode, Component, Controller } from '../../../common';
 
 describe('InstanceLoader', () => {
   let loader: InstanceLoader;
@@ -17,7 +17,7 @@ describe('InstanceLoader', () => {
 
   beforeEach(() => {
     container = new ModuleContainer();
-    loader = new InstanceLoader(container);
+    loader = new InstanceLoader(container, ApplicationMode.TEST);
     mockContainer = sinon.mock(container);
   });
 
@@ -29,17 +29,23 @@ describe('InstanceLoader', () => {
       components: new Map(),
       controllers: new Map(),
     };
-    module.components.set(TestComponent, { instance: null });
-    module.controllers.set(TestController, { instance: null });
+    module.components.set('TestComponent', {
+      instance: null,
+      metaType: TestComponent,
+    });
+    module.controllers.set('TestController', {
+      instance: null,
+      metaType: TestController,
+    });
 
     const modules = new Map();
-    modules.set('Test', module);
+    modules.set('TestModule', module);
     mockContainer.expects('getModules').returns(modules);
 
     const loadComponentPrototypeStub = sinon.stub(injector, 'loadPrototypeOfInstance');
 
-    sinon.stub(injector, 'loadInstanceOfController');
     sinon.stub(injector, 'loadInstanceOfComponent');
+    sinon.stub(injector, 'loadInstanceOfController');
 
     loader.initialize();
     expect(loadComponentPrototypeStub.calledWith(TestComponent, module.components)).to.be.true;
@@ -54,7 +60,10 @@ describe('InstanceLoader', () => {
       components: new Map(),
       controllers: new Map(),
     };
-    module.components.set(TestComponent, { instance: null });
+    module.components.set('TestComponent', {
+      instance: null,
+      metaType: TestComponent,
+    });
 
     const modules = new Map();
     modules.set('TestComponent', module);
@@ -75,7 +84,7 @@ describe('InstanceLoader', () => {
       components: new Map(),
       controllers: new Map(),
     };
-    module.controllers.set(TestController, { instance: null });
+    module.controllers.set('TestController', { instance: null, metaType: TestController });
 
     const modules = new Map();
     modules.set('Test', module);

@@ -1,4 +1,5 @@
 import { ExceptionHandler } from './handler';
+import { RuntimeException } from './exceptions';
 
 /**
  * Exception Wrapper.

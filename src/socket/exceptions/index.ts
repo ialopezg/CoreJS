@@ -1,1 +1,1 @@
-export * from './invalid-sercer-socket-port.exception';
+export * from './invalid-server-socket-port.exception';

@@ -14,7 +14,10 @@ export class SocketContainer {
    *
    * @returns {ObservableSocketServer} The socket events or null if not exists.
    */
-  public get(namespace: string, port: number): ObservableSocketServer {
+  public get(
+    namespace: string,
+    port: number,
+  ): ObservableSocketServer {
     return this.subjects.get({ namespace, port });
   }
 

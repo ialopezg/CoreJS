@@ -1,4 +1,5 @@
 import { RuntimeException } from './runtime.exception';
+import { getUnknownDependenciesMessage } from '../messages';
 
 /**
  * Represents an error when cannot found a dependency.
@@ -10,6 +11,6 @@ export class UnknownDependenciesException extends RuntimeException {
    * @param {string} target Dependency type.
    */
   constructor(target: string) {
-    super(`Can't recognize dependencies of ${target}.`);
+    super(getUnknownDependenciesMessage(target));
   }
 }

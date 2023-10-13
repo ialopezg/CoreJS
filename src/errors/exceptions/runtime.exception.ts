@@ -1,22 +1,46 @@
 /**
- * Represents a runtime error.
- *
- * This class will be inherited by all kinds of errors.
+ * Defines the error base for all exceptions in this namespace.
+ */
+export declare class Error {
+  /**
+   * Error name.
+   */
+  public name: string;
+  /**
+   * Error message.
+   */
+  public message: string;
+  /**
+   * Error stack trace.
+   */
+  public stack: string;
+
+  /**
+   * Creates a new instances of Error class.
+   * @param message Error message.
+   */
+  constructor(message?: string);
+}
+
+/**
+ * Defines a base or runtime error.
  */
 export class RuntimeException extends Error {
   /**
-   * Creates a new instance of the class RuntimeException.
+   * Creates a new instance.
    *
    * @param {string} _message Error message.
    */
-  constructor(private readonly _message?: string) {
-    super();
+  constructor(private readonly _message: string = '') {
+    super(_message);
   }
 
   /**
-   * Gets the error message.
+   * Gets the error message that represents this instance.
+   *
+   * @returns {string} The representative error message.
    */
-  public getMessage(): string {
+  getMessage(): string {
     return this._message;
   }
 }

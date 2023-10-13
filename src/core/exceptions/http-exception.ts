@@ -1,7 +1,7 @@
 /**
  * Represents a generic exception.
  */
-export class Exception {
+export class HttpException {
   /**
    * Creates a new instance of the class Exception.
    *

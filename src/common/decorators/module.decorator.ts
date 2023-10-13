@@ -2,6 +2,7 @@ import 'reflect-metadata';
 
 import { ModuleMetadata } from '../interfaces';
 import { InvalidModuleConfigurationException } from '../../errors';
+import { MODULE_METADATA } from '../constants';
 
 /**
  * Provides the functionality (modules, components or services, and routes) to an application module.
@@ -12,8 +13,8 @@ import { InvalidModuleConfigurationException } from '../../errors';
  */
 export const Module = (metadata: ModuleMetadata): ClassDecorator => {
   const keys = Object.keys(metadata);
-  const allowed = ['modules', 'components', 'controllers', 'exports'];
-
+  const allowed = [...(Object.values(MODULE_METADATA) as string[])];
+  
   keys.forEach((key) => {
     if (!allowed.includes(key)) {
       throw new InvalidModuleConfigurationException(key);

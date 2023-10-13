@@ -1,7 +1,7 @@
 {
   "name": "@ialopezg/corejs",
-  "version": "1.0.6",
-  "description": "Custom tools for NodeJS",
+  "version": "1.0.7",
+  "description": "Application framework for Node.js",
   "main": "index.js",
   "scripts": {
     "build": "echo Using node index.js",
@@ -24,7 +24,8 @@
   },
   "homepage": "https://github.com/ialopezg/corejs#readme",
   "dependencies": {
-    "custom-console-colors": "^0.0.4",
+    "@ialopezg/cli": "^1.0.0",
+    "@ialopezg/commonjs": "^1.2.3",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",

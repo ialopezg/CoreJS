@@ -4,7 +4,7 @@ import { expect } from 'chai';
 
 import { Module } from '../../decorators';
 import { InvalidModuleConfigurationException } from '../../../errors';
-import { IModule } from '../../interfaces';
+import { MODULE_METADATA } from '../../constants';
 
 describe('@Module', () => {
   const moduleProps = {
@@ -18,10 +18,10 @@ describe('@Module', () => {
   class TestModule {}
 
   it('should decorate type with expected module metadata', () => {
-    const modules = Reflect.getMetadata('modules', TestModule);
-    const components = Reflect.getMetadata('components', TestModule);
-    const exports = Reflect.getMetadata('exports', TestModule);
-    const controllers = Reflect.getMetadata('controllers', TestModule);
+    const modules = Reflect.getMetadata(MODULE_METADATA.MODULES, TestModule);
+    const controllers = Reflect.getMetadata(MODULE_METADATA.CONTROLLERS, TestModule);
+    const components = Reflect.getMetadata(MODULE_METADATA.COMPONENTS, TestModule);
+    const exports = Reflect.getMetadata(MODULE_METADATA.EXPORTS, TestModule);
 
     expect(modules).to.be.eql(moduleProps.modules);
     expect(components).to.be.eql(moduleProps.components);

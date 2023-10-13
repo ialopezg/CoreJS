@@ -1,6 +1,13 @@
 import 'reflect-metadata';
 
+import { isConstructor, isFunction, isUndefined } from '@ialopezg/commonjs';
+
 import { IGateway } from './interfaces';
+import {
+  MESSAGE_MAPPING_METADATA,
+  MESSAGE_METADATA,
+  SOCKET_SERVER_METADATA,
+} from './constants';
 
 /**
  * Defines an explorer object that scans for all method names in an instance.
@@ -22,40 +29,63 @@ export class GatewayMetadataExplorer {
    *
    * @param {IGateway} instance Instance to be scanned.
    */
-  public static* scanForServerHooks(instance: IGateway): IterableIterator<string> {
+  public static* scanForServerHooks(
+    instance: IGateway,
+  ): IterableIterator<string> {
     for (const property in instance) {
-      if (typeof property === 'function') {
+      if (isFunction(property)) {
         continue;
       }
 
-      const isServer = Reflect.getMetadata('__isSocketServer', instance, String(property));
-      if (typeof isServer !== 'undefined') {
+      const isServer = Reflect.getMetadata(
+        SOCKET_SERVER_METADATA,
+        instance,
+        String(property),
+      );
+      if (!isUndefined(isServer)) {
         yield String(property);
       }
     }
   }
 
-  private static scanForHandlersFromPrototypes(instance: IGateway, prototype: any) {
+  private static scanForHandlersFromPrototypes(
+    target: IGateway,
+    prototype: any,
+  ): MessageMappingProperties[] {
     return Object.getOwnPropertyNames(prototype)
-      .filter(
-        (property) => property !== 'constructor' && typeof prototype[property] === 'function',
-      )
-      .map((property) => this.exploreMetadata(instance, prototype, property))
+      .filter((property) => {
+        const descriptor = Object.getOwnPropertyDescriptor(
+          prototype,
+          property,
+        );
+        if (descriptor.set || descriptor.get) {
+          return false;
+        }
+
+        return !isConstructor(property) && isFunction(prototype[property]);
+      })
+      .map((property) => this.exploreMetadata(target, prototype, property))
       .filter((message) => message !== null);
   }
 
-  private static exploreMetadata(instance: IGateway, prototype: any, methodName: string): MessageMappingProperties {
+  private static exploreMetadata(
+    target: IGateway,
+    prototype: any,
+    methodName: string,
+  ): MessageMappingProperties {
     const callback = prototype[methodName];
-    const isMessageMapping = Reflect.getMetadata('__isMessageMapping', callback);
-
-    if (typeof isMessageMapping === 'undefined') {
+    const isMessageMapping = Reflect.getMetadata(
+      MESSAGE_MAPPING_METADATA,
+      callback,
+    );
+    if (isUndefined(isMessageMapping)) {
       return null;
     }
 
-    const message = Reflect.getMetadata('message', callback);
+    const message = Reflect.getMetadata(MESSAGE_METADATA, callback);
 
     return {
-      callback: (<Function>callback).bind(instance),
+      callback: (<Function>callback).bind(target),
       message,
     };
   }

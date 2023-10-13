@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { Component } from '../../../common';
 import { RuntimeException } from '../../../errors';
-import { Injector, InstanceWrapper, ModuleDependencies } from '../../injector';
+import { Injector, InstanceWrapper, Module } from '../../injector';
 
 describe('Injector', () => {
   let injector: Injector;
@@ -22,33 +22,34 @@ describe('Injector', () => {
     class MainTest {
       constructor(
         public depOne: DependencyOne,
-        public depTwo: DependencyTwo) {}
+        public depTwo: DependencyTwo,
+      ) {}
     }
 
-    let moduleDeps: ModuleDependencies;
+    let moduleDeps: Module;
 
     beforeEach(() => {
-      moduleDeps = {
-        instance: null,
-        components: new Map<any, InstanceWrapper<any>>(),
-      };
-      moduleDeps.components.set(MainTest, {
+      moduleDeps = new Module(DependencyTwo);
+      moduleDeps.components.set('MainTest', {
+        metaType: MainTest,
         instance: Object.create(MainTest.prototype),
-        resolved: false
+        resolved: false,
       });
-      moduleDeps.components.set(DependencyOne, {
+      moduleDeps.components.set('DependencyOne', {
+        metaType: DependencyOne,
         instance: Object.create(DependencyOne.prototype),
-        resolved: false
+        resolved: false,
       });
-      moduleDeps.components.set(DependencyTwo, {
+      moduleDeps.components.set('DependencyTwo', {
+        metaType: DependencyTwo,
         instance: Object.create(DependencyOne.prototype),
-        resolved: false
+        resolved: false,
       });
     });
 
     it('should create an instance of component with proper dependencies', () => {
       injector['loadInstance'](MainTest, moduleDeps.components, moduleDeps);
-      const { instance } = <InstanceWrapper<MainTest>>(moduleDeps.components.get(MainTest));
+      const { instance } = <InstanceWrapper<MainTest>>(moduleDeps.components.get('MainTest'));
 
       expect(instance.depOne instanceof DependencyOne).to.be.true;
       expect(instance.depTwo instanceof DependencyOne).to.be.true;
@@ -57,14 +58,14 @@ describe('Injector', () => {
 
     it('should set "isResolved" property to true after instance initialization', () => {
       injector['loadInstance'](MainTest, moduleDeps.components, moduleDeps);
-      const { resolved } = <InstanceWrapper<MainTest>>(moduleDeps.components.get(MainTest));
+      const { resolved } = <InstanceWrapper<MainTest>>(moduleDeps.components.get('MainTest'));
 
       expect(resolved).to.be.true;
     });
 
     it('should throw RuntimeException when type is not stored in collection', () => {
       expect(
-        injector['loadInstance'].bind(injector, "Test", moduleDeps.components, moduleDeps)
+        injector['loadInstance'].bind(injector, 'Test', moduleDeps.components, moduleDeps),
       ).to.throw(RuntimeException);
     });
 
@@ -73,29 +74,28 @@ describe('Injector', () => {
   describe('loadPrototypeOfInstance', () => {
 
     @Component()
-    class Test {}
+    class TestComponent {}
 
-    let moduleDeps: ModuleDependencies;
+    let moduleDeps: Module;
 
     beforeEach(() => {
-      moduleDeps = {
-        instance: null,
-        components: new Map<any, InstanceWrapper<any>>(),
-      };
-      moduleDeps.components.set(Test, {
-        instance: Object.create(Test.prototype),
-        resolved: false
+      moduleDeps = new Module(TestComponent);
+      moduleDeps.components.set('TestComponent', {
+        metaType: TestComponent,
+        instance: Object.create(TestComponent.prototype),
+        resolved: false,
       });
     });
 
     it('should create prototype of instance', () => {
       const expectedResult = {
-        instance: Object.create(Test.prototype),
-        resolved: false
+        metaType: TestComponent,
+        instance: Object.create(TestComponent.prototype),
+        resolved: false,
       };
-      injector.loadPrototypeOfInstance(Test, moduleDeps.components);
+      injector.loadPrototypeOfInstance(TestComponent, moduleDeps.components);
 
-      expect(moduleDeps.components.get(Test)).to.deep.equal(expectedResult);
+      expect(moduleDeps.components.get('TestComponent')).to.deep.equal(expectedResult);
     });
   });
 });

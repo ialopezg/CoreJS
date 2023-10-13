@@ -1,9 +1,12 @@
 import 'reflect-metadata';
 
-import { RouterBuilder } from '../router';
+import { isUndefined } from '@ialopezg/commonjs';
+
+import { PATH_METADATA } from '../../common/constants';
 import { IController, ControllerMetadata } from '../../common/interfaces';
-import { RequestMethod } from '../../common';
+import { RequestMethod, validatePath } from '../../common';
 import { UnknownRequestMappingException } from '../../errors';
+import { RouterBuilder } from '../router';
 
 /**
  * Maps controller to router functions.
@@ -19,8 +22,8 @@ export class RoutesMapper {
   public map(
     controller: IController | ControllerMetadata & { method?: RequestMethod },
   ): Array<{ path: string, method: RequestMethod }> {
-    const path: string = Reflect.getMetadata('path', controller);
-    if (typeof path === 'undefined') {
+    const path: string = Reflect.getMetadata(PATH_METADATA, controller);
+    if (isUndefined(path)) {
       return [this.mapToRouteProps(controller)];
     }
 
@@ -35,18 +38,21 @@ export class RoutesMapper {
     }));
   }
 
-  private mapToRouteProps(route: ControllerMetadata & { method?: RequestMethod }) {
-    if (typeof route.path === 'undefined') {
+  private mapToRouteProps(
+    route: ControllerMetadata & { method?: RequestMethod },
+  ): { path: string, method: RequestMethod } {
+    const { path, method } = route;
+    if (isUndefined(path)) {
       throw new UnknownRequestMappingException();
     }
 
     return {
-      path: this.validateRoutePath(route.path),
-      method: (typeof route.method === 'undefined') ? RequestMethod.ALL : route.method,
+      path: this.validateRoutePath(path),
+      method: isUndefined(method) ? RequestMethod.ALL : method,
     };
   }
 
   private validateRoutePath(path: string): string {
-    return (path.charAt(0) !== '/') ? '/' + path : path;
+    return validatePath(path);
   }
 }

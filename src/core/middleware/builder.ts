@@ -1,5 +1,6 @@
 import { InvalidMiddlewareConfigurationException } from '../../errors';
 import { MiddlewareConfiguration } from './interfaces';
+import { isUndefined } from '@ialopezg/commonjs';
 
 /**
  * Creates and applies middleware configurations
@@ -13,10 +14,8 @@ export class MiddlewareBuilder {
    * @param {MiddlewareConfiguration} configuration Configuration to be applied.
    */
   public use(configuration: MiddlewareConfiguration) {
-    if (
-      typeof configuration.middlewares === 'undefined' ||
-      typeof configuration.forRoutes === 'undefined'
-    ) {
+    const { middlewares, forRoutes } = configuration;
+    if (isUndefined(middlewares) || isUndefined(forRoutes)) {
       throw new InvalidMiddlewareConfigurationException();
     }
 

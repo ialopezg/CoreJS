@@ -1,39 +1,48 @@
-import { IRouterMatcher, Router } from 'express';
+import { isConstructor, isUndefined } from '@ialopezg/commonjs';
+import { Router } from 'express';
 
-import { IController } from '../../common/interfaces';
-import { RequestMethod } from '../../common';
-import { UnknownRequestMappingException } from '../../errors';
+import { METHOD_METADATA, PATH_METADATA } from '../../common/constants';
+import { IController, MetaType } from '../../common/interfaces';
+import { ApplicationMode, LoggerService, RequestMethod, validatePath } from '../../common';
 import { ExpressAdapter } from '../adapters';
+import { UnknownRequestMappingException } from '../../errors';
+import { getRouteMappedMessage, RouterMethodFactory } from '../helpers';
 import { RouterProxy, RouterProxyCallback } from './proxy';
 
 /**
  * Creates the router functions available in the whole application.
  */
 export class RouterBuilder {
+  private readonly logger = new LoggerService(RouterBuilder.name);
+  private factory = new RouterMethodFactory();
+
   /**
    * Creates a new instance of RouterBuilder class.
    *
    * @param {RouterProxy} proxy Router proxy.
-   * @param adapter
+   * @param {ExpressAdapter} adapter Express application adapter.
+   * @param {ApplicationMode} mode Application execution mode.
    */
   constructor(
     private readonly proxy?: RouterProxy,
     private readonly adapter?: ExpressAdapter,
-  ) {}
+    private readonly mode: ApplicationMode = ApplicationMode.RUN,
+  ) {
+  }
 
   /**
    * Builds the router function for given controller.
    *
-   * @param {IController} controller Controller.
-   * @param {IController} prototype Controller type.
+   * @param {IController} target Controller.
+   * @param {IController} metaType Controller type.
    */
   public build(
-    controller: IController,
-    prototype: IController,
+    target: IController,
+    metaType: MetaType<IController>,
   ): { path: string, router: Router } {
     const router = (<any>this.adapter).createRouter();
-    const path = this.fetchRouterPath(prototype);
-    const paths = this.scanForPaths(controller);
+    const path = this.fetchRouterPath(metaType);
+    const paths = this.scanForPaths(target);
 
     this.apply(router, paths);
 
@@ -43,14 +52,32 @@ export class RouterBuilder {
   /**
    * Scans for a path from given controller type.
    *
-   * @param {Controller} controller Controller.
+   * @param {Controller} target Controller.
    * @param {Controller} prototype Controller type.
    */
-  public scanForPathsFromPrototype(controller: IController, prototype: IController): RoutePathProperties[] {
+  public scanForPathsFromPrototype(target: IController, prototype: any): RoutePathProperties[] {
     return Object.getOwnPropertyNames(prototype)
-      .filter((property) => property !== 'constructor')
-      .map((property) => this.exploreMethodMetadata(controller, prototype, property))
-      .filter((property) => property !== null);
+      .filter((property) => {
+        const descriptor = Object.getOwnPropertyDescriptor(
+          prototype,
+          property,
+        );
+        if (descriptor.set || descriptor.get) {
+          return false;
+        }
+
+        return !isConstructor(property);
+      })
+      .map(
+        (property) => this.exploreMethodMetadata(
+          target,
+          prototype,
+          property,
+        ),
+      )
+      .filter(
+        (property) => property !== null,
+      );
   }
 
   public scanForPaths(controller: IController) {
@@ -60,66 +87,58 @@ export class RouterBuilder {
     );
   }
 
-  private apply(router: Router, paths: RoutePathProperties[]) {
+  private apply(router: Router, paths: RoutePathProperties[]):void{
     (paths || []).map((route) => {
       this.bind(router, route);
     });
   }
 
-  bind(router: Router, pathProperties: RoutePathProperties) {
+  public bind(router: Router, pathProperties: RoutePathProperties): void {
     const { path, method, callback } = pathProperties;
 
-    const routerMethod = this.findRouterMethod(router, method).bind(router);
+    const routerMethod = this.factory.get(router, method).bind(router);
     const proxy = this.proxy.createProxy(callback);
 
     routerMethod(path, proxy);
+
+    if (this.mode === ApplicationMode.RUN) {
+      this.logger.log(getRouteMappedMessage(path, method));
+    }
   }
 
   private exploreMethodMetadata(
-    controller: IController,
-    prototype: IController,
+    target: IController,
+    prototype: any,
     methodName: string,
   ): RoutePathProperties {
     const callback = prototype[methodName];
-    const path = Reflect.getMetadata('path', callback);
-    if (typeof path === 'undefined') {
+    const path = Reflect.getMetadata(PATH_METADATA, callback);
+    if (isUndefined(path)) {
       return null;
     }
 
-    const method: RequestMethod = Reflect.getMetadata('method', callback);
+    const method: RequestMethod = Reflect.getMetadata(
+      METHOD_METADATA,
+      callback,
+    );
 
     return {
       path: this.validateRoutePath(path),
       method,
-      callback: (<Function>callback).bind(controller),
+      callback: (<Function>callback).bind(target),
     };
   }
 
-  private fetchRouterPath(prototype: IController): string {
-    return this.validateRoutePath(Reflect.getMetadata('path', prototype));
-  }
-
-  private findRouterMethod(router: Router, requestMethod: RequestMethod): IRouterMatcher<Router> {
-    switch (requestMethod) {
-      case RequestMethod.POST:
-        return router.post;
-      case RequestMethod.ALL:
-        return router.all;
-      case RequestMethod.DELETE:
-        return router.delete;
-      case RequestMethod.PUT:
-        return router.put;
-      default:
-        return router.get;
-    }
+  private fetchRouterPath(target: MetaType<IController>): string {
+    return this.validateRoutePath(Reflect.getMetadata(PATH_METADATA, target));
   }
 
   private validateRoutePath(path: string): string {
-    if (typeof path === 'undefined') {
+    if (isUndefined(path)) {
       throw new UnknownRequestMappingException();
     }
 
-    return (path.charAt(0) !== '/') ? '/' + path : path;
+    return validatePath(path);
   }
 }
 

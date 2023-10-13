@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { NextFunction, Request, Response } from 'express';
 
-import { Component, Controller, IModule, RequestMapping, RequestMethod } from '../../../common';
+import { Component, Controller, RequestMapping, RequestMethod } from '../../../common';
 import {
   IMiddleware,
   MiddlewareConfiguration,
@@ -22,8 +22,7 @@ describe('MiddlewareContainer', () => {
   @Component()
   class TestMiddleware implements IMiddleware {
     resolve() {
-      return (_request: Request, _response: Response, _next: NextFunction) => {
-      };
+      return (_request: Request, _response: Response, _next: NextFunction) => {};
     }
   }
 
@@ -43,7 +42,7 @@ describe('MiddlewareContainer', () => {
     }];
     container.addConfig(config, <any>'Module');
 
-    expect([...container.getConfigs().get(<IModule>'Module')]).to.deep.equal(config);
+    expect([...container.getConfigs().get('Module')]).to.deep.equal(config);
   });
 
   it('should store expected middlewares for given module', () => {
@@ -56,6 +55,9 @@ describe('MiddlewareContainer', () => {
     container.addConfig(config, key);
 
     expect(container.getMiddlewares(key).size).to.eql(config.length);
-    expect(container.getMiddlewares(key).get(TestMiddleware)).to.eql(null);
+    expect(container.getMiddlewares(key).get('TestMiddleware')).to.eql({
+      instance: null,
+      metaType: TestMiddleware,
+    });
   });
 });

@@ -12,4 +12,9 @@ export interface ApplicationFactory {
    * @param {Application} app Application reference or attached.
    */
   new(app: Application);
+
+  /**
+   * Application name.
+   */
+  name?: string;
 }

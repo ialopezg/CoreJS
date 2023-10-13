@@ -1,3 +1,4 @@
+import { UNKNOWN_REQUEST_MAPPING } from '../messages';
 import { RuntimeException } from './runtime.exception';
 
 /**
@@ -8,6 +9,6 @@ export class UnknownRequestMappingException extends RuntimeException {
    * Creates a new instance of UnknownRequestMappingException class.
    */
   constructor() {
-    super(`Request mapping properties not defined in @RequestMapping() annotation!`);
+    super(UNKNOWN_REQUEST_MAPPING);
   }
 }

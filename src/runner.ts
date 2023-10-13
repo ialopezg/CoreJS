@@ -1,6 +1,6 @@
 import { Application } from 'express';
 
-import { ApplicationFactory, IApplication, IModule } from './common/interfaces';
+import { ApplicationFactory, IApplication, ModuleMetaType } from './common/interfaces';
 import { InstanceLoader, ModuleContainer } from './core/injector';
 import { DependencyScanner } from './core/scanner';
 import { SocketModule } from './socket/module';
@@ -8,23 +8,28 @@ import { RouteResolver } from './core/router';
 import { MiddlewareModule } from './core/middleware';
 import { ExceptionWrapper } from './errors';
 import { ExpressAdapter } from './core/adapters';
+import { LoggerService } from './common';
+import { APPLICATION_READY, APPLICATION_START } from './core/constants';
 
 export class Runner {
+  private static logger = new LoggerService(Runner.name);
   private static container = new ModuleContainer();
   private static scanner = new DependencyScanner(Runner.container);
   private static loader = new InstanceLoader(Runner.container);
   private static resolver = new RouteResolver(Runner.container, ExpressAdapter);
 
-  static run(application: ApplicationFactory, target: IModule | any): void {
+  static run(application: ApplicationFactory, target: ModuleMetaType): void {
     ExceptionWrapper.run(() => {
+      this.logger.log(APPLICATION_START);
       this.initialize(target);
       this.setupModules();
       this.start(application);
+      this.logger.log(APPLICATION_READY);
     });
 
   }
 
-  private static initialize(target: IModule): void {
+  private static initialize(target: ModuleMetaType): void {
     this.scanner.scan(target);
     this.loader.initialize();
   }
@@ -60,6 +65,5 @@ export class Runner {
 
   private static setupControllers(expressInstance: Application) {
     this.resolver.resolve(expressInstance);
-    console.log('test');
   }
 }

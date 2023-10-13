@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import * as sinon from 'sinon';
 import { NextFunction, Request, Response } from 'express';
 
-import { Exception, ExceptionHandler } from '../../exceptions';
+import { HttpException, ExceptionHandler } from '../../exceptions';
 import { RouterProxy } from '../../router';
 
 describe('RouterProxy', () => {
@@ -24,8 +24,8 @@ describe('RouterProxy', () => {
 
     it('should method encapsulate callback passed as argument', () => {
       const expectation = handlerMock.expects('next').once();
-      const proxy = routerProxy.createProxy((request: Request, response: Response, next: NextFunction) => {
-        throw new Exception('test', 500);
+      const proxy = routerProxy.createProxy((_request: Request, _response: Response, _next: NextFunction) => {
+        throw new HttpException('test', 500);
       });
       proxy(null, null, null);
 
@@ -34,8 +34,8 @@ describe('RouterProxy', () => {
 
     it('should method encapsulate async callback passed as argument', (done) => {
       const expectation = handlerMock.expects('next').once();
-      const proxy = routerProxy.createProxy(async (request: Request, response: Response, next: NextFunction) => {
-        throw new Exception('test', 500);
+      const proxy = routerProxy.createProxy(async (_request: Request, _response: Response, _next: NextFunction) => {
+        throw new HttpException('test', 500);
       });
       proxy(null, null, null);
 
