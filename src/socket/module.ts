@@ -21,21 +21,25 @@ export class SocketModule {
    * @param {SocketContainer} container Container for Observable Socket Servers.
    */
   public static setup(container: ModuleContainer) {
-    this.controller = new SubjectsController(new SocketServerProvider(this.container));
+    this.controller = new SubjectsController(
+      new SocketServerProvider(this.container),
+    );
 
     container.getModules().forEach(
       ({ components }) => this.hookGatewaysIntoServers(components),
     );
   }
 
-  private static hookGatewaysIntoServers(components: Map<string, InstanceWrapper<IInjectable>>): void {
+  private static hookGatewaysIntoServers(
+    components: Map<string, InstanceWrapper<IInjectable>>,
+  ): void {
     components.forEach(({ instance, metaType }) => {
       const keys = Reflect.getMetadataKeys(metaType);
       if (!keys.includes(GATEWAY_METADATA)) {
         return;
       }
 
-      this.controller.hookGateway(<IGateway>instance, metaType);
+      this.controller.hook(<IGateway>instance, metaType);
     });
   }
 }

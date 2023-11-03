@@ -1,5 +1,3 @@
-export * from './application-factory.interface';
-export * from './application.interface';
 export * from './component.interface';
 export * from './controller-metadata.interface';
 export * from './controller.interface';

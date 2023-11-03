@@ -1,7 +1,8 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 
-import { ApplicationMode, Controller, RequestMapping, RequestMethod } from '../../../common';
+import { ApplicationMode } from '../../../common/enums/application-mode.enum';
+import { Controller, LoggerService, RequestMapping, RequestMethod } from '../../../common';
 import { RouteResolver } from '../../router';
 
 describe('RoutesResolver', () => {
@@ -18,6 +19,8 @@ describe('RoutesResolver', () => {
   let routesResolver: RouteResolver;
 
   before(() => {
+    LoggerService.setMode(ApplicationMode.TEST);
+
     router = {
       get() {},
       post() {},
@@ -29,7 +32,6 @@ describe('RoutesResolver', () => {
       null, {
         createRouter: () => router,
       },
-      ApplicationMode.TEST,
     );
   });
 

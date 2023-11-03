@@ -137,7 +137,7 @@ export class Module {
     target: MetaType<IInjectable> & { provide?: any, useValue?: any },
   ): void {
     const { provide: type, useValue: value } = target;
-    this._components.set(target.name, {
+    this._components.set(type.name, {
       instance: value,
       metaType: type,
       resolved: true,

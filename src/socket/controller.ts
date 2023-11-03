@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { IInjectable } from '../common/interfaces';
+import { IInjectable, MetaType } from '../common/interfaces';
 import { InvalidServerSocketPortException } from './exceptions';
 import { GatewayMetadataExplorer, MessageMappingProperties } from './explorer';
 import { IGateway, ObservableSocketServer } from './interfaces';
@@ -12,6 +12,7 @@ import { NAMESPACE_METADATA, PORT_METADATA } from './constants';
  * Observable Socket Servers Controller
  */
 export class SubjectsController {
+  private readonly explorer = new GatewayMetadataExplorer();
   private readonly CONNECTION_EVENT = 'connection';
   private readonly DISCONNECT_EVENT = 'disconnect';
 
@@ -26,21 +27,21 @@ export class SubjectsController {
    * Register a gateway service into the socket module.
    *
    * @param {IGateway} instance Gateway service to be registered.
-   * @param {IInjectable} prototype Component that contains the gateway service.
+   * @param {IInjectable} metaType Component that contains the gateway service.
    */
-  public hookGateway(instance: IGateway, prototype: IInjectable): void {
-    const namespace = Reflect.getMetadata(NAMESPACE_METADATA, prototype) ?? '';
-    const port = Reflect.getMetadata(PORT_METADATA, prototype) ?? 80;
+  public hook(instance: IGateway, metaType: MetaType<IInjectable>): void {
+    const namespace = Reflect.getMetadata(NAMESPACE_METADATA, metaType) ?? '';
+    const port = Reflect.getMetadata(PORT_METADATA, metaType) ?? 80;
 
     if (!Number.isInteger(port)) {
-      throw new InvalidServerSocketPortException(port, (<any>prototype).name);
+      throw new InvalidServerSocketPortException(port, metaType.name);
     }
 
     this.subscribeServer(instance, namespace, port);
   }
 
   private subscribeServer(target: IGateway, namespace: string, port: number): void {
-    const messages = GatewayMetadataExplorer.explore(target);
+    const messages = this.explorer.explore(target);
     const server = this.provider.scan(namespace, port);
 
     this.hookServer(target, server);
@@ -48,7 +49,7 @@ export class SubjectsController {
   }
 
   private hookServer(target: IGateway, server: ObservableSocketServer): void {
-    for (const property of GatewayMetadataExplorer.scanForServerHooks(target)) {
+    for (const property of this.explorer.scanForServerHooks(target)) {
       Reflect.set(target, property, server);
     }
   }

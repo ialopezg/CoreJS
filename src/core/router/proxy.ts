@@ -23,9 +23,11 @@ export class RouterProxy {
   ): (request: Request, response: Response, next: NextFunction) => void {
     return (request, response, next) => {
       try {
-        Promise.resolve(callback(request, response, next)).catch((error: any) => {
-          this.handler.next(error, response);
-        });
+        Promise
+          .resolve(callback(request, response, next))
+          .catch((error: any) => {
+            this.handler.next(error, response);
+          });
       } catch (error: any) {
         this.handler.next(error, response);
       }

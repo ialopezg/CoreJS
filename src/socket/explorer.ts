@@ -20,7 +20,7 @@ export class GatewayMetadataExplorer {
    *
    * @returns {MessageMappingProperties[]} Returns a list of MessageMappingProperty objects.
    */
-  public static explore(instance: IGateway): MessageMappingProperties[] {
+  public explore(instance: IGateway): MessageMappingProperties[] {
     return this.scanForHandlersFromPrototypes(instance, Object.getPrototypeOf(instance));
   }
 
@@ -29,18 +29,19 @@ export class GatewayMetadataExplorer {
    *
    * @param {IGateway} instance Instance to be scanned.
    */
-  public static* scanForServerHooks(
+  public* scanForServerHooks(
     instance: IGateway,
   ): IterableIterator<string> {
-    for (const property in instance) {
-      if (isFunction(property)) {
+    for (const propertyKey in instance) {
+      if (isFunction(propertyKey)) {
         continue;
       }
 
+      const property = String(propertyKey);
       const isServer = Reflect.getMetadata(
         GATEWAY_SERVER_METADATA,
         instance,
-        String(property),
+        property,
       );
       if (!isUndefined(isServer)) {
         yield String(property);
@@ -48,7 +49,7 @@ export class GatewayMetadataExplorer {
     }
   }
 
-  private static scanForHandlersFromPrototypes(
+  private scanForHandlersFromPrototypes(
     target: IGateway,
     prototype: any,
   ): MessageMappingProperties[] {
@@ -68,7 +69,7 @@ export class GatewayMetadataExplorer {
       .filter((message) => message !== null);
   }
 
-  private static exploreMetadata(
+  private exploreMetadata(
     target: IGateway,
     prototype: any,
     methodName: string,

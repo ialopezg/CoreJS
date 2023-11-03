@@ -8,13 +8,13 @@ import {
 } from '../constants';
 
 /**
- * Provides the functionality as a Gateway service object.
+ * Provides the functionality as a Web Socket Gateway.
  *
  * @param {GatewayMetadata} metadata Gateway feature definitions.
  *
  * @constructor
  */
-export const SocketGateway = (metadata?: GatewayMetadata): ClassDecorator => {
+export const WebSocketGateway = (metadata?: GatewayMetadata): ClassDecorator => {
   metadata = metadata ?? {};
 
   return (target) => {

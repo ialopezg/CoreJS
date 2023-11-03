@@ -1,12 +1,14 @@
 import { Response } from 'express';
 
 import { HttpException } from './http-exception';
+import { messages } from '../constants';
+import { LoggerService } from '../../common';
 
 /**
  * Application error handler.
  */
 export class ExceptionHandler {
-  private UNKNOWN_EXCEPTION = 'Unknown exception';
+  private readonly logger = new LoggerService(ExceptionHandler.name);
 
   /**
    * On error go to next with error data.
@@ -16,7 +18,11 @@ export class ExceptionHandler {
    */
   next(exception: Error | HttpException, response: Response) {
     if (!(exception instanceof HttpException)) {
-      return response.status(500).json({ message: this.UNKNOWN_EXCEPTION });
+      this.logger.error(exception.message, exception.stack);
+
+      return response.status(500).json({
+        message: messages.UNKNOWN_EXCEPTION,
+      });
     }
 
     response.status(exception.status).json({

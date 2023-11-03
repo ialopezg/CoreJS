@@ -8,7 +8,8 @@ import {
   MiddlewareResolver,
   RoutesMapper,
 } from '../../middleware';
-import { Component } from '../../../common';
+import { Component, LoggerService } from '../../../common';
+import { ApplicationMode } from '../../../common/enums/application-mode.enum';
 
 describe('MiddlewaresResolver', () => {
   @Component()
@@ -22,6 +23,8 @@ describe('MiddlewaresResolver', () => {
   let container: MiddlewareContainer;
   let mockContainer: sinon.SinonMock;
 
+  before(() => LoggerService.setMode(ApplicationMode.TEST));
+
   beforeEach(() => {
     container = new MiddlewareContainer(new RoutesMapper());
     resolver = new MiddlewareResolver(container);
@@ -31,16 +34,20 @@ describe('MiddlewaresResolver', () => {
   it('should resolve middleware instances from container', () => {
     const loadInstanceOfMiddleware = sinon.stub(resolver['injector'], 'loadInstanceOfMiddleware');
     const middlewares = new Map();
-    middlewares.set(TestMiddleware, null);
+    middlewares.set('TestMiddleware', {
+      instance: { metaType: {} },
+      metaType: TestMiddleware,
+    });
 
+    const module = <any>{ metaType: { name: '' }};
     mockContainer.expects('getMiddlewares').returns(middlewares);
-    resolver.resolve(null, null);
+    resolver.resolve(module, null);
 
     expect(loadInstanceOfMiddleware.callCount).to.be.equal(middlewares.size);
     expect(loadInstanceOfMiddleware.calledWith(
       TestMiddleware,
       middlewares,
-      null,
+      module,
     )).to.be.true;
 
     loadInstanceOfMiddleware.restore();

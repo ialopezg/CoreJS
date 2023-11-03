@@ -6,7 +6,7 @@ import { ExceptionHandler } from '../exceptions';
 import { InstanceWrapper, ModuleContainer } from '../injector';
 import { RouterBuilder } from './builder';
 import { RouterProxy } from './proxy';
-import { ApplicationMode, LoggerService } from '../../common';
+import { LoggerService } from '../../common';
 import { getControllerMappingMessage } from '../helpers';
 
 export class RouteResolver {
@@ -19,14 +19,12 @@ export class RouteResolver {
    *
    * @param {ModuleContainer} container Modules container.
    * @param {ExpressAdapter} adapter Express application adapter.
-   * @param {ApplicationMode} mode Application execution mode.
    */
   constructor(
     private readonly container: ModuleContainer,
     private readonly adapter: ExpressAdapter,
-    private readonly mode: ApplicationMode = ApplicationMode.RUN,
   ) {
-    this.builder = new RouterBuilder(this.proxy, this.adapter, mode);
+    this.builder = new RouterBuilder(this.proxy, this.adapter);
   }
 
   public resolve(application: Application): void {
@@ -41,9 +39,7 @@ export class RouteResolver {
     application: Application,
   ): void {
     controllers.forEach(({ instance, metaType }) => {
-      if (this.mode === ApplicationMode.RUN) {
-        this.logger.log(getControllerMappingMessage(metaType.name))
-      }
+      this.logger.log(getControllerMappingMessage(metaType.name));
 
       const { path, router } = this.builder.build(instance, metaType);
       application.use(path, router);

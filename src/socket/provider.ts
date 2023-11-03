@@ -34,9 +34,15 @@ export class SocketServerProvider {
     return socket;
   }
 
-  private getServerOfNamespace(namespace: string, port: number): Server | Namespace {
+  private getServerOfNamespace(
+    namespace: string,
+    port: number,
+  ): Server | Namespace {
     if (namespace) {
-      return SocketIOAdapter.createWithNamespace(port, this.validateNamespace(namespace));
+      return SocketIOAdapter.createWithNamespace(
+        port,
+        this.validateNamespace(namespace),
+      );
     }
 
     return SocketIOAdapter.create(port);

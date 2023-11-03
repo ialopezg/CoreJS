@@ -1,9 +1,9 @@
-import { isConstructor, isUndefined } from '@ialopezg/commonjs';
+import { isConstructor, isFunction, isUndefined } from '@ialopezg/commonjs';
 import { Router } from 'express';
 
 import { METHOD_METADATA, PATH_METADATA } from '../../common/constants';
 import { IController, MetaType } from '../../common/interfaces';
-import { ApplicationMode, LoggerService, RequestMethod, validatePath } from '../../common';
+import { LoggerService, RequestMethod, validatePath } from '../../common';
 import { ExpressAdapter } from '../adapters';
 import { UnknownRequestMappingException } from '../../errors';
 import { getRouteMappedMessage, RouterMethodFactory } from '../helpers';
@@ -21,14 +21,11 @@ export class RouterBuilder {
    *
    * @param {RouterProxy} proxy Router proxy.
    * @param {ExpressAdapter} adapter Express application adapter.
-   * @param {ApplicationMode} mode Application execution mode.
    */
   constructor(
     private readonly proxy?: RouterProxy,
     private readonly adapter?: ExpressAdapter,
-    private readonly mode: ApplicationMode = ApplicationMode.RUN,
-  ) {
-  }
+  ) {}
 
   /**
    * Builds the router function for given controller.
@@ -66,31 +63,23 @@ export class RouterBuilder {
           return false;
         }
 
-        return !isConstructor(property);
+        return !isConstructor(property) && isFunction(prototype[property]);
       })
       .map(
-        (property) => this.exploreMethodMetadata(
-          target,
-          prototype,
-          property,
-        ),
+        (property) => this.exploreMethodMetadata(target, prototype, property),
       )
-      .filter(
-        (property) => property !== null,
-      );
+      .filter((property) => property !== null);
   }
 
-  public scanForPaths(controller: IController) {
+  public scanForPaths(controller: IController): RoutePathProperties[] {
     return this.scanForPathsFromPrototype(
       controller,
       Object.getPrototypeOf(controller),
     );
   }
 
-  private apply(router: Router, paths: RoutePathProperties[]):void{
-    (paths || []).map((route) => {
-      this.bind(router, route);
-    });
+  private apply(router: Router, paths: RoutePathProperties[]): void {
+    (paths || []).map((route) => this.bind(router, route));
   }
 
   public bind(router: Router, pathProperties: RoutePathProperties): void {
@@ -101,9 +90,7 @@ export class RouterBuilder {
 
     routerMethod(path, proxy);
 
-    if (this.mode === ApplicationMode.RUN) {
-      this.logger.log(getRouteMappedMessage(path, method));
-    }
+    this.logger.log(getRouteMappedMessage(path, method));
   }
 
   private exploreMethodMetadata(

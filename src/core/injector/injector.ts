@@ -116,7 +116,7 @@ export class Injector {
   private resolveConstructorParams<T>(
     metaType: MetaType<T>,
     parent: Module,
-    callback: (args: IInjectable[]) => void,
+    callback: Function,
   ): void {
     let params = Reflect.getMetadata(PARAM_TYPES_METADATA, metaType) ?? [];
     if ((<any>metaType).dependencies) {
@@ -181,7 +181,7 @@ export class Injector {
     parent: Module,
     metaType: MetaType<IInjectable>,
   ): InstanceWrapper<IInjectable> {
-    let wrapper: InstanceWrapper<IInjectable>;
+    let wrapper: InstanceWrapper<IInjectable> = null;
 
     parent.modules.forEach((child) => {
       const { exports, components } = child;

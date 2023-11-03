@@ -11,7 +11,7 @@ describe('@SubscribeMessage', () => {
     static fn(): void {}
   }
 
-  it('should decorate type with expected metadata', () => {
+  it('should decorate transport with expected metadata', () => {
     const isMessageMapping = Reflect.getMetadata(MESSAGE_MAPPING_METADATA, TestGateway.fn);
     const message = Reflect.getMetadata(MESSAGE_METADATA, TestGateway.fn);
 

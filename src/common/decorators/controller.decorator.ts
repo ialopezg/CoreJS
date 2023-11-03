@@ -2,8 +2,9 @@ import 'reflect-metadata';
 
 import { ControllerMetadata } from '../interfaces';
 import { PATH_METADATA } from '../constants';
+import { isUndefined } from '@ialopezg/commonjs';
 
-const defaultMetadata = { path: '/' };
+const defaultMetadata = { [PATH_METADATA]: '/' };
 
 /**
  * Provides the Controller functionality to the annotated class.
@@ -18,11 +19,11 @@ const defaultMetadata = { path: '/' };
 export const Controller = (
   metadata: ControllerMetadata = defaultMetadata,
 ): ClassDecorator => {
-  if (typeof metadata.path === 'undefined') {
-    metadata.path = '/';
+  if (isUndefined(metadata[PATH_METADATA])) {
+    metadata[PATH_METADATA] = '/';
   }
 
   return (target) => {
-    Reflect.defineMetadata(PATH_METADATA, metadata.path, target);
+    Reflect.defineMetadata(PATH_METADATA, metadata[PATH_METADATA], target);
   };
 };

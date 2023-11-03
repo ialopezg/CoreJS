@@ -1,8 +1,14 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 
-import { ApplicationMode, Controller, RequestMapping, RequestMethod } from '../../../common';
+import {
+  Controller,
+  LoggerService,
+  RequestMapping,
+  RequestMethod,
+} from '../../../common';
 import { RouterBuilder } from '../../router';
+import { ApplicationMode } from '../../../common/enums/application-mode.enum';
 
 describe('RouterBuilder', () => {
   @Controller({ path: 'global' })
@@ -20,11 +26,12 @@ describe('RouterBuilder', () => {
   }
 
   let builder: RouterBuilder;
+  before(() => LoggerService.setMode(ApplicationMode.TEST));
+
   beforeEach(() => {
     builder = new RouterBuilder(
       null,
       null,
-      ApplicationMode.TEST,
     );
   });
 

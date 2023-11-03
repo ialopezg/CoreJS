@@ -1,13 +1,17 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 
-import { HttpException, ExceptionHandler } from '../../exceptions';
+import { ExceptionHandler, HttpException } from '../../exceptions';
+import { LoggerService } from '../../../common';
+import { ApplicationMode } from '../../../common/enums/application-mode.enum';
 
 describe('ExceptionsHandler', () => {
   let handler: ExceptionHandler;
   let statusStub: sinon.SinonStub;
   let jsonStub: sinon.SinonStub;
   let response: any;
+
+  before(() => LoggerService.setMode(ApplicationMode.TEST));
 
   beforeEach(() => {
     handler = new ExceptionHandler();

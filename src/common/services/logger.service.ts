@@ -1,10 +1,16 @@
 import { Color } from '@ialopezg/cli';
 import { pad } from '@ialopezg/commonjs';
 
+import { ApplicationMode } from '../enums/application-mode.enum';
+
+declare var process;
+
 /**
  * Logger Service.
  */
 export class LoggerService {
+  private static mode = ApplicationMode.RUN;
+
   /**
    * Creates a new instance of the LoggerService class with given context name.
    *
@@ -13,12 +19,21 @@ export class LoggerService {
   constructor(private context: string) {}
 
   /**
+   * Set current application execution context.
+   *
+   * @param {ApplicationMode} value Value to be set.
+   */
+  public static setMode(value: ApplicationMode) {
+    this.mode = value;
+  }
+
+  /**
    * Prints an error message to the console.
    *
    * @param {string} message Message to write.
    * @param {string} trace Stack trace information.
    */
-  public error(message: string, trace: string): void {
+  public error(message: string, trace = ''): void {
     this.print(message, Color.red);
     this.printStack(trace);
   }
@@ -42,6 +57,10 @@ export class LoggerService {
   }
 
   private print(message: string, color: Function = Color.green): void {
+    if (LoggerService.mode === ApplicationMode.TEST) {
+      return;
+    }
+
     const pid = process.pid.toString();
     const date = new Date(Date.now()).toLocaleString();
 
@@ -53,6 +72,10 @@ export class LoggerService {
   }
 
   private printStack(trace: string): void {
+    if (LoggerService.mode === ApplicationMode.TEST) {
+      return;
+    }
+
     process.stdout.write(trace);
     process.stdout.write('\n');
   }

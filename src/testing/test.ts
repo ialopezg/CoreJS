@@ -1,4 +1,4 @@
-import { ApplicationMode, Module as ModuleDecorator } from '../common';
+import { LoggerService, Module as ModuleDecorator } from '../common';
 import { MetaType, ModuleMetadata } from '../common/interfaces';
 import {
   InstanceLoader,
@@ -13,7 +13,6 @@ export class Test {
   private static readonly scanner = new DependencyScanner(this.container);
   private static readonly loader = new InstanceLoader(
     this.container,
-    ApplicationMode.TEST,
   );
 
   static initialize(metadata: ModuleMetadata) {
@@ -25,6 +24,8 @@ export class Test {
   }
 
   private static createModule(metadata: ModuleMetadata) {
+    LoggerService.setMode(ApplicationMode.TEST);
+
     class TestModule {}
 
     ModuleDecorator(metadata)(TestModule);

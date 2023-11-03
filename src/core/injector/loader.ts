@@ -3,28 +3,23 @@ import 'reflect-metadata';
 import { IController, IInjectable } from '../../common/interfaces';
 import { ModuleContainer } from './container';
 import { Injector } from './injector';
-import { ApplicationMode, LoggerService } from '../../common';
+import { LoggerService } from '../../common';
 import { Module } from './module';
-import { getInitializedModuleMessage } from '../helpers/messages.helper';
+import { getInitializedModuleMessage } from '../helpers';
 
 /**
  * Instance Loader.
  */
 export class InstanceLoader {
-  private readonly logger: LoggerService = new LoggerService(InstanceLoader.name);
-  private injector: Injector = new Injector();
+  private readonly logger = new LoggerService(InstanceLoader.name);
+  private injector = new Injector();
 
   /**
    * Creates a new instance of the class InstanceLoader.
    *
    * @param {ModuleContainer} container Modules container.
-   * @param {ApplicationMode} mode Application execution context.
    */
-  constructor(
-    private readonly container: ModuleContainer,
-    private readonly mode: ApplicationMode = ApplicationMode.RUN,
-  ) {
-  }
+  constructor(private readonly container: ModuleContainer) {}
 
   /**
    * Create the instances for all registered dependencies.
@@ -41,9 +36,7 @@ export class InstanceLoader {
       this.createPrototypesOfComponents(module);
       this.createPrototypesOfControllers(module);
 
-      if (this.mode === ApplicationMode.RUN) {
-        this.logger.log(getInitializedModuleMessage(name));
-      }
+      this.logger.log(getInitializedModuleMessage(name));
     });
   }
 

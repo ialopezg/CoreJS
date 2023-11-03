@@ -2,7 +2,8 @@ import { expect } from 'chai';
 import * as sinon from 'sinon';
 
 import { Injector, InstanceLoader, ModuleContainer } from '../../injector';
-import { ApplicationMode, Component, Controller } from '../../../common';
+import { Component, Controller, LoggerService } from '../../../common';
+import { ApplicationMode } from '../../../common/enums/application-mode.enum';
 
 describe('InstanceLoader', () => {
   let loader: InstanceLoader;
@@ -15,9 +16,11 @@ describe('InstanceLoader', () => {
   @Component()
   class TestComponent {}
 
+  before(() => LoggerService.setMode(ApplicationMode.TEST));
+
   beforeEach(() => {
     container = new ModuleContainer();
-    loader = new InstanceLoader(container, ApplicationMode.TEST);
+    loader = new InstanceLoader(container);
     mockContainer = sinon.mock(container);
   });
 
@@ -94,6 +97,7 @@ describe('InstanceLoader', () => {
     const loadRoutesStub = sinon.stub(injector, 'loadInstanceOfController');
 
     loader.initialize();
+
     expect(loadRoutesStub.calledWith(TestController, module)).to.be.true;
   });
 });

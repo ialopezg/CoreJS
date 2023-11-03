@@ -1,7 +1,8 @@
 import { expect } from 'chai';
+import * as sinon from 'sinon';
 
 import { Component } from '../../../common';
-import { RuntimeException } from '../../../errors';
+import { RuntimeException, UnknownDependenciesException } from '../../../errors';
 import { Injector, InstanceWrapper, Module } from '../../injector';
 
 describe('Injector', () => {
@@ -13,17 +14,20 @@ describe('Injector', () => {
 
   describe('loadInstance', () => {
     @Component()
-    class DependencyOne {}
+    class DependencyOne {
+    }
 
     @Component()
-    class DependencyTwo {}
+    class DependencyTwo {
+    }
 
     @Component()
     class MainTest {
       constructor(
         public depOne: DependencyOne,
         public depTwo: DependencyTwo,
-      ) {}
+      ) {
+      }
     }
 
     let moduleDeps: Module;
@@ -68,11 +72,9 @@ describe('Injector', () => {
         injector['loadInstance'].bind(injector, 'Test', moduleDeps.components, moduleDeps),
       ).to.throw(RuntimeException);
     });
-
   });
 
   describe('loadPrototypeOfInstance', () => {
-
     @Component()
     class TestComponent {}
 
@@ -96,6 +98,210 @@ describe('Injector', () => {
       injector.loadPrototypeOfInstance(TestComponent, moduleDeps.components);
 
       expect(moduleDeps.components.get('TestComponent')).to.deep.equal(expectedResult);
+    });
+  });
+
+  describe('resolveSingleParam', () => {
+    it('should throw "RuntimeException" when param is undefined', () => {
+      expect(() => injector['resolveSingleParam'](
+        null,
+        undefined,
+        null,
+      )).throws(RuntimeException);
+    });
+  });
+
+  describe('loadInstanceOfMiddleware', () => {
+    let resolveConstructorParams: sinon.SinonSpy;
+
+    beforeEach(() => {
+      resolveConstructorParams = sinon.spy();
+      injector['resolveConstructorParams'] = resolveConstructorParams;
+    });
+
+    it('should call "resolveConstructorParams" when instance is not resolved', () => {
+      const collection = {
+        get: (..._args: any[]) => ({
+          instance: null,
+        }),
+        set: (..._args: any[]) => {},
+      };
+
+      injector.loadInstanceOfMiddleware(<any>{ name: '' }, <any>collection, null);
+
+      expect(resolveConstructorParams.called).to.be.true;
+    });
+
+    it('should not call "resolveConstructorParams" when instance is not resolved', () => {
+      const collection = {
+        get: (..._args: any[]) => ({
+          instance: {},
+        }),
+        set: (..._args: any[]) => {},
+      };
+
+      injector.loadInstanceOfMiddleware(<any>{ name: '' }, <any>collection, null);
+
+      expect(resolveConstructorParams.called).to.be.false;
+    });
+  });
+
+  describe('scanForComponent', () => {
+    let scanForComponentInRelatedModules: sinon.SinonStub;
+    const metaType = { name: 'test' };
+
+    beforeEach(() => {
+      scanForComponentInRelatedModules = sinon.stub();
+      injector['scanComponentInChildModules'] = scanForComponentInRelatedModules;
+    });
+
+    it('should return object from collection if exists', () => {
+      const instance = { test: 3 };
+      const collection = {
+        has: () => true,
+        get: () => instance,
+      };
+      const result = injector['scanForComponent'](
+        <any>collection,
+        <any>metaType,
+        null,
+        null,
+      );
+
+      expect(result).to.be.equal(instance);
+    });
+
+    it('should call "scanForComponentInRelatedModules" when object is not in collection', () => {
+      scanForComponentInRelatedModules.returns({});
+      const collection = {
+        has: () => false,
+      };
+      injector['scanForComponent'](<any>collection, <any>metaType, null, null);
+
+      expect(scanForComponentInRelatedModules.called).to.be.true;
+    });
+
+    it('should throw "UnknownDependenciesException" instanceWrapper is null', () => {
+      scanForComponentInRelatedModules.returns(null);
+      const collection = {
+        has: () => false,
+      };
+
+      expect(
+        () => injector['scanForComponent'](
+          <any>collection, <any>metaType,
+          null,
+          <any>metaType,
+        ),
+      ).throws(UnknownDependenciesException);
+    });
+
+    it('should not throw "UnknownDependenciesException" instanceWrapper is not null', () => {
+      scanForComponentInRelatedModules.returns({});
+      const collection = {
+        has: () => false,
+      };
+
+      expect(
+        () => injector['scanForComponent'](
+          <any>collection,
+          <any>metaType,
+          null,
+          <any>metaType,
+        ),
+      ).not.throws(UnknownDependenciesException);
+    });
+  });
+
+  describe('scanComponentInChildModules', () => {
+    let loadInstanceOfComponent: sinon.SinonSpy;
+    const metaType = { name: 'test' };
+    const module = {
+      modules: []
+    };
+
+    beforeEach(() => {
+      loadInstanceOfComponent = sinon.spy();
+      injector['loadInstanceOfComponent'] = loadInstanceOfComponent;
+    });
+
+    it('should return null when there is no child modules', () => {
+      const result = injector['scanComponentInChildModules'](
+        <any>module,
+        null,
+      );
+
+      expect(result).to.be.eq(null);
+    });
+
+    it('should return null when related modules do not have appropriate component', () => {
+      let module = {
+        modules: [{
+          components: {
+            has: () => false,
+          },
+          exports: {
+            has: () => true,
+          }
+        }]
+      };
+      expect(injector['scanComponentInChildModules'](
+        <any>module,
+        <any>metaType,
+      )).to.be.eq(null);
+
+      module = {
+        modules: [{
+          components: {
+            has: () => true,
+          },
+          exports: {
+            has: () => false,
+          }
+        }]
+      };
+      expect(injector['scanComponentInChildModules'](
+        <any>module,
+        <any>metaType,
+      )).to.be.eq(null);
+    });
+
+    it('should call "loadInstanceOfComponent" when component is not resolved', () => {
+      let module = {
+        modules: [{
+          components: {
+            has: () => true,
+            get: () => ({
+              resolved: false
+            })
+          },
+          exports: {
+            has: () => true,
+          }
+        }]
+      };
+      injector['scanComponentInChildModules'](<any>module, <any>metaType);
+
+      expect(loadInstanceOfComponent.called).to.be.true;
+    });
+
+    it('should not call "loadInstanceOfComponent" when component is resolved', () => {
+      let module = {
+        modules: [{
+          components: {
+            has: () => true,
+            get: () => ({
+              resolved: true
+            })
+          },
+          exports: {
+            has: () => true,
+          }
+        }]
+      };
+      injector['scanComponentInChildModules'](<any>module, <any>metaType);
+
+      expect(loadInstanceOfComponent.called).to.be.false;
     });
   });
 });
