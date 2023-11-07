@@ -9,7 +9,7 @@ import { TcpServer } from './tcp.server';
  */
 export class ServerFactory {
   /**
-   * Creates a microservice server instance with given parameters.
+   * Creates a microservices server instance with given parameters.
    *
    * @param {MicroserviceConfiguration} config Configuration parameters.
    */

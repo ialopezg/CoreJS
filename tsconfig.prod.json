@@ -11,6 +11,7 @@
     "./src/index.ts"
   ],
   "include": [
+    "scr/microservices/**/*.ts",
     "src/websocket/**/*.ts",
     "src/testing/*.ts"
   ]

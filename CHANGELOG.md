@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [1.0.0-alpha.10](https://github.com/ialopezg/corejs/compare/v1.0.0-alpha.9...v1.0.0-alpha.10) (2022-11-29)
 
+- Microservice support (TCP & Redis transports)
+- Runner -> AppFactory
+- Simplify application initialization & configuration
+- Custom express instance
+- @Inject decorator for ES6+
+- GatewayServer -> WebSocketServer
 
 ### Features
 

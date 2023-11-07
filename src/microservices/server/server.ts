@@ -1,7 +1,7 @@
 import { LoggerService } from '../../common';
 
 /**
- * Represents a microservice server.
+ * Represents a microservices server.
  */
 export abstract class Server {
   private readonly logger = new LoggerService(Server.name);
