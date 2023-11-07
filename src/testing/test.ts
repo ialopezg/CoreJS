@@ -1,12 +1,8 @@
 import { LoggerService, Module as ModuleDecorator } from '../common';
 import { MetaType, ModuleMetadata } from '../common/interfaces';
-import {
-  InstanceLoader,
-  InstanceWrapper,
-  Module,
-  ModuleContainer,
-} from '../core/injector';
+import { InstanceLoader, InstanceWrapper, Module, ModuleContainer } from '../core/injector';
 import { DependencyScanner } from '../core/scanner';
+import { ApplicationMode } from '../common/enums/application-mode.enum';
 
 export class Test {
   private static readonly container = new ModuleContainer();
@@ -26,7 +22,8 @@ export class Test {
   private static createModule(metadata: ModuleMetadata) {
     LoggerService.setMode(ApplicationMode.TEST);
 
-    class TestModule {}
+    class TestModule {
+    }
 
     ModuleDecorator(metadata)(TestModule);
 
@@ -34,8 +31,8 @@ export class Test {
   }
 
   private static findInstanceByPrototype<T>(metaType: MetaType<T>, modules: Map<string, Module>) {
-    for(const [ _, module ] of modules) {
-      const dependencies = new Map([ ...module.components, ...module.controllers ]);
+    for (const [_, module] of modules) {
+      const dependencies = new Map([...module.components, ...module.controllers]);
       const instanceWrapper = dependencies.get(metaType.name);
 
       if (instanceWrapper) {

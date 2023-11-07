@@ -12,7 +12,7 @@
     "start:dev": "concurrently \"npm run start:live\" \"npm run microservice:live\"",
     "start:live": "nodemon -e ts --watch src index.js",
     "test": "nyc --require ts-node/register mocha src/**/*.spec.ts --reporter spec",
-    "coverage": "nyc report --reporter=text-lcov | coveralls"
+    "test:coverage": "nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
@@ -29,7 +29,7 @@
     "@ialopezg/cli": "^1.0.2",
     "@ialopezg/commonjs": "^1.2.3",
     "express": "^4.18.2",
-    "json-socket": "^0.3.0",
+    "json-socket": "^0.",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",
     "mongoose": "^7.6.0",

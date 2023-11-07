@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
-import { catchError, EMPTY, map } from 'rxjs';
+import { map } from 'rxjs';
 
 import { Controller, RequestMapping, Transport } from '../../../../src';
-import { ClientProxy } from '../../../../src/microservice/client';
-import { Client } from '../../../../src/microservice/decorators';
+import { Client, ClientProxy } from '../../../../src/microservices';
 
 @Controller()
 export class ClientController {
@@ -12,9 +11,14 @@ export class ClientController {
 
   @RequestMapping({ path: 'client' })
   async sendCommand(_request: Request, response: Response) {
+    const command = 'add';
+
     const result = this.client
-      .send({ command: 'add' }, { numbers: [ 1, 2, 3 ] })
-      .subscribe((value) => console.log({ value }));
-    console.log('result on controller', result);
+      .send({ command }, { numbers: [ 1, 2, 3 ] })
+      .pipe(map((value) => value))
+      .subscribe((value) => response.json({
+        command,
+        result: value,
+      }));
   }
 }

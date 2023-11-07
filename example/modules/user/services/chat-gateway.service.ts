@@ -1,21 +1,21 @@
+import { Subject } from 'rxjs';
 import { Server } from 'socket.io';
 
 import { Component } from '../../../../src';
 import {
-  IGateway,
+  Gateway,
   WebSocketGateway,
-  GatewayServer,
+  WebSocketServer,
   SubscribeMessage,
-} from '../../../../src/socket';
+} from '../../../../src/websocket';
 import { UserService } from './user.service';
-import { Subject } from 'rxjs';
 
 @Component()
 @WebSocketGateway({ namespace: '', port: 2000 })
-export class ChatGatewayService implements IGateway {
+export class ChatGatewayService implements Gateway {
   private message$ = new Subject<any>();
 
-  @GatewayServer
+  @WebSocketServer()
   private server: any;
 
   get message() {

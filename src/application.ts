@@ -4,10 +4,10 @@ import { ModuleContainer } from './core/injector';
 import { LoggerService } from './common';
 import { RouteResolver } from './core/router';
 import { ExpressAdapter } from './core/adapters';
-import { SocketModule } from './socket/module';
+import { SocketModule } from './websocket/module';
 import { MiddlewareModule } from './core/middleware';
 import { messages } from './core/constants';
-import { MicroserviceModule } from './microservice/module';
+import { MicroserviceModule } from './microservices/module';
 
 /**
  * Represents the main entry for a web app.

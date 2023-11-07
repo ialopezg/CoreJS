@@ -9,7 +9,7 @@ import { messages } from './core/constants';
 import { Application } from './application';
 import { isFunction } from '@ialopezg/commonjs';
 import { ExpressAdapter } from './core/adapters';
-import { MicroserviceConfiguration } from './microservice/interfaces';
+import { MicroserviceConfiguration } from './microservices/interfaces';
 import { Microservice } from './microservice';
 
 /**
