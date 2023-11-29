@@ -14,11 +14,12 @@ export const ProvideValues = <T extends Constructor<{}>>(data: any) => {
     const type = class extends metaType {
       constructor(...args: any[]) {
         super(args);
+
+        Object.assign(this, data);
       }
     };
     const token = metaType.name + JSON.stringify(data);
     Object.defineProperty(type, 'name', { value: token });
-    Object.assign(type.prototype, data);
 
     return type;
   };
