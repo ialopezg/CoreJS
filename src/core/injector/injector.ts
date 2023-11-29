@@ -1,18 +1,21 @@
-import { isUndefined } from '@ialopezg/commonjs';
+import { isFunction, isNil, isUndefined } from '@ialopezg/commonjs';
 
 import {
-  IController,
-  IInjectable,
+  Controller,
+  Injectable,
   MetaType,
 } from '../../common/interfaces';
 import {
   RuntimeException,
   UnknownDependenciesException,
 } from '../../errors';
-import { MiddlewareMetaType, MiddlewareWrapper } from '../middleware';
+import { MiddlewareWrapper } from '../middleware';
 import { InstanceWrapper } from './container';
 import { Module } from './module';
-import { PARAM_TYPES_METADATA } from '../../common/constants';
+import {
+  DESIGN_PARAM_TYPES_METADATA,
+  SELF_PARAM_TYPES_METADATA,
+} from '../../common/constants';
 
 /**
  * Creates all the dependency instances and injects them into the main application.
@@ -22,18 +25,24 @@ export class Injector {
    * Creates a new object, using an existing object as the prototype of the newly created object.
    *
    * @param {MetaType<any>} metaType Existent prototype.
+   * @param {string} name Component name.
    * @param {Map<string, InstanceWrapper<any>>} collection Collection that contains the prototype.
    */
   public loadPrototypeOfInstance<T>(
-    metaType: MetaType<T>,
+    { metaType, name }: InstanceWrapper<T>,
     collection: Map<string, InstanceWrapper<T>>,
   ): void {
-    if (!collection || collection.get(metaType.name).resolved) {
+    if (!collection) {
       return;
     }
 
-    collection.set(metaType.name, {
-      ...collection.get(metaType.name),
+    const target = collection.get(name);
+    if (target.resolved || !isNil(target.inject)) {
+      return;
+    }
+
+    collection.set(name, {
+      ...collection.get(name),
       instance: Object.create(metaType.prototype),
     });
   }
@@ -41,137 +50,163 @@ export class Injector {
   /**
    * Loads the instance of given component.
    *
-   * @param {MetaType<IInjectable>} metaType Component object to be loaded.
+   * @param {MetaType<Injectable>} wrapper Component object to be loaded.
    * @param {Module} parent Parent module.
    */
   public loadInstanceOfComponent(
-    metaType: MetaType<IInjectable>,
+    wrapper: InstanceWrapper<Injectable>,
     parent: Module,
-  ) {
-    this.loadInstance<IInjectable>(metaType, parent.components, parent);
+  ): void {
+    this.loadInstance<Injectable>(wrapper, parent.components, parent);
   }
 
   /**
    * Loads the instance of given component.
    *
-   * @param {MetaType<IController>} metaType Component object to be loaded.
+   * @param {MetaType<Controller>} wrapper Component object to be loaded.
    * @param {Module} parent Parent module.
    */
   public loadInstanceOfController(
-    metaType: MetaType<IController>,
+    wrapper: InstanceWrapper<Controller>,
     parent: Module,
-  ) {
-    this.loadInstance<IController>(metaType, parent.controllers, parent);
+  ): void {
+    this.loadInstance<Controller>(wrapper, parent.controllers, parent);
   }
 
   /**
    * Loads the instance of given component.
    *
-   * @param {IInjectable} metaType Component object to be loaded.
+   * @param {Injectable} wrapper Component object to be loaded.
    * @param {Map<MiddlewareMetaType, IMiddleware>} middlewares Middlewares.
    * @param {Module} parent Parent module.
    */
   public loadInstanceOfMiddleware(
-    metaType: MiddlewareMetaType,
+    wrapper: MiddlewareWrapper,
     middlewares: Map<string, MiddlewareWrapper>,
     parent: Module,
   ) {
+    const { metaType } = wrapper;
     const fetchedInstance = middlewares.get(metaType.name);
-
     if (fetchedInstance.instance) {
       return;
     }
 
-    this.resolveConstructorParams(metaType, parent, (args: IInjectable[]) => {
-      middlewares.set(metaType.name, {
-        instance: new metaType(...args),
-        metaType,
-      });
-    });
-  }
-
-  private loadInstance<T>(
-    metaType: MetaType<T>,
-    collection: Map<string, InstanceWrapper<T>>,
-    parent: Module,
-  ): void {
-    const fetchedInstance = collection.get(metaType.name);
-    if (isUndefined(fetchedInstance)) {
-      throw new RuntimeException();
-    }
-
-    if (fetchedInstance.resolved) {
-      return;
-    }
-
-    this.resolveConstructorParams<T>(metaType, parent, (args) => {
-      fetchedInstance.instance = Object.assign(
-        fetchedInstance.instance,
-        new metaType(...args),
-      );
-      fetchedInstance.resolved = true;
-    });
-  }
-
-  private resolveConstructorParams<T>(
-    metaType: MetaType<T>,
-    parent: Module,
-    callback: Function,
-  ): void {
-    let params = Reflect.getMetadata(PARAM_TYPES_METADATA, metaType) ?? [];
-    if ((<any>metaType).dependencies) {
-      params = (<any>metaType).dependencies;
-    }
-
-    callback(params.map(
-      (param: any) => this.resolveSingleParam(metaType, param, parent)),
+    this.resolveConstructorParams(
+      <any>wrapper,
+      parent,
+      null,
+      (args: Injectable[]) => {
+        middlewares.set(metaType.name, {
+          instance: new metaType(...args),
+          metaType,
+        });
+      },
     );
   }
 
-  private resolveSingleParam<T>(
-    metaType: MetaType<T>,
-    param: MetaType<IInjectable>,
+  private loadInstance<T>(
+    wrapper: InstanceWrapper<T>,
+    collection: Map<string, InstanceWrapper<T>>,
     parent: Module,
-  ): IInjectable {
+  ): void {
+    const { inject, metaType, name } = wrapper;
+    const instanceWrapper = collection.get(name);
+    if (isUndefined(instanceWrapper)) {
+      throw new RuntimeException();
+    }
+
+    if (instanceWrapper.resolved) {
+      return;
+    }
+
+    this.resolveConstructorParams<T>(wrapper, parent, inject, (args: any[]) => {
+      if (isNil(inject)) {
+        instanceWrapper.instance = Object.assign(
+          instanceWrapper.instance,
+          new metaType(...args),
+        );
+      } else {
+        instanceWrapper.instance = new instanceWrapper.metaType(...args);
+      }
+      instanceWrapper.resolved = true;
+    });
+  }
+
+  private reflectConstructorParams<T>(metaType: MetaType<T>): any[] {
+    const paramTypes = Reflect.getMetadata(DESIGN_PARAM_TYPES_METADATA, metaType) ?? [];
+    const selfParams = this.reflectSelfParams<T>(metaType);
+
+    selfParams.forEach(({ index, param }) => paramTypes[index] = param);
+
+    return paramTypes;
+  }
+
+  private reflectSelfParams<T>(metaType: MetaType<T>): any[] {
+    return Reflect.getMetadata(SELF_PARAM_TYPES_METADATA, metaType) ?? [];
+  }
+
+  private resolveConstructorParams<T>(
+    wrapper: InstanceWrapper<T>,
+    parent: Module,
+    inject: any[],
+    callback: Function,
+  ): void {
+    const args = isNil(inject) ? this.reflectConstructorParams(wrapper.metaType) : inject;
+
+    callback(args.map(
+      (param) => this.resolveSingleParam<T>(wrapper, param, parent),
+    ));
+  }
+
+  private resolveSingleParam<T>(
+    wrapper: InstanceWrapper<T>,
+    param: MetaType<any> | string | symbol,
+    parent: Module,
+  ): Injectable {
     if (isUndefined(param)) {
       throw new RuntimeException();
     }
 
-    return this.resolveComponentInstance<T>(parent, param, metaType);
+    return this.resolveComponentInstance<T>(
+      parent,
+      isFunction(param) ? (<MetaType<T>>param).name : param,
+      wrapper,
+    );
   }
 
   private resolveComponentInstance<T>(
     parent: Module,
-    param: MetaType<IInjectable>,
-    metaType: MetaType<T>,
-  ): IInjectable {
-    const wrapper = this.scanForComponent<T>(
-      parent.components,
-      param,
+    name: any,
+    wrapper: InstanceWrapper<T>,
+  ): Injectable {
+    const components = parent.components;
+    const instanceWrapper = this.scanForComponent<T>(
+      components,
+      name,
       parent,
-      metaType,
+      wrapper,
     );
 
-    if (!wrapper.instance) {
-      this.loadInstanceOfComponent(param, parent);
+    if (!instanceWrapper.instance) {
+      this.loadInstanceOfComponent(name, parent);
     }
 
-    return wrapper.instance;
+    return instanceWrapper.instance;
   }
 
   private scanForComponent<T>(
-    components: Map<string, InstanceWrapper<IInjectable>>,
-    param: MetaType<IInjectable>,
+    components: Map<string, InstanceWrapper<any>>,
+    name: any,
     parent: Module,
-    metaType: MetaType<T>,
-  ): InstanceWrapper<IInjectable> {
-    if (components.has(param.name)) {
-      return components.get(param.name);
+    { metaType }: InstanceWrapper<T>,
+  ): InstanceWrapper<Injectable> {
+    if (components.has(name)) {
+      return components.get(name);
     }
 
-    const wrapper = this.scanComponentInChildModules(parent, param);
+    const wrapper = this.scanComponentInChildModules(parent, name);
     if (!wrapper) {
-      throw new UnknownDependenciesException((<any>metaType).name);
+      throw new UnknownDependenciesException(metaType.name);
     }
 
     return wrapper;
@@ -179,19 +214,20 @@ export class Injector {
 
   private scanComponentInChildModules(
     parent: Module,
-    metaType: MetaType<IInjectable>,
-  ): InstanceWrapper<IInjectable> {
-    let wrapper: InstanceWrapper<IInjectable> = null;
+    name: any,
+  ): InstanceWrapper<Injectable> {
+    const childModules = parent.modules ?? [];
+    let wrapper: InstanceWrapper<Injectable> = null;
 
-    parent.modules.forEach((child) => {
+    childModules.forEach((child: Module) => {
       const { exports, components } = child;
-      if (!exports.has(metaType.name) || !components.has(metaType.name)) {
+      if (!exports.has(name) || !components.has(name)) {
         return;
       }
 
-      wrapper = child.components.get(metaType.name);
+      wrapper = child.components.get(name);
       if (!wrapper.resolved) {
-        this.loadInstanceOfComponent(metaType, child);
+        this.loadInstanceOfComponent(wrapper, child);
       }
     });
 

@@ -44,13 +44,13 @@ export class Application {
    * @param {number} port Application port.
    * @param {Function} callback Application callback to be executed after initialized.
    */
-  public listen(port: number, callback: () => void) {
+  public listen(port: number, callback: () => void): void {
     this.setupMiddlewares(this.express);
     this.setupControllers(this.express);
 
-    this.logger.log(messages.APPLICATION_READY);
+    this.express.listen(port, callback);
 
-    return this.express.listen(port, callback);
+    this.logger.log(messages.APPLICATION_READY);
   }
 
   private setupMiddlewares(instance: express.Application) {

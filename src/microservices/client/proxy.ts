@@ -1,4 +1,7 @@
-import { Observable, Observer } from 'rxjs';
+import { isNil } from '@ialopezg/commonjs';
+import { Observable, Observer, throwError } from 'rxjs';
+
+import { InvalidMessageException } from '../exceptions';
 
 /**
  * Represents a Client Proxy that can interchange messages and data.
@@ -10,7 +13,7 @@ export abstract class ClientProxy {
    * @param pattern Message pattern.
    * @param {Function} callback Callback to be executed after send the message.
    */
-  abstract sendSingleMessage(pattern: any, callback: Function);
+  abstract sendSingleMessage(pattern: any, callback: Function): void;
 
   /**
    * Sends message patterns.
@@ -19,6 +22,10 @@ export abstract class ClientProxy {
    * @param data Message data.
    */
   public send<T>(pattern: any, data: any): Observable<T> {
+    if (isNil(pattern) || isNil(data)) {
+      return throwError(() => new InvalidMessageException());
+    }
+
     return new Observable<T>((observer: Observer<T>) => {
       this.sendSingleMessage(
         { pattern, data },
@@ -28,7 +35,7 @@ export abstract class ClientProxy {
   }
 
   private createObserver<T>(observer: Observer<T>): Function {
-    return (error, result) => {
+    return (error: any, result: any) => {
       if (error) {
         return observer.error(error);
       }

@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { IInjectable, MetaType } from '../common/interfaces';
+import { Injectable, MetaType } from '../common/interfaces';
 import { InvalidServerSocketPortException } from './exceptions';
 import { GatewayMetadataExplorer, MessageMappingProperties } from './explorer';
 import { Gateway, ObservableSocketServer } from './interfaces';
@@ -27,9 +27,9 @@ export class WebSocketsController {
    * Register a gateway service into the websocket module.
    *
    * @param {Gateway} instance Gateway service to be registered.
-   * @param {IInjectable} metaType Component that contains the gateway service.
+   * @param {Injectable} metaType Component that contains the gateway service.
    */
-  public hook(instance: Gateway, metaType: MetaType<IInjectable>): void {
+  public hook(instance: Gateway, metaType: MetaType<Injectable>): void {
     const namespace = Reflect.getMetadata(NAMESPACE_METADATA, metaType) ?? '';
     const port = Reflect.getMetadata(PORT_METADATA, metaType) ?? 80;
 

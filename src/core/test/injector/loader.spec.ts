@@ -32,14 +32,18 @@ describe('InstanceLoader', () => {
       components: new Map(),
       controllers: new Map(),
     };
-    module.components.set('TestComponent', {
+    const componentWrapper = {
+      name: 'TestComponent',
       instance: null,
       metaType: TestComponent,
-    });
-    module.controllers.set('TestController', {
+    };
+    const controllerWrapper = {
+      name: 'TestController',
       instance: null,
       metaType: TestController,
-    });
+    };
+    module.components.set('TestComponent', componentWrapper);
+    module.controllers.set('TestController', controllerWrapper);
 
     const modules = new Map();
     modules.set('TestModule', module);
@@ -51,8 +55,8 @@ describe('InstanceLoader', () => {
     sinon.stub(injector, 'loadInstanceOfController');
 
     loader.initialize();
-    expect(loadComponentPrototypeStub.calledWith(TestComponent, module.components)).to.be.true;
-    expect(loadComponentPrototypeStub.calledWith(TestController, module.controllers)).to.be.true;
+    expect(loadComponentPrototypeStub.calledWith(componentWrapper, module.components)).to.be.true;
+    expect(loadComponentPrototypeStub.calledWith(controllerWrapper, module.controllers)).to.be.true;
   });
 
   it('should call "loadInstanceOfComponent" for each component in each module', () => {
@@ -63,10 +67,12 @@ describe('InstanceLoader', () => {
       components: new Map(),
       controllers: new Map(),
     };
-    module.components.set('TestComponent', {
+    const componentWrapper = {
+      name: 'TestComponent',
       instance: null,
       metaType: TestComponent,
-    });
+    };
+    module.components.set('TestComponent', componentWrapper);
 
     const modules = new Map();
     modules.set('TestComponent', module);
@@ -76,7 +82,7 @@ describe('InstanceLoader', () => {
     sinon.stub(injector, 'loadInstanceOfController');
 
     loader.initialize();
-    expect(loadComponentStub.calledWith(TestComponent, module)).to.be.true;
+    expect(loadComponentStub.calledWith(module.components.get('TestComponent'), module)).to.be.true;
   });
 
   it('should call "loadInstanceOfController" for each controller in each module', () => {
@@ -87,7 +93,12 @@ describe('InstanceLoader', () => {
       components: new Map(),
       controllers: new Map(),
     };
-    module.controllers.set('TestController', { instance: null, metaType: TestController });
+    const controllerWrapper = {
+      name: 'TestController',
+      instance: null,
+      metaType: TestController,
+    };
+    module.controllers.set('TestController', controllerWrapper);
 
     const modules = new Map();
     modules.set('Test', module);
@@ -98,6 +109,6 @@ describe('InstanceLoader', () => {
 
     loader.initialize();
 
-    expect(loadRoutesStub.calledWith(TestController, module)).to.be.true;
+    expect(loadRoutesStub.calledWith(module.controllers.get('TestController'), module)).to.be.true;
   });
 });

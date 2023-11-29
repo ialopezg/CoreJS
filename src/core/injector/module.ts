@@ -1,12 +1,36 @@
+import { isFunction, isNil } from '@ialopezg/commonjs';
+
 import {
-  IController,
-  IInjectable,
+  Controller,
+  Injectable,
   IModule,
   MetaType,
   ModuleMetaType,
 } from '../../common/interfaces';
 import { UnknownExportableComponentException } from '../../errors';
 import { InstanceWrapper } from './container';
+import { ModuleRef } from './module-ref';
+
+/**
+ * Custom User component.
+ */
+export type CustomComponent = { provide: any };
+/**
+ * Custom User class.
+ */
+export type CustomClass = CustomComponent & { useClass: MetaType<any> };
+/**
+ * Custom User factory.
+ */
+export type CustomFactory = CustomComponent & { useFactory: Function, inject?: MetaType<any>[] };
+/**
+ * Custom User value.
+ */
+export type CustomValue = CustomComponent & { useValue: any };
+/**
+ * Component meta-type.
+ */
+export type ComponentMetaType = MetaType<Injectable> | CustomFactory | CustomValue | CustomClass;
 
 /**
  * Represents a set of code encapsulated to be injected into an application.
@@ -14,8 +38,8 @@ import { InstanceWrapper } from './container';
 export class Module {
   private _instance: IModule;
   private _modules = new Set<Module>();
-  private _components = new Map<string, InstanceWrapper<IInjectable>>();
-  private _controllers = new Map<string, InstanceWrapper<IController>>();
+  private _components = new Map<any, InstanceWrapper<Injectable>>();
+  private _controllers = new Map<string, InstanceWrapper<Controller>>();
   private _exports = new Set<string>();
 
   /**
@@ -25,6 +49,7 @@ export class Module {
    */
   constructor(private _metaType: ModuleMetaType) {
     this._instance = new _metaType();
+    this.addModuleRef();
   }
 
   /**
@@ -37,14 +62,14 @@ export class Module {
   /**
    * Gets current component objects.
    */
-  get components(): Map<string, InstanceWrapper<IInjectable>> {
+  get components(): Map<string, InstanceWrapper<Injectable>> {
     return this._components;
   }
 
   /**
    * Gets current controller objects.
    */
-  get controllers(): Map<string, InstanceWrapper<IController>> {
+  get controllers(): Map<string, InstanceWrapper<Controller>> {
     return this._controllers;
   }
 
@@ -77,9 +102,9 @@ export class Module {
    * Registers the given object as an exportable component. If component does not exist,
    * will throw an UnknownExportableComponentException object.
    *
-   * @param {MetaType<IInjectable>} target Exportable component.
+   * @param {MetaType<Injectable>} target Exportable component.
    */
-  public addExportedComponent(target: MetaType<IInjectable>): void {
+  public addExportedComponent(target: MetaType<Injectable>): void {
     if (!this._components.has(target.name)) {
       throw new UnknownExportableComponentException(target.name);
     }
@@ -99,18 +124,17 @@ export class Module {
   /**
    * Registers the given object as a component.
    *
-   * @param {MetaType<IInjectable> & { provide?: any, useValue?: any }} target Component to be registered.
+   * @param {MetaType<Injectable> & { provide?: any, useValue?: any }} target Component to be registered.
    */
-  public addComponent(
-    target: MetaType<IInjectable> & { provide?: any, useValue?: any },
-  ): void {
-    if (target.provide && target.useValue) {
-      return this.addProvider(target);
+  public addComponent(target: ComponentMetaType): void {
+    if (!isNil((<CustomComponent>target).provide)) {
+      return this.addCustomComponent(target);
     }
 
-    this._components.set(target.name, {
+    this._components.set((<MetaType<Injectable>>target).name, {
+      name: (<MetaType<Injectable>>target).name,
+      metaType: <MetaType<Injectable>>target,
       instance: null,
-      metaType: target,
       resolved: false,
     });
   }
@@ -118,29 +142,81 @@ export class Module {
   /**
    * Registers the given object as a controller.
    *
-   * @param {MetaType<IController>} target Controller to be registered.
+   * @param {MetaType<Controller>} target Controller to be registered.
    */
-  public addController(target: MetaType<IController>): void {
+  public addController(target: MetaType<Controller>): void {
     this._controllers.set(target.name, {
-      instance: null,
+      name: (<MetaType<Controller>>target).name,
       metaType: target,
+      instance: null,
       resolved: false,
     });
   }
 
-  /**
-   * Registers the given object as a provider.
-   *
-   * @param {MetaType<IInjectable> & { provide?: any, useValue?: any }} target Provider to be registered.
-   */
-  public addProvider(
-    target: MetaType<IInjectable> & { provide?: any, useValue?: any },
-  ): void {
-    const { provide: type, useValue: value } = target;
-    this._components.set(type.name, {
-      instance: value,
-      metaType: type,
+  private addCustomClass(target: CustomClass): void {
+    const { provide: metaType, useClass } = target;
+    this._components.set(metaType.name, {
+      name: metaType.name,
+      metaType: useClass,
+      instance: null,
+      resolved: false,
+    });
+  }
+
+  private addCustomComponent(target: ComponentMetaType,): void {
+    if ((<CustomClass>target).useClass) {
+      return this.addCustomClass(<CustomClass>target);
+    } else if ((<CustomValue>target).useValue) {
+      return this.addCustomValue(<CustomValue>target);
+    } else if ((<CustomFactory>target).useFactory) {
+      this.addCustomFactory(<CustomFactory>target);
+    }
+  }
+
+  private addCustomFactory(target: CustomFactory): void {
+    const { provide: name, useFactory: factory, inject } = target;
+    this._components.set(name, {
+      name,
+      metaType: <any>factory,
+      instance: null,
+      resolved: false,
+      inject: inject ?? [],
+      isNotMetaType: true,
+    });
+  }
+
+  private addCustomValue(target: CustomValue): void {
+    const { provide, useValue: instance } = target;
+    const name = isFunction(provide) ? provide.name : provide;
+    this._components.set(name, {
+      name,
+      metaType: null,
+      instance,
+      resolved: true,
+      isNotMetaType: true,
+    });
+  }
+
+  private addModuleRef() {
+    const moduleRef = this.getModuleRefMetaType(this._components);
+    this._components.set(ModuleRef.name, {
+      name: ModuleRef.name,
+      metaType: ModuleRef,
+      instance: new moduleRef(),
       resolved: true,
     });
+  }
+
+  private getModuleRefMetaType(components: Map<any, InstanceWrapper<Injectable>>): any {
+    return class extends this._metaType {
+      private readonly components = components;
+
+      get<T>(type: string | symbol | object | MetaType<any>): T {
+        const name = isFunction(type) ? (<MetaType<any>>type).name : type;
+        const exists = this.components.has(name);
+
+        return exists ? <T>this.components.get(name).instance : null;
+      }
+    }
   }
 }

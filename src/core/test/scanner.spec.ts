@@ -42,7 +42,7 @@ describe('DependencyScanner', () => {
     mockContainer.restore();
   });
 
-  it('should "storeModule" call twice (2 modules) container method "addModule"', () => {
+  it('should "registerModule" call twice (2 modules) container method "addModule"', () => {
     const expectation = mockContainer.expects('addModule').twice();
     scanner.scan(TestModule);
 

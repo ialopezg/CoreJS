@@ -2,7 +2,7 @@ import 'reflect-metadata';
 
 import { isConstructor, isFunction, isUndefined } from '@ialopezg/commonjs';
 
-import { IController } from '../common/interfaces';
+import { Controller } from '../common/interfaces';
 import { ClientMetadata, PatternMetadata } from './interfaces';
 import {
   CLIENT_CONFIGURATION_METADATA,
@@ -18,18 +18,18 @@ export class ListenerMetadataExplorer {
   /**
    * Explore given target for pattern metadata.
    *
-   * @param {IController} target Target controller to be scanned.
+   * @param {Controller} target Target controller to be scanned.
    */
-  public explore(target: IController): PatternProperties[] {
+  public explore(target: Controller): PatternProperties[] {
     return this.scan(target, Object.getPrototypeOf(target));
   }
 
   /**
    * Scan for client hooks in given target.
    *
-   * @param {IController} target Target controller to be scanned.
+   * @param {Controller} target Target controller to be scanned.
    */
-  public* scanForClientHooks(target: IController): IterableIterator<ClientProperties> {
+  public* scanForClientHooks(target: Controller): IterableIterator<ClientProperties> {
     for (const propertyKey in target) {
       if (isFunction(propertyKey)) {
         continue;
@@ -46,7 +46,7 @@ export class ListenerMetadataExplorer {
     }
   }
 
-  private scan(target: IController, prototype: any): PatternProperties[] {
+  private scan(target: Controller, prototype: any): PatternProperties[] {
     return Object.getOwnPropertyNames(prototype)
       .filter((property) => {
         const descriptor = Object.getOwnPropertyDescriptor(prototype, property);
@@ -60,7 +60,7 @@ export class ListenerMetadataExplorer {
       .filter((metadata) => metadata !== null);
   }
 
-  private exploreMetadata(target: IController, prototype: any, methodName: string): PatternProperties {
+  private exploreMetadata(target: Controller, prototype: any, methodName: string): PatternProperties {
     const callback = prototype[methodName];
     const isPattern = Reflect.getMetadata(PATTERN_HANDLER_METADATA, callback);
     if (isUndefined(isPattern)) {

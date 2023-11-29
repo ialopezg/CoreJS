@@ -31,7 +31,7 @@ describe('ModuleContainer', () => {
     expect(() => container.addComponent(null, TestModule)).throw(UnknownModuleException);
   });
 
-  it('should "addComponent" throw "UnknownModuleException" when module is not stored in collection', () => {
+  it('should "addController" throw "UnknownModuleException" when module is not stored in collection', () => {
     expect(() => container.addController(null, TestModule)).throw(UnknownModuleException);
   });
 

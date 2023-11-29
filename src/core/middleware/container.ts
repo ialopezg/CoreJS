@@ -1,4 +1,4 @@
-import { IController, ControllerMetadata, MetaType } from '../../common/interfaces';
+import { Controller, ControllerMetadata, MetaType } from '../../common/interfaces';
 import { IMiddleware, MiddlewareConfiguration } from './interfaces';
 import { RoutesMapper } from './mapper';
 import { RequestMethod } from '../../common';
@@ -63,7 +63,7 @@ export class MiddlewareContainer {
   }
 
   private mapRoutesToFlatList(
-    forRoutes: (IController | ControllerMetadata & { request?: RequestMethod })[],
+    forRoutes: (Controller | ControllerMetadata & { request?: RequestMethod })[],
   ) {
     return forRoutes
       .map((route) => this.mapper.map(route))

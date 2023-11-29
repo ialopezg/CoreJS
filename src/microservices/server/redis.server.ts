@@ -46,12 +46,12 @@ export class RedisServer extends Server {
     return (response) => {
       void publisher.publish(
         this.getResQueueName(pattern),
-        JSON.stringify(response) as any,
+        JSON.stringify(response),
       );
     };
   }
 
-  public parse(content: any): string | any {
+  public parse(content: any): any {
     try {
       return JSON.parse(content);
     } catch (error: any) {
@@ -72,16 +72,17 @@ export class RedisServer extends Server {
     subscriber: any,
     publisher: any,
   ): void {
+    console.log(callback, publisher, subscriber);
     subscriber.on('message', this.getMessageHandler(publisher).bind(this));
 
     const patterns = Object.keys(this.handlers);
     patterns.forEach(
-      (pattern) => (<any>subscriber).subscribe(this.getAckQueueName(pattern)),
+      (pattern) => subscriber.subscribe(this.getAckQueueName(pattern)),
     );
     callback && callback();
   }
 
-  private getMessageHandler(publisher: any): Function {
+  private getMessageHandler(publisher: any): any {
     return (channel, buffer) => this.onMessage(channel, buffer, publisher);
   }
 
@@ -106,7 +107,7 @@ export class RedisServer extends Server {
   private getMessageHandlerCallback(
     publisher: RedisClient,
     pattern: any,
-  ): Function {
+  ): any {
     return (error: any, response: any) => {
       const publish = this.getPublisher(publisher, pattern);
       if (!response) {

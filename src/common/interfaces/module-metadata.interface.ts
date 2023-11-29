@@ -1,6 +1,6 @@
 import { IModule } from './module.interface';
-import { IController } from './controller.interface';
-import { IInjectable } from './injectable.interface';
+import { Controller } from './controller.interface';
+import { Injectable } from './injectable.interface';
 
 /**
  * Module metadata definition.
@@ -13,13 +13,13 @@ export interface ModuleMetadata {
   /**
    * Components.
    */
-  components?: IInjectable[];
+  components?: Injectable[];
   /**
    * Controllers.
    */
-  controllers?: IController[];
+  controllers?: Controller[];
   /**
    * Shareable components.
    */
-  exports?: IInjectable[];
+  exports?: Injectable[];
 }

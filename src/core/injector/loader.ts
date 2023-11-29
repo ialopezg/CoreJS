@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { IController, IInjectable } from '../../common/interfaces';
+import { Controller, Injectable } from '../../common/interfaces';
 import { ModuleContainer } from './container';
 import { Injector } from './injector';
 import { LoggerService } from '../../common';
@@ -50,8 +50,8 @@ export class InstanceLoader {
   private createPrototypesOfComponents(parent: Module): void {
     parent.components.forEach((
       wrapper,
-    ) => this.injector.loadPrototypeOfInstance<IInjectable>(
-      wrapper.metaType,
+    ) => this.injector.loadPrototypeOfInstance<Injectable>(
+      wrapper,
       parent.components,
     ));
   }
@@ -60,7 +60,7 @@ export class InstanceLoader {
     parent.components.forEach((
       wrapper,
     ) => this.injector.loadInstanceOfComponent(
-      wrapper.metaType,
+      wrapper,
       parent,
     ));
   }
@@ -69,8 +69,8 @@ export class InstanceLoader {
     parent.controllers.forEach(
       (
         wrapper,
-      ) => this.injector.loadPrototypeOfInstance<IController>(
-        wrapper.metaType,
+      ) => this.injector.loadPrototypeOfInstance<Controller>(
+        wrapper,
         parent.controllers,
       ));
   }
@@ -80,7 +80,7 @@ export class InstanceLoader {
       (
         wrapper,
       ) => this.injector.loadInstanceOfController(
-        wrapper.metaType,
+        wrapper,
         parent,
       ));
   }

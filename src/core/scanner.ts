@@ -2,8 +2,8 @@ import 'reflect-metadata';
 
 import { ModuleContainer } from './injector';
 import {
-  IController,
-  IInjectable,
+  Controller,
+  Injectable,
   ModuleMetaType,
   MetaType,
 } from '../common/interfaces';
@@ -80,30 +80,30 @@ export class DependencyScanner {
   /**
    * Register a component.
    *
-   * @param {MetaType<IInjectable>} target Component to be registered.
+   * @param {MetaType<Injectable>} target Component to be registered.
    * @param {ModuleMetaType} parent Parent module.
    */
-  registerComponent(target: MetaType<IInjectable>, parent: ModuleMetaType): void {
+  registerComponent(target: MetaType<Injectable>, parent: ModuleMetaType): void {
     this.container.addComponent(target, parent);
   }
 
   /**
    * Registered a controller on the parent.
    *
-   * @param {MetaType<IController>} target Controller to be registered.
+   * @param {MetaType<Controller>} target Controller to be registered.
    * @param {ModuleMetaType} parent Parent module.
    */
-  registerController(target: MetaType<IController>, parent: ModuleMetaType) {
+  registerController(target: MetaType<Controller>, parent: ModuleMetaType) {
     this.container.addController(target, parent);
   }
 
   /**
    * Register a component as an exported component.
    *
-   * @param {MetaType<IInjectable>} target Component to be exported.
+   * @param {MetaType<Injectable>} target Component to be exported.
    * @param {ModuleMetaType} parent Parent module.
    */
-  registerExportedComponent(target: MetaType<IInjectable>, parent: ModuleMetaType) {
+  registerExportedComponent(target: MetaType<Injectable>, parent: ModuleMetaType) {
     this.container.addExportedComponent(target, parent);
   }
 

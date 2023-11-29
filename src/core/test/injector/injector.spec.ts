@@ -14,54 +14,60 @@ describe('Injector', () => {
 
   describe('loadInstance', () => {
     @Component()
-    class DependencyOne {
-    }
+    class DependencyOne {}
 
     @Component()
-    class DependencyTwo {
-    }
+    class DependencyTwo {}
 
     @Component()
     class MainTest {
       constructor(
         public depOne: DependencyOne,
         public depTwo: DependencyTwo,
-      ) {
-      }
+      ) {}
     }
 
     let moduleDeps: Module;
+    let mainTest: any;
+    let dependencyOne: any;
+    let dependencyTwo: any;
 
     beforeEach(() => {
       moduleDeps = new Module(DependencyTwo);
-      moduleDeps.components.set('MainTest', {
+      mainTest = {
+        name: 'MainTest',
         metaType: MainTest,
         instance: Object.create(MainTest.prototype),
         resolved: false,
-      });
-      moduleDeps.components.set('DependencyOne', {
+      };
+      dependencyOne = {
+        name: 'DependencyOne',
         metaType: DependencyOne,
         instance: Object.create(DependencyOne.prototype),
         resolved: false,
-      });
-      moduleDeps.components.set('DependencyTwo', {
+      };
+      dependencyTwo = {
+        name: 'DependencyTwo',
         metaType: DependencyTwo,
-        instance: Object.create(DependencyOne.prototype),
+        instance: Object.create(DependencyTwo.prototype),
         resolved: false,
-      });
+      };
+      moduleDeps.components.set('MainTest', mainTest);
+      moduleDeps.components.set('DependencyOne', dependencyOne);
+      moduleDeps.components.set('DependencyTwo', dependencyTwo);
     });
 
     it('should create an instance of component with proper dependencies', () => {
-      injector['loadInstance'](MainTest, moduleDeps.components, moduleDeps);
+      injector['loadInstance'](mainTest, moduleDeps.components, moduleDeps);
       const { instance } = <InstanceWrapper<MainTest>>(moduleDeps.components.get('MainTest'));
 
       expect(instance.depOne instanceof DependencyOne).to.be.true;
-      expect(instance.depTwo instanceof DependencyOne).to.be.true;
+      expect(instance.depTwo instanceof DependencyTwo).to.be.true;
       expect(instance instanceof MainTest).to.be.true;
     });
 
     it('should set "isResolved" property to true after instance initialization', () => {
-      injector['loadInstance'](MainTest, moduleDeps.components, moduleDeps);
+      injector['loadInstance'](mainTest, moduleDeps.components, moduleDeps);
       const { resolved } = <InstanceWrapper<MainTest>>(moduleDeps.components.get('MainTest'));
 
       expect(resolved).to.be.true;
@@ -79,23 +85,27 @@ describe('Injector', () => {
     class TestComponent {}
 
     let moduleDeps: Module;
+    let testComponent: any;
 
     beforeEach(() => {
       moduleDeps = new Module(TestComponent);
-      moduleDeps.components.set('TestComponent', {
-        metaType: TestComponent,
-        instance: Object.create(TestComponent.prototype),
-        resolved: false,
-      });
-    });
-
-    it('should create prototype of instance', () => {
-      const expectedResult = {
+      testComponent = {
+        name: 'TestComponent',
         metaType: TestComponent,
         instance: Object.create(TestComponent.prototype),
         resolved: false,
       };
-      injector.loadPrototypeOfInstance(TestComponent, moduleDeps.components);
+      moduleDeps.components.set('TestComponent', testComponent);
+    });
+
+    it('should create prototype of instance', () => {
+      const expectedResult = {
+        name: 'TestComponent',
+        metaType: TestComponent,
+        instance: Object.create(TestComponent.prototype),
+        resolved: false,
+      };
+      injector.loadPrototypeOfInstance(testComponent, moduleDeps.components);
 
       expect(moduleDeps.components.get('TestComponent')).to.deep.equal(expectedResult);
     });
@@ -127,7 +137,7 @@ describe('Injector', () => {
         set: (..._args: any[]) => {},
       };
 
-      injector.loadInstanceOfMiddleware(<any>{ name: '' }, <any>collection, null);
+      injector.loadInstanceOfMiddleware(<any>{ metaType: { name: '' } }, <any>collection, null);
 
       expect(resolveConstructorParams.called).to.be.true;
     });
@@ -137,10 +147,11 @@ describe('Injector', () => {
         get: (..._args: any[]) => ({
           instance: {},
         }),
-        set: (..._args: any[]) => {},
+        set: (..._args: any[]) => {
+        },
       };
 
-      injector.loadInstanceOfMiddleware(<any>{ name: '' }, <any>collection, null);
+      injector.loadInstanceOfMiddleware(<any>{ metaType: { name: '' } }, <any>collection, null);
 
       expect(resolveConstructorParams.called).to.be.false;
     });
@@ -148,7 +159,7 @@ describe('Injector', () => {
 
   describe('scanForComponent', () => {
     let scanForComponentInRelatedModules: sinon.SinonStub;
-    const metaType = { name: 'test' };
+    const metaType = { name: 'test', metaType: { name: 'test' } };
 
     beforeEach(() => {
       scanForComponentInRelatedModules = sinon.stub();
@@ -163,20 +174,20 @@ describe('Injector', () => {
       };
       const result = injector['scanForComponent'](
         <any>collection,
+        <any>metaType.name,
+        null,
         <any>metaType,
-        null,
-        null,
       );
 
       expect(result).to.be.equal(instance);
     });
 
-    it('should call "scanForComponentInRelatedModules" when object is not in collection', () => {
+    it('should call "scanForComponentInChildModules" when object is not in collection', () => {
       scanForComponentInRelatedModules.returns({});
       const collection = {
         has: () => false,
       };
-      injector['scanForComponent'](<any>collection, <any>metaType, null, null);
+      injector['scanForComponent'](<any>collection, metaType.name, null, <any>metaType);
 
       expect(scanForComponentInRelatedModules.called).to.be.true;
     });
@@ -189,7 +200,8 @@ describe('Injector', () => {
 
       expect(
         () => injector['scanForComponent'](
-          <any>collection, <any>metaType,
+          <any>collection,
+          metaType.name,
           null,
           <any>metaType,
         ),
@@ -205,7 +217,7 @@ describe('Injector', () => {
       expect(
         () => injector['scanForComponent'](
           <any>collection,
-          <any>metaType,
+          metaType.name,
           null,
           <any>metaType,
         ),
@@ -217,7 +229,7 @@ describe('Injector', () => {
     let loadInstanceOfComponent: sinon.SinonSpy;
     const metaType = { name: 'test' };
     const module = {
-      modules: []
+      modules: [],
     };
 
     beforeEach(() => {
@@ -242,8 +254,8 @@ describe('Injector', () => {
           },
           exports: {
             has: () => true,
-          }
-        }]
+          },
+        }],
       };
       expect(injector['scanComponentInChildModules'](
         <any>module,
@@ -257,8 +269,8 @@ describe('Injector', () => {
           },
           exports: {
             has: () => false,
-          }
-        }]
+          },
+        }],
       };
       expect(injector['scanComponentInChildModules'](
         <any>module,
@@ -272,13 +284,13 @@ describe('Injector', () => {
           components: {
             has: () => true,
             get: () => ({
-              resolved: false
-            })
+              resolved: false,
+            }),
           },
           exports: {
             has: () => true,
-          }
-        }]
+          },
+        }],
       };
       injector['scanComponentInChildModules'](<any>module, <any>metaType);
 
@@ -291,13 +303,13 @@ describe('Injector', () => {
           components: {
             has: () => true,
             get: () => ({
-              resolved: true
-            })
+              resolved: true,
+            }),
           },
           exports: {
             has: () => true,
-          }
-        }]
+          },
+        }],
       };
       injector['scanComponentInChildModules'](<any>module, <any>metaType);
 

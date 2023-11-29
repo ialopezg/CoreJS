@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 
-import { IController } from '../common/interfaces';
+import { Controller } from '../common/interfaces';
 import { ListenerMetadataExplorer } from './explorer';
 import { ClientProxyFactory } from './client/factory';
 import { Server } from './server';
@@ -14,10 +14,10 @@ export class ListenerController {
   /**
    * Binds the message pattern handlers.
    *
-   * @param {IController} target Target controller.
+   * @param {Controller} target Target controller.
    * @param {Server} server Server instance.
    */
-  public bindHandlers(target: IController, server: Server) {
+  public bindHandlers(target: Controller, server: Server) {
     const handlers = this.explorer.explore(target);
 
     handlers.forEach(({ pattern, callback }) => {
@@ -28,9 +28,9 @@ export class ListenerController {
   /**
    * Binds client instances on target controller.
    *
-   * @param {IController} target Target controller.
+   * @param {Controller} target Target controller.
    */
-  public bindClients(target: IController) {
+  public bindClients(target: Controller) {
     for (const {
       property,
       metadata,

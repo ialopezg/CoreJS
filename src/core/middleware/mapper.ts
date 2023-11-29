@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import { isUndefined } from '@ialopezg/commonjs';
 
 import { PATH_METADATA } from '../../common/constants';
-import { IController, ControllerMetadata } from '../../common/interfaces';
+import { Controller, ControllerMetadata } from '../../common/interfaces';
 import { RequestMethod, validatePath } from '../../common';
 import { UnknownRequestMappingException } from '../../errors';
 import { RouterBuilder } from '../router';
@@ -20,7 +20,7 @@ export class RoutesMapper {
    * @param {Controller | ControllerMetadata & { method?: RequestMethod }} controller Controller.
    */
   public map(
-    controller: IController | ControllerMetadata & { method?: RequestMethod },
+    controller: Controller | ControllerMetadata & { method?: RequestMethod },
   ): Array<{ path: string, method: RequestMethod }> {
     const path: string = Reflect.getMetadata(PATH_METADATA, controller);
     if (isUndefined(path)) {

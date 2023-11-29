@@ -1,16 +1,16 @@
 import { ListenerController } from './controller';
 import { InstanceWrapper, ModuleContainer } from '../core/injector';
-import { IController } from '../common/interfaces';
+import { Controller } from '../common/interfaces';
 import { Server } from './server';
 
 /**
- * Represents the microservices module.
+ * Represents the microservice module.
  */
 export class MicroserviceModule {
   private static readonly controller = new ListenerController();
 
   /**
-   * Register the microservices clients.
+   * Register the microservice clients.
    *
    * @param {ModuleContainer} container Module container.
    */
@@ -24,7 +24,7 @@ export class MicroserviceModule {
   }
 
   /**
-   * Register the microservices listener in the given server.
+   * Register the microservice listener in the given server.
    *
    * @param {ModuleContainer} container Module container.
    * @param {Server} server Server instance.
@@ -38,7 +38,7 @@ export class MicroserviceModule {
   }
 
   private static bindClients(
-    controllers: Map<string, InstanceWrapper<IController>>,
+    controllers: Map<string, InstanceWrapper<Controller>>,
   ): void {
     controllers.forEach(({ instance }) => {
       this.controller.bindClients(instance);
@@ -46,7 +46,7 @@ export class MicroserviceModule {
   }
 
   private static bindListeners(
-    controllers: Map<string, InstanceWrapper<IController>>,
+    controllers: Map<string, InstanceWrapper<Controller>>,
     server: Server,
   ): void {
     controllers.forEach(({ instance }) => {

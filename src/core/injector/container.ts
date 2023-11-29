@@ -1,6 +1,6 @@
 import {
-  IController,
-  IInjectable,
+  Controller,
+  Injectable,
   MetaType,
   ModuleMetaType,
 } from '../../common/interfaces';
@@ -44,10 +44,10 @@ export class ModuleContainer {
   /**
    * Register a component or service to be used by a module.
    *
-   * @param {MetaType<IInjectable>} target Component to be registered.
+   * @param {MetaType<Injectable>} target Component to be registered.
    * @param {ModuleMetaType} parent Parent module.
    */
-  public addComponent(target: MetaType<IInjectable>, parent: ModuleMetaType): void {
+  public addComponent(target: MetaType<Injectable>, parent: ModuleMetaType): void {
     if (!this.modules.has(parent.name)) {
       throw new UnknownModuleException(parent.name);
     }
@@ -58,10 +58,10 @@ export class ModuleContainer {
   /**
    * Register a route to be used as an endpoint.
    *
-   * @param {MetaType<IController>} target Route to be registered.
+   * @param {MetaType<Controller>} target Route to be registered.
    * @param {ModuleMetaType} parent Parent module.
    */
-  public addController(target: MetaType<IController>, parent: ModuleMetaType): void {
+  public addController(target: MetaType<Controller>, parent: ModuleMetaType): void {
     if (!this.modules.has(parent.name)) {
       throw new UnknownModuleException(parent.name);
     }
@@ -72,10 +72,10 @@ export class ModuleContainer {
   /**
    * Marks a registered component as an exportable and shareable component.
    *
-   * @param {MetaType<IInjectable>} target Component to be exported.
+   * @param {MetaType<Injectable>} target Component to be exported.
    * @param {ModuleMetaType} parent Parent module.
    */
-  public addExportedComponent(target: MetaType<IInjectable>, parent: ModuleMetaType): void {
+  public addExportedComponent(target: MetaType<Injectable>, parent: ModuleMetaType): void {
     if (!this.modules.has(parent.name)) {
       throw new UnknownModuleException(parent.name);
     }
@@ -105,6 +105,10 @@ export class ModuleContainer {
  */
 export interface InstanceWrapper<T> {
   /**
+   * Instance name.
+   */
+  name: any;
+  /**
    * Instance meta-type information.
    */
   metaType: MetaType<T>;
@@ -116,4 +120,12 @@ export interface InstanceWrapper<T> {
    * Whether this instance is resolved.
    */
   resolved: boolean;
+  /**
+   * Dependencies to be injected.
+   */
+  inject?: MetaType<any>[];
+  /**
+   * Whether the current instance is a meta-type object.
+   */
+  isNotMetaType?: boolean;
 }

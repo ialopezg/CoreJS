@@ -1,3 +1,3 @@
 require('ts-node/register');
 
-require('./example/microservice');
+require('./example/microservice/microservice');

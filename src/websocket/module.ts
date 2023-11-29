@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 
 import { ModuleContainer, InstanceWrapper } from '../core/injector';
-import { IInjectable } from '../common/interfaces';
+import { Injectable } from '../common/interfaces';
 import { WebSocketsController } from './controller';
 import { SocketContainer } from './container';
 import { Gateway } from './interfaces';
@@ -31,9 +31,13 @@ export class SocketModule {
   }
 
   private static hookGatewaysIntoServers(
-    components: Map<string, InstanceWrapper<IInjectable>>,
+    components: Map<string, InstanceWrapper<Injectable>>,
   ): void {
-    components.forEach(({ instance, metaType }) => {
+    components.forEach(({ isNotMetaType, instance, metaType }) => {
+      if (!isNotMetaType) {
+        return;
+      }
+
       const keys = Reflect.getMetadataKeys(metaType);
       if (!keys.includes(GATEWAY_METADATA)) {
         return;

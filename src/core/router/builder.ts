@@ -2,7 +2,7 @@ import { isConstructor, isFunction, isUndefined } from '@ialopezg/commonjs';
 import { Router } from 'express';
 
 import { METHOD_METADATA, PATH_METADATA } from '../../common/constants';
-import { IController, MetaType } from '../../common/interfaces';
+import { Controller, MetaType } from '../../common/interfaces';
 import { LoggerService, RequestMethod, validatePath } from '../../common';
 import { ExpressAdapter } from '../adapters';
 import { UnknownRequestMappingException } from '../../errors';
@@ -30,12 +30,12 @@ export class RouterBuilder {
   /**
    * Builds the router function for given controller.
    *
-   * @param {IController} target Controller.
-   * @param {IController} metaType Controller type.
+   * @param {Controller} target Controller.
+   * @param {Controller} metaType Controller type.
    */
   public build(
-    target: IController,
-    metaType: MetaType<IController>,
+    target: Controller,
+    metaType: MetaType<Controller>,
   ): { path: string, router: Router } {
     const router = (<any>this.adapter).createRouter();
     const path = this.fetchRouterPath(metaType);
@@ -52,7 +52,7 @@ export class RouterBuilder {
    * @param {Controller} target Controller.
    * @param {Controller} prototype Controller type.
    */
-  public scanForPathsFromPrototype(target: IController, prototype: any): RoutePathProperties[] {
+  public scanForPathsFromPrototype(target: Controller, prototype: any): RoutePathProperties[] {
     return Object.getOwnPropertyNames(prototype)
       .filter((property) => {
         const descriptor = Object.getOwnPropertyDescriptor(
@@ -71,7 +71,7 @@ export class RouterBuilder {
       .filter((property) => property !== null);
   }
 
-  public scanForPaths(controller: IController): RoutePathProperties[] {
+  public scanForPaths(controller: Controller): RoutePathProperties[] {
     return this.scanForPathsFromPrototype(
       controller,
       Object.getPrototypeOf(controller),
@@ -94,7 +94,7 @@ export class RouterBuilder {
   }
 
   private exploreMethodMetadata(
-    target: IController,
+    target: Controller,
     prototype: any,
     methodName: string,
   ): RoutePathProperties {
@@ -116,7 +116,7 @@ export class RouterBuilder {
     };
   }
 
-  private fetchRouterPath(target: MetaType<IController>): string {
+  private fetchRouterPath(target: MetaType<Controller>): string {
     return this.validateRoutePath(Reflect.getMetadata(PATH_METADATA, target));
   }
 

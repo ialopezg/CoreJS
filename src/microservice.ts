@@ -1,12 +1,12 @@
 import { LoggerService, Transport } from './common';
 import { ModuleContainer } from './core/injector';
-import { MicroserviceConfiguration } from './microservices/interfaces';
+import { MicroserviceConfiguration } from './microservices';
 import { Server, ServerFactory } from './microservices/server';
 import { MicroserviceModule } from './microservices/module';
 import { messages } from './core/constants';
 
 /**
- * Represents the main entry for a microservices.
+ * Represents the main entry for a microservice.
  */
 export class Microservice {
   private logger = new LoggerService(Microservice.name);
@@ -36,13 +36,13 @@ export class Microservice {
    * @param {Function} callback Microservice callback to be executed after initialized.
    */
   public listen(callback: () => void): void {
-    this.logger.log(messages.APPLICATION_READY);
-
     this.server.listen(callback);
+
+    this.logger.log(messages.APPLICATION_READY);
   }
 
   /**
-   * Setup and prepares the microservices context.
+   * Setup and prepares the microservice context.
    */
   public setup(): void {
     MicroserviceModule.setupClients(this.container);

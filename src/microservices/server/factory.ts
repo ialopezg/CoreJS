@@ -5,11 +5,11 @@ import { Server } from './server';
 import { TcpServer } from './tcp.server';
 
 /**
- * Represents a factory for microservices server instances.
+ * Represents a factory for microservice server instances.
  */
 export class ServerFactory {
   /**
-   * Creates a microservices server instance with given parameters.
+   * Creates a microservice server instance with given parameters.
    *
    * @param {MicroserviceConfiguration} config Configuration parameters.
    */

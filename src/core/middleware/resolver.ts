@@ -26,21 +26,21 @@ export class MiddlewareResolver {
   public resolve(parent: Module, parentName: string): void {
     const middlewares = this.container.getMiddlewares(parentName);
 
-    middlewares.forEach(({ metaType }) => {
-      this.resolveMiddlewareInstance(metaType, middlewares, parent);
+    middlewares.forEach((wrapper) => {
+      this.resolveMiddlewareInstance(wrapper, middlewares, parent);
 
       this.logger.log(getMiddlewareInitMessage(
-        metaType.name,
+        wrapper.metaType.name,
         parent.metaType.name,
       ));
     });
   }
 
   private resolveMiddlewareInstance(
-    metaType: MiddlewareMetaType,
+    wrapper: MiddlewareWrapper,
     middlewares: Map<string, MiddlewareWrapper>,
     parent: Module,
   ): void {
-    this.injector.loadInstanceOfMiddleware(metaType, middlewares, parent);
+    this.injector.loadInstanceOfMiddleware(wrapper, middlewares, parent);
   }
 }

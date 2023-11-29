@@ -9,7 +9,7 @@ import { messages } from './core/constants';
 import { Application } from './application';
 import { isFunction } from '@ialopezg/commonjs';
 import { ExpressAdapter } from './core/adapters';
-import { MicroserviceConfiguration } from './microservices/interfaces';
+import { MicroserviceConfiguration } from './microservices';
 import { Microservice } from './microservice';
 
 /**
@@ -31,11 +31,13 @@ export class AppFactory {
     target: ModuleMetaType,
     express: Express = ExpressAdapter.create(),
   ): Application {
-    this.initialize(target);
+    try {
+      this.initialize(target);
 
-    return this.createInstance<Application>(
-      new Application(this.container, express),
-    );
+      return this.createInstance<Application>(
+        new Application(this.container, express),
+      );
+    } catch (_error: any) {}
   }
 
   /**
@@ -48,11 +50,13 @@ export class AppFactory {
     target: ModuleMetaType,
     config?: MicroserviceConfiguration,
   ): Microservice {
-    this.initialize(target);
+    try {
+      this.initialize(target);
 
-    return this.createInstance<Microservice>(
-      new Microservice(this.container, config),
-    );
+      return this.createInstance<Microservice>(
+        new Microservice(this.container, config),
+      );
+    } catch (_error: any) {}
   }
 
   private static initialize(target: ModuleMetaType) {

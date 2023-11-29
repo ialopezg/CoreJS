@@ -1,7 +1,7 @@
 import { LoggerService } from '../../common';
 
 /**
- * Represents a microservices server.
+ * Represents a microservice server.
  */
 export abstract class Server {
   private readonly logger = new LoggerService(Server.name);
@@ -16,7 +16,7 @@ export abstract class Server {
   /**
    * Get the current message handler list.
    */
-  public getHandlers() {
+  public getHandlers(): any {
     return this.handlers;
   }
 
@@ -25,7 +25,7 @@ export abstract class Server {
    *
    * @param {Function} callback Callback to be executed after start listening.
    */
-  abstract listen(callback: () => void);
+  abstract listen(callback: () => void): void;
 
   /**
    * Add a new patter handler.

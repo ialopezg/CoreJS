@@ -1,6 +1,6 @@
 import { Application } from 'express';
 
-import { IController } from '../../common/interfaces';
+import { Controller } from '../../common/interfaces';
 import { ExpressAdapter } from '../adapters';
 import { ExceptionHandler } from '../exceptions';
 import { InstanceWrapper, ModuleContainer } from '../injector';
@@ -35,7 +35,7 @@ export class RouteResolver {
   }
 
   private setupControllers(
-    controllers: Map<string, InstanceWrapper<IController>>,
+    controllers: Map<string, InstanceWrapper<Controller>>,
     application: Application,
   ): void {
     controllers.forEach(({ instance, metaType }) => {

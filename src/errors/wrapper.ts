@@ -17,6 +17,8 @@ export class ExceptionWrapper {
       callback();
     } catch (error: any) {
       this.handler.handle(error);
+
+      throw error;
     }
   }
 }
