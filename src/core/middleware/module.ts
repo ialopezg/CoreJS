@@ -98,9 +98,12 @@ export class MiddlewareModule {
     const builder = new MiddlewareBuilder();
     target.configure(builder);
 
-    if (builder instanceof MiddlewareBuilder) {
-      this.container.addConfig(builder.build(), moduleName);
+    if (!(builder instanceof MiddlewareBuilder)) {
+      return;
     }
+
+    const config = builder.build();
+    this.container.addConfig(config, moduleName);
   }
 
   private static setupHandler(

@@ -21,7 +21,8 @@ export class MiddlewareContainer {
 
     (configurations ?? []).forEach((configuration) => {
       [].concat(configuration.middlewares).forEach((metaType) => {
-        middlewares.set(metaType.name, {
+        const name = metaType.name;
+        middlewares.set(name, {
           instance: null,
           metaType,
         });

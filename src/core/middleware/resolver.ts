@@ -1,15 +1,12 @@
-import { LoggerService } from '../../common';
 import { Injector, Module } from '../injector';
 import { MiddlewareContainer, MiddlewareWrapper } from './container';
-import { MiddlewareMetaType } from './interfaces';
-import { getMiddlewareInitMessage } from '../helpers';
 
 /**
  * Resolves middleware instances.
  */
 export class MiddlewareResolver {
-  private readonly logger = new LoggerService(MiddlewareResolver.name);
   private injector = new Injector();
+
   /**
    * Creates a new instance of the MiddlewareResolver class.
    *
@@ -28,11 +25,6 @@ export class MiddlewareResolver {
 
     middlewares.forEach((wrapper) => {
       this.resolveMiddlewareInstance(wrapper, middlewares, parent);
-
-      this.logger.log(getMiddlewareInitMessage(
-        wrapper.metaType.name,
-        parent.metaType.name,
-      ));
     });
   }
 

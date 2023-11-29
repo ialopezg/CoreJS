@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as jwt from 'jsonwebtoken';
 
-import { Controller, RequestMapping, RequestMethod } from '../../../../../src';
+import { Controller, Post } from '../../../../../src';
 import { UserService } from '../../user/services';
 import { PassportJwtConfig } from '../../../config/passport-jwt.config';
 
@@ -9,7 +9,7 @@ import { PassportJwtConfig } from '../../../config/passport-jwt.config';
 export class AuthController {
   constructor(private readonly userService: UserService) {}
 
-  @RequestMapping({ path: 'register', method: RequestMethod.POST })
+  @Post('register')
   async register(request: Request, response: Response) {
     const user = await this.userService.create(request.body);
     if (!user) {
@@ -21,7 +21,7 @@ export class AuthController {
     response.json({ message: 'Ok', user });
   }
 
-  @RequestMapping({ path: 'login', method: RequestMethod.POST })
+  @Post('login')
   async login(req: Request, response: Response, next: NextFunction) {
     const { username, password } = req.body;
 

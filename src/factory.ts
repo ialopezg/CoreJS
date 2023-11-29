@@ -72,12 +72,12 @@ export class AppFactory {
 
   private static createProxy<T>(target: T): any {
     return new Proxy(<any>target, {
-      get: this.createExceptionMethodProxy(),
-      set: this.createExceptionMethodProxy(),
+      get: this.createExceptionProxy(),
+      set: this.createExceptionProxy(),
     });
   }
 
-  private static createExceptionMethodProxy(): any {
+  private static createExceptionProxy(): any {
     return (receiver: any, property: any) => {
       if (!(property in receiver)) {
         return undefined;

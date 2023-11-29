@@ -10,8 +10,3 @@ export const getRouteMappedMessage = (
 ) => `Mapped {${path}, ${RequestMethod[method]}} route`;
 
 export const getControllerMappingMessage = (name: string) => `${name}:`;
-
-export const getMiddlewareInitMessage = (
-  middleware: string,
-  module: string,
-) => `${middleware} injected into ${module}`;

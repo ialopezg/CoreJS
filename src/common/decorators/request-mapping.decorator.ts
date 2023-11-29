@@ -29,3 +29,47 @@ export const RequestMapping = (
     return descriptor;
   };
 };
+
+const mappingDecoratorFactory = (
+  method: RequestMethod,
+) => (
+  path?: string,
+): MethodDecorator => RequestMapping({
+  [PATH_METADATA]: path,
+  [METHOD_METADATA]: method,
+});
+
+/**
+ * Provides All HTTP verbs functionality to a route path.
+ *
+ * @constructor
+ */
+export const All = mappingDecoratorFactory(RequestMethod.ALL);
+
+/**
+ * Provides Delete HTTP verb functionality to a route path.
+ *
+ * @constructor
+ */
+export const Delete = mappingDecoratorFactory(RequestMethod.DELETE);
+
+/**
+ * Provides Get HTTP verb functionality to a route path.
+ *
+ * @constructor
+ */
+export const Get = mappingDecoratorFactory(RequestMethod.GET);
+
+/**
+ * Provides Post HTTP verb functionality to a route path.
+ *
+ * @constructor
+ */
+export const Post = mappingDecoratorFactory(RequestMethod.POST);
+
+/**
+ * Provides Put HTTP verb functionality to a route path.
+ *
+ * @constructor
+ */
+export const Puth = mappingDecoratorFactory(RequestMethod.PUT);

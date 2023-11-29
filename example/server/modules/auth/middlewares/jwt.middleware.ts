@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
 import * as jwt from 'jsonwebtoken';
 
+import { IMiddleware, Middleware } from '../../../../../src';
 import { PassportJwtConfig } from '../../../config/passport-jwt.config';
-import { Component, IMiddleware } from '../../../../../src';
 import { UserService } from '../../user/services';
 
-@Component()
+@Middleware()
 export class JwtMiddleware implements IMiddleware {
   constructor(private readonly userService: UserService) {}
 

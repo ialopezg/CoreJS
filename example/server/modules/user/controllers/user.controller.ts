@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import { Controller, RequestMapping, RequestMethod } from '../../../../../src';
+import { Controller, Get, Post } from '../../../../../src';
 import { UserService } from '../services';
 import { ModuleRef } from '../../../../../src/core/injector';
 
@@ -11,10 +11,7 @@ export class UserController {
     private readonly moduleRef: ModuleRef,
   ) {}
 
-  @RequestMapping({
-    path: '/',
-    method: RequestMethod.POST,
-  })
+  @Post()
   async create(request: Request, response: Response) {
     const user = await this.service.create(request.body);
     if (!user) {
@@ -26,20 +23,14 @@ export class UserController {
     response.status(201).json({ message: 'OK', user });
   }
 
-  @RequestMapping({
-    path: '/',
-    method: RequestMethod.GET,
-  })
+  @Get()
   async get(_request: Request, response: Response) {
     const users = await this.service.get();
 
     response.json({ message: 'OK', users });
   }
 
-  @RequestMapping({
-    path: '/:id',
-    method: RequestMethod.GET,
-  })
+  @Get('/:id')
   async getById(request: Request, response: Response) {
     const user = await this.service.getById(request.params.id);
     if (!user) {
