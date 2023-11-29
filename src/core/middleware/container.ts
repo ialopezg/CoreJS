@@ -1,118 +1,87 @@
-import { Controller, MetaType } from '../../common/interfaces';
-import { AppMiddleware, MiddlewareConfiguration } from './interfaces';
+import { Controller, ControllerMetadata, MetaType } from '../../common/interfaces';
+import { IMiddleware, MiddlewareConfiguration } from './interfaces';
 import { RoutesMapper } from './mapper';
+import { RequestMethod } from '../../common';
 
-/**
- * Defines a prototype for Middleware wrapper objects.
- */
-export interface MiddlewareWrapper {
-  /**
-   * Middleware instance.
-   */
-  instance: AppMiddleware;
-
-  /**
-   * Middleware MetaType.
-   */
-  metaType: MetaType<AppMiddleware>;
-}
-
-/**
- * Represents a container for middleware configurations.
- */
 export class MiddlewareContainer {
   private readonly middlewares = new Map<string, Map<string, MiddlewareWrapper>>();
-  private readonly configs = new Map<string, Set<MiddlewareConfiguration>>();
+  private readonly configurations = new Map<string, Set<MiddlewareConfiguration>>();
+
+  constructor(private readonly mapper: RoutesMapper) {}
 
   /**
-   * Creates a new instance of this class with given parameters.
+   * Adds and register configurations for middleware objects.
    *
-   * @param mapper RoutesMapper object.
+   * @param {Array<MiddlewareConfiguration>} configurations Configurations to be registered.
+   * @param {IModule} parent Parent module.
    */
-  constructor(private readonly mapper: RoutesMapper) { }
+  public addConfig(configurations: MiddlewareConfiguration[], parent: string): void {
+    const middlewares = this.getCurrentMiddlewares(parent);
+    const configs = this.getCurrentConfig(parent);
 
-  /**
-   * Add a configuration to current middlewares configuration.
-   *
-   * @param configList Configuration to be added.
-   * @param moduleName Module that contains the configuration to be added.
-   */
-  addConfig(configList: MiddlewareConfiguration[], moduleName: string): void {
-    const middlewares = this.getCurrentMiddlewares(moduleName);
-    const configs = this.getCurrentConfigs(moduleName) || new Set<MiddlewareConfiguration>();
-
-    (configList || []).forEach((config: MiddlewareConfiguration) => {
-      [].concat(config.middlewares).forEach((metaType: any) => {
-        middlewares.set(metaType.name, {
+    (configurations ?? []).forEach((configuration) => {
+      [].concat(configuration.middlewares).forEach((metaType) => {
+        const name = metaType.name;
+        middlewares.set(name, {
           instance: null,
           metaType,
         });
       });
 
-      config.forRoutes = this.mapControllersToFlatList(config.forRoutes);
-      configs.add(config);
+      configuration.forRoutes = this.mapRoutesToFlatList(configuration.forRoutes);
+      configs.add(configuration);
     });
   }
 
   /**
-   * Gets the collection of MiddlewareConfiguration for given module.
-   *
-   * @returns A collection of MiddlewareConfiguration.
+   * Get the list of middleware already registered.
    */
-  getConfigs(): Map<string, Set<MiddlewareConfiguration>> {
-    return this.configs;
+  public getMiddlewares(parent: string): Map<string, MiddlewareWrapper> {
+    return this.middlewares.get(parent) ?? new Map<string, MiddlewareWrapper>();
   }
 
   /**
-   * Gets the collection of Middlewares for given module name.
-   *
-   * @param module Module name.
-   * @returns A collection of Middlewares.
+   * Gets the list of middleware configurations already registered.
    */
-  getMiddlewares(module: string): Map<string, MiddlewareWrapper> {
-    return this.middlewares.get(module) || new Map();
+  public getConfigs(): Map<string, Set<MiddlewareConfiguration>> {
+    return this.configurations;
   }
 
-  /**
-   * Get current middlewares for given module.
-   *
-   * @param moduleName Module to be analyzed.
-   *
-   * @returns The middleware list.
-   */
-  private getCurrentMiddlewares(moduleName: string): Map<string, MiddlewareWrapper> {
-    if (!this.middlewares.has(moduleName)) {
-      this.middlewares.set(moduleName, new Map<string, MiddlewareWrapper>());
+  private getCurrentMiddlewares(parent: string): Map<string, MiddlewareWrapper> {
+    if (!this.middlewares.has(parent)) {
+      this.middlewares.set(parent, new Map<string, MiddlewareWrapper>());
     }
 
-    return this.middlewares.get(moduleName);
+    return this.middlewares.get(parent);
   }
 
-  /**
-  * Get current configuration list for given module.
-  *
-  * @param module Module to be analyzed.
-  *
-  * @returns The configuration list.
-  */
-  private getCurrentConfigs(module: string): Set<MiddlewareConfiguration> {
-    if (!this.configs.has(module)) {
-      this.configs.set(module, new Set<MiddlewareConfiguration>());
+  private getCurrentConfig(parent: string): Set<MiddlewareConfiguration> {
+    if (!this.configurations.has(parent)) {
+      this.configurations.set(parent, new Set<MiddlewareConfiguration>());
     }
 
-    return this.configs.get(module);
+    return this.configurations.get(parent);
   }
 
-  /**
-   * Maps a Controller collection to middleware properties.
-   *
-   * @param controllers Controller collection to be mapped.
-   *
-   * @returns A collection containing route properties.
-   */
-  private mapControllersToFlatList(controllers: Controller[]): any {
-    return controllers.map((controller: Controller) => (
-      this.mapper.mapControllerToControllerMetadata(controller)
-    )).reduce((a: any, b: any) => a.concat(b));
+  private mapRoutesToFlatList(
+    forRoutes: (Controller | ControllerMetadata & { request?: RequestMethod })[],
+  ) {
+    return forRoutes
+      .map((route) => this.mapper.map(route))
+      .reduce((a, b) => a.concat(b));
   }
+}
+
+/**
+ * Middleware instance wrapper.
+ */
+export interface MiddlewareWrapper {
+  /**
+   * Middleware instance.
+   */
+  instance: IMiddleware;
+  /**
+   * Middleware meta-type information.
+   */
+  metaType: MetaType<IMiddleware>;
 }

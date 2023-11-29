@@ -1,19 +1,24 @@
 import { ExceptionHandler } from './handler';
+import { RuntimeException } from './exceptions';
 
 /**
- * Represents an error wrapper.
+ * Exception Wrapper.
  */
 export class ExceptionWrapper {
+  private static readonly handler = new ExceptionHandler();
+
   /**
-   * Runs applications or functions in a safe area.
+   * Runs a function into a safe wrapper.
    *
-   * @param callback Callback to be checked by this wrapper.
+   * @param {() => void} callback Process or function to be run.
    */
-  static run(callback: () => void): void {
+  public static run(callback: () => void): void {
     try {
       callback();
-    } catch (error) {
-      ExceptionHandler.handle(error);
+    } catch (error: any) {
+      this.handler.handle(error);
+
+      throw 'Unhandled CoreJS application Runtime Exception';
     }
   }
 }

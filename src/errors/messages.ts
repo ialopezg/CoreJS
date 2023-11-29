@@ -1,17 +1,17 @@
-export const getInvalidMiddlewareMessage = (name: string) =>
-  `You are trying to setup middleware without "resolve()" method (${name})`;
+export const getInvalidMiddlewareMessage = (target: string) =>
+  `Middleware ${target} has been setup without "resolve()" method!`;
 
-export const getInvalidModuleConfigurationMessage = (property: string) =>
-  `Invalid property "${property}" in @Module() decorator.`;
+export const getInvalidModuleConfigMessage = (property: string) =>
+  `Invalid property '${property}' in @Module() decorator!`;
 
-export const getUnkownDependenciesMessage = (type: string) =>
-  `CoreJS can not recognize dependencies of ${type}.`;
+export const getUnknownDependenciesMessage = (target: string) =>
+  `Can't recognize dependencies of ${target}!`;
 
-export const getUnkownExportMessage = (name: string) =>
-  `You are trying to export unkown component (${name}). Remember - your component should be listed both in exports and components arrays!`;
+export const getUnknownExportMessage = (name: string) =>
+  `Unknown ${name} component. Remember - to export a component should be listed components array!`;
 
 export const INVALID_MIDDLEWARE_CONFIGURATION =
-  'Invalid middleware configuration passed in module "configure()" method.';
+  `Invalid middleware configuration passed in module 'configure()' method!`;
 
-export const UNKOWN_REQUEST_MAPPING =
-  'Request mapping properties not defined in @RequestMapping() annotation!';
+export const UNKNOWN_REQUEST_MAPPING =
+  `Request mapping properties not defined in @RequestMapping() annotation!`;

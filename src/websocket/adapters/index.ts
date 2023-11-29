@@ -1,1 +1,1 @@
-export * from './socket.adapter';
+export * from './socket-io.adapter';

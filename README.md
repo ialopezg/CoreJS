@@ -69,7 +69,7 @@ import { Module } from '@ialopezg/corejs';
 export class AppModule {}
 ```
 
-### server.ts
+### main.ts
 
 ```ts
 import { AppRunner } from '@ialopezg/corejs';

@@ -1,7 +1,4 @@
-import { Module } from './module.interface';
 import { MetaType } from './metatype.interface';
+import { IModule } from './module.interface';
 
-/**
- * Defines a prototype with meta type information for AppModule objects.
- */
-export interface ModuleMetaType extends MetaType<Module> {}
+export interface ModuleMetaType extends MetaType<IModule> {}

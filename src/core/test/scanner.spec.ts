@@ -1,36 +1,36 @@
 import * as sinon from 'sinon';
 
-import { AppModule, Component, Controller, Module } from '../../common';
-import { Container } from '../injector';
+import { Component, Controller, IModule, Module } from '../../common';
 import { DependencyScanner } from '../scanner';
+import { ModuleContainer } from '../injector';
 
 describe('DependencyScanner', () => {
   @Component()
   class TestComponent {}
 
   @Controller({ path: '' })
-  class TestController {}
+  class TestRoute {}
 
   @Module({
     components: [TestComponent],
-    controllers: [TestController],
+    controllers: [TestRoute],
     exports: [TestComponent],
   })
-  class AnotherTestModule implements AppModule {}
+  class AnotherTestModule implements IModule {}
 
   @Module({
     modules: [AnotherTestModule],
     components: [TestComponent],
-    controllers: [TestController],
+    controllers: [TestRoute],
   })
-  class TestModule implements AppModule {}
+  class TestModule implements IModule {}
 
   let scanner: DependencyScanner;
   let mockContainer: sinon.SinonMock;
-  let container: Container;
+  let container: ModuleContainer;
 
   before(() => {
-    container = new Container();
+    container = new ModuleContainer();
     mockContainer = sinon.mock(container);
   });
 
@@ -42,17 +42,16 @@ describe('DependencyScanner', () => {
     mockContainer.restore();
   });
 
-  it('should "storeModule" called twice (2 modules) container method "addModule"', () => {
+  it('should "registerModule" call twice (2 modules) container method "addModule"', () => {
     const expectation = mockContainer.expects('addModule').twice();
-
     scanner.scan(TestModule);
 
     expectation.verify();
   });
 
-  it('should "storeComponent" called twice (2 components) container method "addComponent"', () => {
+  it('should "registerComponent" call twice (2 components) container method "addComponent"', () => {
     const expectation = mockContainer.expects('addComponent').twice();
-    const stub = sinon.stub(scanner, 'storeExportedComponent');
+    const stub = sinon.stub(scanner, 'registerExportedComponent');
 
     scanner.scan(TestModule);
 
@@ -60,17 +59,15 @@ describe('DependencyScanner', () => {
     stub.restore();
   });
 
-  it('should "storeController" called twice (2 controllers) container method "addController"', () => {
+  it('should "registerController" call twice (2 components) container method "addController"', () => {
     const expectation = mockContainer.expects('addController').twice();
-
     scanner.scan(TestModule);
 
     expectation.verify();
   });
 
-  it('should "storeExportedComponent" called once (1 component) container method "addExportedComponent"', () => {
+  it('should "registerExportedComponent" call once (1 component) container method "addExportedComponent"', () => {
     const expectation = mockContainer.expects('addExportedComponent').once();
-
     scanner.scan(TestModule);
 
     expectation.verify();

@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from 'express';
 
 /**
- * Defines a prototype for Gateway objects.
+ * Represents a middleware object.
  */
-export interface Middleware {
+export interface IMiddleware {
   /**
-   * Resolves middleware objects.
+   * Middleware configuration resolver.
    */
   resolve: () => (request?: Request, response?: Response, next?: NextFunction) => void;
 }

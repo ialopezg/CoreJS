@@ -1,22 +1,21 @@
-import { isUndefined } from '../../common';
-import { InvalidMiddlewareConfigurationException } from '../../errors/exceptions';
+import { InvalidMiddlewareConfigurationException } from '../../errors';
 import { MiddlewareConfiguration } from './interfaces';
+import { isUndefined } from '@ialopezg/commonjs';
 
 /**
- * Defines a class that build the configuration for all Middleware objects.
+ * Creates and applies middleware configurations
  */
 export class MiddlewareBuilder {
   private readonly configs = new Set<MiddlewareConfiguration>();
 
   /**
-   * Use given configuration over route collection in the collection.
+   * Set the middleware configuration to be used.
    *
-   * @param configuration Configuration to be applied over the route or route collection.
-   *
-   * @returns An instance of this class
+   * @param {MiddlewareConfiguration} configuration Configuration to be applied.
    */
-  use(configuration: MiddlewareConfiguration): MiddlewareBuilder {
-    if (isUndefined(configuration.middlewares) || isUndefined(configuration.forRoutes)) {
+  public use(configuration: MiddlewareConfiguration) {
+    const { middlewares, forRoutes } = configuration;
+    if (isUndefined(middlewares) || isUndefined(forRoutes)) {
       throw new InvalidMiddlewareConfigurationException();
     }
 
@@ -26,11 +25,9 @@ export class MiddlewareBuilder {
   }
 
   /**
-   * Builds the middleware configuration to be applied.
-   *
-   * @returns A MiddlewareConfiguration collection.
+   * Builds the middleware configuration.
    */
-  build(): any {
+  public build(): MiddlewareConfiguration[] {
     return [...this.configs];
   }
 }

@@ -1,9 +1,9 @@
 /**
- * Metadata information for @Controller annotation.
+ * Provides metadata attributes for a controller.
  */
 export interface ControllerMetadata {
   /**
-   * Controller route path.
+   * Resource base path
    */
   path?: string;
 }

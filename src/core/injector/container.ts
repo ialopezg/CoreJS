@@ -1,42 +1,24 @@
 import {
-  ModuleMetaType,
   Controller,
   Injectable,
   MetaType,
+  ModuleMetaType,
 } from '../../common/interfaces';
-import { UnknownModuleException } from '../../errors/exceptions';
+import { UnknownModuleException } from '../../errors';
 import { Module } from './module';
 
-
 /**
- * Define a MtaType prototype for MetaType based objects.
+ * Application Modules' container
  */
-export interface InstanceWrapper<T> {
-  /**
-   * MetaType information.
-   */
-  metaType: MetaType<T>;
-  /**
-   * Object instance.
-   */
-  instance: T;
-  /**
-   *
-   */
-  resolved: boolean;
-}
+export class ModuleContainer {
+  private readonly modules: Map<string, Module> = new Map<string, Module>();
 
-/**
- * Represents a Container that stores Modules and their dependencies.
- */
-export class Container {
-  private readonly modules = new Map<string, Module>();
   /**
-   * Register an object as root Module.
+   * Register a module into the current container.
    *
-   @param target Module object to be registered.
+   * @param {ModuleMetaType} target Module to be registered.
    */
-  addModule(target: ModuleMetaType): void {
+  public addModule(target: ModuleMetaType): void {
     if (this.modules.has(target.name)) {
       return;
     }
@@ -45,86 +27,105 @@ export class Container {
   }
 
   /**
-   * Registers a Module as submodule in the given target module.
+   * Register a module in the given parent module.
    *
-   * @param module Module object to be registered as submodule.
-   * @param target Module that will host the submodule.
+   * @param {ModuleMetaType} child Child module.
+   * @param {ModuleMetaType} parent Parent module
    */
-  addSubModule(
-    module: ModuleMetaType,
-    target: ModuleMetaType,
-  ): void {
-    if (!this.modules.has(target.name)) {
+  public addChildModule(child: ModuleMetaType, parent: ModuleMetaType): void {
+    if (!this.modules.has(parent.name)) {
       return;
     }
 
-    const storedModule = this.modules.get(target.name);
-    const storedSubModule = this.modules.get(module.name);
-
-    storedModule.addSubModule(storedSubModule);
+    const childModule = this.modules.get(child.name);
+    this.modules.get(parent.name).addChildModule(childModule);
   }
 
   /**
-   * Registers a Component in the given target module.
+   * Register a component or service to be used by a module.
    *
-   * @param component Component object to be registered.
-   * @param target Module that will host the Component.
+   * @param {MetaType<Injectable>} target Component to be registered.
+   * @param {ModuleMetaType} parent Parent module.
    */
-  addComponent(component: MetaType<Injectable>, target: ModuleMetaType): void {
-    if (!this.modules.has(target.name)) {
-      throw new UnknownModuleException();
+  public addComponent(target: MetaType<Injectable>, parent: ModuleMetaType): void {
+    if (!this.modules.has(parent.name)) {
+      throw new UnknownModuleException(parent.name);
     }
 
-    const storedModule = this.modules.get(target.name);
-    storedModule.addComponent(component);
+    this.modules.get(parent.name).addComponent(target);
   }
 
   /**
-   * Registers a Controller in the given target module.
+   * Register a route to be used as an endpoint.
    *
-   * @param controller Controller object to be registered.
-   * @param target Module that will host the Controller object.
+   * @param {MetaType<Controller>} target Route to be registered.
+   * @param {ModuleMetaType} parent Parent module.
    */
-  addController(controller: MetaType<Controller>, target: ModuleMetaType): void {
-    if (!this.modules.has(target.name)) {
-      throw new UnknownModuleException();
+  public addController(target: MetaType<Controller>, parent: ModuleMetaType): void {
+    if (!this.modules.has(parent.name)) {
+      throw new UnknownModuleException(parent.name);
     }
 
-    const storedModule = this.modules.get(target.name);
-    storedModule.addController(controller);
+    this.modules.get(parent.name).addController(target);
   }
 
   /**
-   * Registers an Injectable object as exported component in the given target module.
+   * Marks a registered component as an exportable and shareable component.
    *
-   * @param component Injectable object to be registered.
-   * @param target Module that will host the Injectable object.
+   * @param {MetaType<Injectable>} target Component to be exported.
+   * @param {ModuleMetaType} parent Parent module.
    */
-  addExportedComponent(
-    component: MetaType<Injectable>,
-    target: ModuleMetaType,
-  ): void {
-    if (!this.modules.has(target.name)) {
-      throw new UnknownModuleException();
+  public addExportedComponent(target: MetaType<Injectable>, parent: ModuleMetaType): void {
+    if (!this.modules.has(parent.name)) {
+      throw new UnknownModuleException(parent.name);
     }
 
-    const storedModule = this.modules.get(target.name);
-    storedModule.addExportedComponent(component);
+    this.modules.get(parent.name).addExportedComponent(target);
   }
 
   /**
-   * Clears current container.
+   * Clear modules container.
    */
-  clear() {
+  public clear(): void {
     this.modules.clear();
   }
 
   /**
-   * Gets all registered modules with their dependencies.
+   * Get all registered modules.
    *
-   * @returns The list of registered Modules with their dependencies.
+   * @returns {Map<string, Module>} An array of the registered modules.
    */
-  getModules(): Map<string, Module> {
+  public getModules(): Map<string, Module> {
     return this.modules;
   }
+}
+
+/**
+ * Represents an instance wrapper for components, services, or controllers.
+ */
+export interface InstanceWrapper<T> {
+  /**
+   * Instance name.
+   */
+  name: any;
+  /**
+   * Instance meta-type information.
+   */
+  metaType: MetaType<T>;
+  /**
+   * Instance wrapper.
+   */
+  instance: T;
+  /**
+   * Whether this instance is resolved.
+   */
+  resolved: boolean;
+  /**
+   * Dependencies to be injected.
+   */
+  inject?: MetaType<any>[];
+  /**
+   * Whether the current instance is a meta-type object.
+   */
+  isNotMetaType?: boolean;
 }

@@ -1,4 +1,4 @@
 /**
- * Defines a prototype for Injectable objects.
+ * Represents an injectable object that acts as a service or component.
  */
-export class Injectable {}
+export interface Injectable {}

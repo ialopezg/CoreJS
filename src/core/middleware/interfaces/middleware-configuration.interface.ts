@@ -1,16 +1,17 @@
-import { RequestMethod } from '../../../common';
 import { Controller, ControllerMetadata } from '../../../common/interfaces';
+import { RequestMethod } from '../../../common';
+import { MiddlewareMetaType } from './middleware-metatype.interface';
 
 /**
- * Defines a prototype for MiddlewareConfiguration objects.
+ * Represents the middleware configuration for a module.
  */
 export interface MiddlewareConfiguration {
   /**
-   * Middleware collection to be applied in route collection.
+   * Middleware objects
    */
   middlewares: any;
   /**
-   * Routes collection.
+   * Route list or objects.
    */
   forRoutes: (Controller | ControllerMetadata & { method?: RequestMethod })[];
 }

@@ -4,13 +4,13 @@ import { Namespace, Server } from 'socket.io';
 import { ObservableSocketServer } from './interfaces';
 
 /**
- * Defines a Observable Socket object.
+ * Defines an Observable Socket object.
  */
 export class ObservableSocket {
   /**
    * Creates an ObservableSocketServer instance.
    *
-   * @param server Object server to be binded.
+   * @param {Namespace|Server} server Object server to be bound.
    *
    * @returns An ObservableSocketServer instance.
    */

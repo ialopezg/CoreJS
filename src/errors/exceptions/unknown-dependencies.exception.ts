@@ -1,16 +1,16 @@
-import { RuntimeException } from '../../common/exceptions';
-import { getUnkownDependenciesMessage } from '../messages';
+import { RuntimeException } from './runtime.exception';
+import { getUnknownDependenciesMessage } from '../messages';
 
 /**
- * Defines an error when dependency objects are unknown.
+ * Represents an error when cannot found a dependency.
  */
 export class UnknownDependenciesException extends RuntimeException {
   /**
-   * Creates a new instance of this class.
+   * Creates a new instance of the class UnknownModuleException.
    *
-   * @param target Instance with unknown dependencies.
+   * @param {string} target Dependency type.
    */
   constructor(target: string) {
-    super(getUnkownDependenciesMessage(target));
+    super(getUnknownDependenciesMessage(target));
   }
 }

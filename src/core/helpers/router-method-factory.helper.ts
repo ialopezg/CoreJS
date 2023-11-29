@@ -1,21 +1,14 @@
-import { Router } from 'express';
-
 import { RequestMethod } from '../../common';
+import { IRouterMatcher, Router } from 'express';
 
-/**
- * Defines an object that create generic router methods.
- */
 export class RouterMethodFactory {
   /**
-   * Get the router method for given HTTP Request method.
-   *
-   * @param target Express Router instance.
-   * @param requestMethod
-   *
-   * @returns The router method for given HTTP Request method.
+   * Gets the appropriated request method to given HTTP Request Method.
+   * @param {Router} target Target router.
+   * @param {RequestMethod} method HTTP Request Method.
    */
-  get(target: Router, requestMethod: RequestMethod) {
-    switch (requestMethod) {
+  public get(target: Router, method: RequestMethod): IRouterMatcher<Router> {
+    switch (method) {
       case RequestMethod.POST:
         return target.post;
       case RequestMethod.ALL:

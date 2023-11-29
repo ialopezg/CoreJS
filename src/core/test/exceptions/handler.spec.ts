@@ -1,16 +1,17 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { AppMode, HttpException, LoggerService } from '../../../common';
 
-import { ExceptionHandler } from '../../exceptions';
+import { ExceptionHandler, HttpException } from '../../exceptions';
+import { LoggerService } from '../../../common';
+import { ApplicationMode } from '../../../common/enums/application-mode.enum';
 
-describe('ExceptionHandler', () => {
+describe('ExceptionsHandler', () => {
   let handler: ExceptionHandler;
   let statusStub: sinon.SinonStub;
   let jsonStub: sinon.SinonStub;
   let response: any;
 
-  before(() => LoggerService.setMode(AppMode.TEST));
+  before(() => LoggerService.setMode(ApplicationMode.TEST));
 
   beforeEach(() => {
     handler = new ExceptionHandler();
@@ -21,20 +22,20 @@ describe('ExceptionHandler', () => {
       status: statusStub,
       json: jsonStub,
     };
-
     response.status.returns(response);
-    response.json.returns(jsonStub);
+    response.json.returns(response);
   });
 
   describe('next', () => {
+
     it('should method send expected response status code and message when exception is unknown', () => {
       handler.next(new Error(), response);
 
       expect(statusStub.calledWith(500)).to.be.true;
-      expect(jsonStub.calledWith({ message: 'Unknown exception!' })).to.be.true;
+      expect(jsonStub.calledWith({ message: 'Unknown exception' })).to.be.true;
     });
 
-    it('should method send expected response status and message when exception is instance of Exception', () => {
+    it('should method send expected response status code and message when exception is instance of HttpException', () => {
       const status = 401;
       const message = 'Unauthorized';
 

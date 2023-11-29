@@ -1,25 +1,28 @@
 import { LoggerService, Transport } from './common';
+import { ModuleContainer } from './core/injector';
+import { MicroserviceConfiguration } from './microservices';
+import { Server, ServerFactory } from './microservices/server';
+import { MicroserviceModule } from './microservices/module';
 import { messages } from './core/constants';
-import { Container } from './core/injector';
-import { MicroserviceConfiguration } from './microservice/interfaces';
-import { MicroservicesModule } from './microservice/module';
-import { Server, ServerFactory } from './microservice/server';
 
 /**
- * Module for a microservice.
+ * Represents the main entry for a microservice.
  */
 export class Microservice {
-  private readonly logger = new LoggerService(Microservice.name);
+  private logger = new LoggerService(Microservice.name);
+  private readonly server: Server
   private readonly config: MicroserviceConfiguration;
-  private readonly server: Server;
 
   /**
-   * Creates a new instance of Microservice class with given parameters.
+   * Creates a new instance of Microservice class.
    *
-   * @param container Modules container.
-   * @param config Microservice configuration.
+   * @param {ModuleContainer} container Module container.
+   * @param {MicroserviceConfiguration} config Microservice application.
    */
-  constructor(private readonly container: Container, config: MicroserviceConfiguration) {
+  constructor(
+    private readonly container: ModuleContainer,
+    config: MicroserviceConfiguration,
+  ) {
     this.config = {
       transport: Transport.TCP,
       ...config,
@@ -28,18 +31,22 @@ export class Microservice {
   }
 
   /**
-   * Allows microservice to accept incoming connections.
+   * Initializes the microservices to receive requests and respond.
+   *
+   * @param {Function} callback Microservice callback to be executed after initialized.
    */
-  listen(callback: () => void): void {
-    this.logger.log(messages.APPLICATION_READY);
+  public listen(callback: () => void): void {
     this.server.listen(callback);
+
+    this.logger.log(messages.APPLICATION_READY);
   }
 
   /**
-   * Setup all registered modules.
+   * Setup and prepares the microservice context.
    */
-  setup(): void {
-    MicroservicesModule.setupClients(this.container);
-    MicroservicesModule.setupListeners(this.container, this.server);
+  public setup(): void {
+    MicroserviceModule.setupClients(this.container);
+    MicroserviceModule.setupListeners(this.container, this.server);
   }
 }
+

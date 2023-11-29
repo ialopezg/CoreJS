@@ -2,7 +2,7 @@ import { ReplaySubject, Subject } from 'rxjs';
 import { Namespace, Server } from 'socket.io';
 
 /**
- * Prototype for an Observable Socket Server.
+ * Defines a prototype for an Observable Socket Server.
  */
 export interface ObservableSocketServer {
   /**

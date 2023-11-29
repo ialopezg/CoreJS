@@ -1,66 +1,48 @@
 import { Application } from 'express';
 
 import { Controller } from '../../common/interfaces';
-import { LoggerService } from '../../common';
 import { ExpressAdapter } from '../adapters';
 import { ExceptionHandler } from '../exceptions';
-import { getControllerMappingMessage } from '../helpers';
-import { Container, InstanceWrapper } from '../injector';
-import { Module } from '../injector/module';
+import { InstanceWrapper, ModuleContainer } from '../injector';
 import { RouterBuilder } from './builder';
 import { RouterProxy } from './proxy';
+import { LoggerService } from '../../common';
+import { getControllerMappingMessage } from '../helpers';
 
-/**
- * Defines an object that resolve all registered module controllers.
- */
-export class RoutesResolver {
-  private readonly logger = new LoggerService(RoutesResolver.name);
+export class RouteResolver {
+  private readonly logger = new LoggerService(RouteResolver.name);
   private readonly proxy = new RouterProxy(new ExceptionHandler());
-  private builder: RouterBuilder;
+  private readonly builder: RouterBuilder;
 
   /**
-   * Creates a new instance of RoutesResolver class with given parameters.
+   * Creates a new instance of RouteResolver class.
    *
-   * @param container Module container.
-   * @param adapter Express adapter.
+   * @param {ModuleContainer} container Modules container.
+   * @param {ExpressAdapter} adapter Express application adapter.
    */
   constructor(
-    private readonly container: Container,
+    private readonly container: ModuleContainer,
     private readonly adapter: ExpressAdapter,
   ) {
     this.builder = new RouterBuilder(this.proxy, this.adapter);
   }
 
-  /**
-   * Resolve all routes from registered module controllers.
-   *
-   * @param express Express application to be used.
-   */
-  resolve(express: Application): void {
-    const modules = this.container.getModules();
-
-    modules.forEach(({ controllers }: Module) => this.setupControllers(controllers, express));
+  public resolve(application: Application): void {
+    this.container.getModules()
+      .forEach(
+        ({ controllers }) => this.setupControllers(controllers, application),
+      );
   }
 
-  /**
-   * Setup given controllers as routes.
-   *
-   * @param controllers Controllers to be setup.
-   * @param express Express application to be used.
-   */
-  setupControllers(controllers: Map<Controller, InstanceWrapper<Controller>>, express: Application): void {
-    controllers.forEach(({
-      instance,
-      metaType,
-    }) => {
+  private setupControllers(
+    controllers: Map<string, InstanceWrapper<Controller>>,
+    application: Application,
+  ): void {
+    controllers.forEach(({ instance, metaType }) => {
       this.logger.log(getControllerMappingMessage(metaType.name));
 
-      const {
-        path,
-        router,
-      } = this.builder.build(instance, metaType);
-
-      express.use(path, router);
+      const { path, router } = this.builder.build(instance, metaType);
+      application.use(path, router);
     });
   }
 }

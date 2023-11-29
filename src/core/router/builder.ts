@@ -1,52 +1,26 @@
-import 'reflect-metadata';
-
+import { isConstructor, isFunction, isUndefined } from '@ialopezg/commonjs';
 import { Router } from 'express';
 
-import {
-  isConstructor, isFunction,
-  isUndefined,
-  LoggerService,
-  METHOD_METADATA,
-  PATH_METADATA,
-  RequestMethod,
-  validatePath,
-} from '../../common';
+import { METHOD_METADATA, PATH_METADATA } from '../../common/constants';
 import { Controller, MetaType } from '../../common/interfaces';
-import { UnknownRequestMappingException } from '../../errors/exceptions';
+import { LoggerService, RequestMethod, validatePath } from '../../common';
 import { ExpressAdapter } from '../adapters';
+import { UnknownRequestMappingException } from '../../errors';
 import { getRouteMappedMessage, RouterMethodFactory } from '../helpers';
 import { RouterProxy, RouterProxyCallback } from './proxy';
 
 /**
- * Defines a Route path properties.
- */
-export interface RoutePathProperties {
-  /**
-   * Route path.
-   */
-  path: string,
-  /**
-   * HTTP request method.
-   */
-  method: RequestMethod,
-  /**
-   * Callback to be bind.
-   */
-  callback: RouterProxyCallback,
-}
-
-/**
- * Defines a router builder object.
+ * Creates the router functions available in the whole application.
  */
 export class RouterBuilder {
   private readonly logger = new LoggerService(RouterBuilder.name);
-  private readonly factory = new RouterMethodFactory();
+  private factory = new RouterMethodFactory();
 
   /**
-   * Creates a new instance of this class with given parameters.
+   * Creates a new instance of RouterBuilder class.
    *
-   * @param proxy Router proxy object.
-   * @param adapter Express adapter object.
+   * @param {RouterProxy} proxy Router proxy.
+   * @param {ExpressAdapter} adapter Express application adapter.
    */
   constructor(
     private readonly proxy?: RouterProxy,
@@ -54,142 +28,121 @@ export class RouterBuilder {
   ) {}
 
   /**
-   * Builds routes for given controller instance.
+   * Builds the router function for given controller.
    *
-   * @param instance Controller instance.
-   * @param prototype Controller prototype.
-   *
-   * @returns The path for given controller with a function bound.
+   * @param {Controller} target Controller.
+   * @param {Controller} metaType Controller type.
    */
-  build(instance: Controller, prototype: MetaType<Controller>) {
-    const router = (this.adapter as any).createRouter();
-    const path = RouterBuilder.fetchControllerPath(prototype);
-    const paths = this.scanForPaths(instance);
+  public build(
+    target: Controller,
+    metaType: MetaType<Controller>,
+  ): { path: string, router: Router } {
+    const router = (<any>this.adapter).createRouter();
+    const path = this.fetchRouterPath(metaType);
+    const paths = this.scanForPaths(target);
 
-    this.applyPathsToRouterProxy(router, paths);
+    this.apply(router, paths);
 
-    return {
-      path,
-      router,
-    };
+    return { path, router };
   }
 
   /**
-   * Applies given paths to a router proxy.
+   * Scans for a path from given controller type.
    *
-   * @param router Express Router instance to be used.
-   * @param paths Path property to be applied.
+   * @param {Controller} target Controller.
+   * @param {Controller} prototype Controller type.
    */
-  applyPathsToRouterProxy(router: Router, paths: RoutePathProperties[]): void {
-    (paths || []).forEach((path) => {
-      this.bindMethodToRouterProxy(router, path);
-    });
+  public scanForPathsFromPrototype(target: Controller, prototype: any): RoutePathProperties[] {
+    return Object.getOwnPropertyNames(prototype)
+      .filter((property) => {
+        const descriptor = Object.getOwnPropertyDescriptor(
+          prototype,
+          property,
+        );
+        if (descriptor.set || descriptor.get) {
+          return false;
+        }
+
+        return !isConstructor(property) && isFunction(prototype[property]);
+      })
+      .map(
+        (property) => this.exploreMethodMetadata(target, prototype, property),
+      )
+      .filter((property) => property !== null);
   }
 
-  /**
-   * Bind a method to given router as proxy.
-   *
-   * @param router Express Router instance to be used.
-   * @param pathProperties Path property to be bind.
-   */
-  bindMethodToRouterProxy(router: Router, pathProperties: RoutePathProperties): void {
-    const {
-      path,
-      method,
-      callback,
-    } = pathProperties;
+  public scanForPaths(controller: Controller): RoutePathProperties[] {
+    return this.scanForPathsFromPrototype(
+      controller,
+      Object.getPrototypeOf(controller),
+    );
+  }
+
+  private apply(router: Router, paths: RoutePathProperties[]): void {
+    (paths || []).map((route) => this.bind(router, route));
+  }
+
+  public bind(router: Router, pathProperties: RoutePathProperties): void {
+    const { path, method, callback } = pathProperties;
 
     const routerMethod = this.factory.get(router, method).bind(router);
-    const proxy = this.proxy.create(callback);
+    const proxy = this.proxy.createProxy(callback);
 
     routerMethod(path, proxy);
 
     this.logger.log(getRouteMappedMessage(path, method));
   }
 
-  /**
-   * Scans given instance for paths and bind them to itself.
-   *
-   * @param instance Instance to be analyzed and bound.
-   *
-   * @returns A collection containing the callback functions, paths, and request
-   */
-  scanForPaths(instance: Controller): RoutePathProperties[] {
-    return this.scanPathsFromPrototype(instance, Object.getPrototypeOf(instance));
-  }
-
-  /**
-   * Scans given prototype for paths and bind them to Controller instance provided.
-   *
-   * @param instance Controller instance to be bound.
-   * @param prototype Prototype to be scanned.
-   *
-   * @returns A collection containing the callback functions, paths, and request method actions.
-   */
-  scanPathsFromPrototype(instance: Controller, prototype: any): RoutePathProperties[] {
-    return Object.getOwnPropertyNames(prototype)
-      .filter((method: string) => {
-        const descriptor = Object.getOwnPropertyDescriptor(prototype, method);
-        if (descriptor.set || descriptor.get) {
-          return false;
-        }
-
-        return !isConstructor(method) && isFunction(prototype[method]);
-      })
-      .map((method: string) => this.exploreMethodMetadata(instance, prototype, method))
-      .filter((path: RoutePathProperties) => path !== null);
-  }
-
-  /**
-   * Explore a method name from the given prototype and bind it to Controller instance provided.
-   *
-   * @param instance Controller instance to be bound.
-   * @param prototype Prototype to be scanned.
-   * @param methodName Method name requested.
-   * @returns An object containing the callback function, path, and request method action.
-   */
-  exploreMethodMetadata(instance: Controller, prototype: any, methodName: string): RoutePathProperties {
+  private exploreMethodMetadata(
+    target: Controller,
+    prototype: any,
+    methodName: string,
+  ): RoutePathProperties {
     const callback = prototype[methodName];
-
-    const routePath = Reflect.getMetadata(PATH_METADATA, callback);
-    if (isUndefined(routePath)) {
+    const path = Reflect.getMetadata(PATH_METADATA, callback);
+    if (isUndefined(path)) {
       return null;
     }
 
-    const requestMethod: RequestMethod = Reflect.getMetadata(METHOD_METADATA, callback);
+    const method: RequestMethod = Reflect.getMetadata(
+      METHOD_METADATA,
+      callback,
+    );
 
     return {
-      callback: (<Function>callback).bind(instance),
-      path: RouterBuilder.validateRoutePath(routePath),
-      method: requestMethod,
+      path: this.validateRoutePath(path),
+      method,
+      callback: (<Function>callback).bind(target),
     };
   }
 
-  /**
-   * Fetch the path for given router.
-   *
-   * @param prototype Router prototype function.
-   *
-   * @returns The router path requested.
-   */
-  private static fetchControllerPath(prototype: MetaType<Controller>): string {
-    const path = Reflect.getMetadata(PATH_METADATA, prototype);
-
-    return RouterBuilder.validateRoutePath(path);
+  private fetchRouterPath(target: MetaType<Controller>): string {
+    return this.validateRoutePath(Reflect.getMetadata(PATH_METADATA, target));
   }
 
-  /**
-   * Validate and normalize a route path.
-   *
-   * @param path Path to be validated.
-   *
-   * @returns The path validate and normalize.
-   */
-  private static validateRoutePath(path: string): string {
+  private validateRoutePath(path: string): string {
     if (isUndefined(path)) {
       throw new UnknownRequestMappingException();
     }
 
     return validatePath(path);
   }
+}
+
+/**
+ * Route path properties.
+ */
+export interface RoutePathProperties {
+  /**
+   * Path.
+   */
+  path: string;
+  /**
+   * HTTP method.
+   */
+  method: RequestMethod;
+  /**
+   * Callback.
+   */
+  callback: RouterProxyCallback;
 }

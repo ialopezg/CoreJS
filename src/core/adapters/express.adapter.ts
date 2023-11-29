@@ -1,24 +1,20 @@
 import * as express from 'express';
 
 /**
- * Defines an object that creates express based instances.
+ * Express adapter factory.
  */
 export class ExpressAdapter {
   /**
-   * Creates a new Express instance.
-   *
-   * @returns The newly created Express instance.
+   * Creates an express instance.
    */
-  static create(): any {
+  public static create() {
     return express();
   }
 
   /**
-   * Creates a new Express Router instance.
-   *
-   * @returns The newly created Express Router instance.
+   * Creates an express router instance.
    */
-  static createRouter(): any {
+  public static createRouter() {
     return express.Router();
   }
 }

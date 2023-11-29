@@ -1,23 +1,25 @@
+import { Server } from 'socket.io';
+
 /**
- * Socket gateway.
+ * Represents a gateway service.
  */
 export interface Gateway {
   /**
    * After init event.
    *
-   * @param server Server object.
+   * @param {Server} server Server object
    */
-  afterInit: (server: any) => void;
+  afterInit?: (server: Server) => void;
   /**
    * Handle connection event.
    *
-   * @param client Client object.
+   * @param {any} client Client object.
    */
-  handleConnection: (client: any) => void;
+  handleConnection?: (client: any) => void;
   /**
    * Handle disconnect event.
    *
-   * @param client Client object.
+   * @param {any} client Client object.
    */
-  handleDisconnect: (client: any) => void;
+  handleDisconnect?: (client: any) => void;
 }

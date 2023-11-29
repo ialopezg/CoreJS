@@ -1,8 +1,8 @@
-import * as sinon from 'sinon';
 import { expect } from 'chai';
+import * as sinon from 'sinon';
 
 import { SubscribeMessage, WebSocketGateway, WebSocketServer } from '../decorators';
-import { GatewayMetadataExplorer } from '../gateway-metadata.explorer';
+import { GatewayMetadataExplorer } from '../explorer';
 
 describe('GatewayMetadataExplorer', () => {
   const message = 'test';
@@ -10,12 +10,11 @@ describe('GatewayMetadataExplorer', () => {
 
   @WebSocketGateway()
   class Test {
-    @WebSocketServer server;
-    @WebSocketServer anotherServer;
+    @WebSocketServer() server;
+    @WebSocketServer() anotherServer;
 
     get testGet() { return 0; }
-    // eslint-disable-next-line accessor-pairs
-    set testSet(val) {}
+    set testSet(value: any) {}
 
     constructor() {}
 
@@ -27,63 +26,78 @@ describe('GatewayMetadataExplorer', () => {
 
     noMessage() {}
   }
-  let instance: GatewayMetadataExplorer;
+  let target: GatewayMetadataExplorer;
 
   beforeEach(() => {
-    instance = new GatewayMetadataExplorer();
+    target = new GatewayMetadataExplorer();
   });
+
   describe('explore', () => {
-    let scanForHandlersFromPrototype: sinon.SinonSpy;
+    let scanForHandlersFromPrototypes: sinon.SinonSpy;
 
     beforeEach(() => {
-      scanForHandlersFromPrototype = sinon.spy();
-      instance.scanForHandlersFromPrototype = scanForHandlersFromPrototype;
+      scanForHandlersFromPrototypes = sinon.spy();
+      target['scanForHandlersFromPrototypes'] = scanForHandlersFromPrototypes;
     });
 
-    it('should call "scanForHandlersFromPrototype" with expected arguments', () => {
-      const obj = new Test();
+    it('should call', () => {
+      const test = new Test();
+      target.explore(<any>test);
 
-      instance.explore(<any>obj);
-
-      expect(scanForHandlersFromPrototype.calledWith(obj, Object.getPrototypeOf(obj))).to.be.true;
+      expect(scanForHandlersFromPrototypes.calledWith(
+        test,
+        Object.getPrototypeOf(test),
+      )).to.be.true;
     });
   });
 
-  describe('exploreMethodMetadata', () => {
+  describe('exploreMetadata', () => {
     let test: Test;
 
     beforeEach(() => {
       test = new Test();
     });
 
-    it('should return null when "isMessageMapping" metadata is undefined', () => {
-      const metadata = instance.exploreMethodMetadata(<any>test, Object.getPrototypeOf(test), 'noMessage');
+    it('should return when "isMappingMetadata" is undefined', () => {
+      const metadata = target['exploreMetadata'](
+        <any>test,
+        Object.getPrototypeOf(test),
+        'noMessage',
+      );
 
       expect(metadata).to.eq(null);
     });
+
     it('should return message mapping properties when "isMessageMapping" metadata is not undefined', () => {
-      const metadata = instance.exploreMethodMetadata(<any>test, Object.getPrototypeOf(test), 'test');
+      const metadata = target['exploreMetadata'](
+        <any>test,
+        Object.getPrototypeOf(test),
+        'test',
+      );
 
       expect(metadata).to.have.keys(['callback', 'message']);
       expect(metadata.message).to.eql(message);
     });
   });
-  describe('scanForHandlersFromPrototype', () => {
-    it('should returns only methods with @MessagePattern decorator', () => {
-      const obj = new Test();
 
-      const handlers = instance.scanForHandlersFromPrototype(<any>obj, Object.getPrototypeOf(obj));
+  describe('scanForHandlersFromPrototypes', () => {
+    it('should return only methods with pattern @MessagePattern decorator', () => {
+      const test = new Test();
+      const handlers = target['scanForHandlersFromPrototypes'](
+        <any>test,
+        Object.getPrototypeOf(test),
+      );
 
       expect(handlers).to.have.length(2);
-      expect(handlers[0].message).to.eq(message);
-      expect(handlers[1].message).to.eq(secMessage);
+      expect(handlers[0].message).to.have.eq(message);
+      expect(handlers[1].message).to.have.eq(secMessage);
     });
   });
-  describe('scanForServerHooks', () => {
-    it('should returns properties with @Client decorator', () => {
-      const obj = new Test();
 
-      const servers = [...instance.scanForServerHooks(<any>obj)];
+  describe('scanForServerHooks', () => {
+    it('should return properties with @Client decorator', () => {
+      const test = new Test();
+      const servers = [...target['scanForServerHooks'](<any>test)];
 
       expect(servers).to.have.length(2);
       expect(servers).to.deep.eq(['server', 'anotherServer']);

@@ -1,45 +1,36 @@
 import * as sinon from 'sinon';
-import { expect } from 'chai';
-import { SocketsContainer } from '../sockets.container';
 
-describe('SocketsContainer', () => {
-  const namespace = 'test';
+import { SocketContainer } from '../container';
+import { expect } from 'chai';
+
+describe('SocketContainer', () => {
+  const namespace = '/';
   const port = 30;
-  let instance: SocketsContainer;
+  let target: SocketContainer;
   let getSpy: sinon.SinonSpy;
   let setSpy: sinon.SinonSpy;
 
   beforeEach(() => {
-    setSpy = sinon.spy();
     getSpy = sinon.spy();
-    instance = new SocketsContainer();
-    // eslint-disable-next-line dot-notation
-    (<any>instance)['socketServers'] = {
-      get: getSpy,
-      set: setSpy,
-    };
+    setSpy = sinon.spy();
+    target = new SocketContainer();
+    (<any>target)['sockets'] = { get: getSpy, set: setSpy };
   });
 
-  describe('getSocketServer', () => {
-    it('should call "socketServers" get method with expected arguments', () => {
-      instance.getSocketServer(namespace, port);
+  describe('get', () => {
+    it('should call "servers" get method with expected arguments', () => {
+      target.get(namespace, port);
 
-      expect(getSpy.calledWith({
-        namespace,
-        port,
-      }));
+      expect(getSpy.calledWith({ namespace, port }));
     });
   });
 
-  describe('storeObservableServer', () => {
-    it('should call "socketServers" set method with expected arguments', () => {
+  describe('register', () => {
+    it('should call "servers" set method with expected arguments', () => {
       const server = {};
-      instance.setSocketServer(namespace, port, <any>server);
+      target.register(namespace, port, <any>server);
 
-      expect(setSpy.calledWith({
-        namespace,
-        port,
-      }, server));
+      expect(setSpy.calledWith({ namespace, port }, server));
     });
   });
 });

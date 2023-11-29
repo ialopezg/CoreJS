@@ -2,17 +2,20 @@ import { expect } from 'chai';
 import { NextFunction, Request, Response } from 'express';
 import * as sinon from 'sinon';
 
-import { MiddlewareResolver } from '../../middleware/resolver';
-import { MiddlewareContainer } from '../../middleware/container';
-import { AppMode, Component, LoggerService } from '../../../common';
-import { AppMiddleware, RoutesMapper } from '../../middleware';
+import {
+  IMiddleware,
+  MiddlewareContainer,
+  MiddlewareResolver,
+  RoutesMapper,
+} from '../../middleware';
+import { Component, LoggerService } from '../../../common';
+import { ApplicationMode } from '../../../common/enums/application-mode.enum';
 
 describe('MiddlewaresResolver', () => {
   @Component()
-  class TestMiddleware implements AppMiddleware {
+  class TestMiddleware implements IMiddleware {
     resolve() {
-      return (_request: Request, _response: Response, _next: NextFunction) => {
-      };
+      return (_request: Request, _response: Response, _next: NextFunction) => {};
     }
   }
 
@@ -20,7 +23,7 @@ describe('MiddlewaresResolver', () => {
   let container: MiddlewareContainer;
   let mockContainer: sinon.SinonMock;
 
-  before(() => LoggerService.setMode(AppMode.TEST));
+  before(() => LoggerService.setMode(ApplicationMode.TEST));
 
   beforeEach(() => {
     container = new MiddlewareContainer(new RoutesMapper());
@@ -29,21 +32,21 @@ describe('MiddlewaresResolver', () => {
   });
 
   it('should resolve middleware instances from container', () => {
-    // eslint-disable-next-line dot-notation
     const loadInstanceOfMiddleware = sinon.stub(resolver['injector'], 'loadInstanceOfMiddleware');
     const middlewares = new Map();
-    middlewares.set('TestMiddleware', {
+    const wrapper = {
       instance: { metaType: {} },
       metaType: TestMiddleware,
-    });
+    };
+    middlewares.set('TestMiddleware', wrapper);
 
-    const module = <any>{ metaType: { name: '' } };
+    const module = <any>{ metaType: { name: '' }};
     mockContainer.expects('getMiddlewares').returns(middlewares);
-    resolver.resolveInstances(module, null);
+    resolver.resolve(module, null);
 
     expect(loadInstanceOfMiddleware.callCount).to.be.equal(middlewares.size);
     expect(loadInstanceOfMiddleware.calledWith(
-      TestMiddleware,
+      <any>wrapper,
       middlewares,
       module,
     )).to.be.true;

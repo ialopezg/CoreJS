@@ -1,40 +1,49 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 
-import { Container, Injector, InstanceLoader } from '../../injector';
-import { AppMode, Component, Controller, LoggerService } from '../../../common';
-import { Module } from '../../injector/module';
+import { Injector, InstanceLoader, ModuleContainer } from '../../injector';
+import { Component, Controller, LoggerService } from '../../../common';
+import { ApplicationMode } from '../../../common/enums/application-mode.enum';
 
 describe('InstanceLoader', () => {
   let loader: InstanceLoader;
-  let container: Container;
+  let container: ModuleContainer;
   let mockContainer: sinon.SinonMock;
 
   @Controller({ path: '' })
-  class TestController { }
+  class TestController {}
 
   @Component()
-  class TestComponent { }
+  class TestComponent {}
 
-  before(() => LoggerService.setMode(AppMode.TEST));
+  before(() => LoggerService.setMode(ApplicationMode.TEST));
 
   beforeEach(() => {
-    container = new Container();
+    container = new ModuleContainer();
     loader = new InstanceLoader(container);
     mockContainer = sinon.mock(container);
   });
 
-  it('should call "loadPrototypeOfInstance" for each component and route in each module', () => {
+  it('should call "loadPrototypeOfInstance" for each component and controller in each module', () => {
     const injector = new Injector();
-    // eslint-disable-next-line dot-notation
     loader['injector'] = injector;
 
     const module = {
       components: new Map(),
       controllers: new Map(),
     };
-    module.components.set('TestComponent', { instance: null, metaType: TestComponent });
-    module.controllers.set('TestRoute', { instance: null, metaType: TestController });
+    const componentWrapper = {
+      name: 'TestComponent',
+      instance: null,
+      metaType: TestComponent,
+    };
+    const controllerWrapper = {
+      name: 'TestController',
+      instance: null,
+      metaType: TestController,
+    };
+    module.components.set('TestComponent', componentWrapper);
+    module.controllers.set('TestController', controllerWrapper);
 
     const modules = new Map();
     modules.set('TestModule', module);
@@ -42,58 +51,64 @@ describe('InstanceLoader', () => {
 
     const loadComponentPrototypeStub = sinon.stub(injector, 'loadPrototypeOfInstance');
 
-    sinon.stub(injector, 'loadInstanceOfController');
     sinon.stub(injector, 'loadInstanceOfComponent');
+    sinon.stub(injector, 'loadInstanceOfController');
 
-    loader.createInstancesOfDependencies();
-
-    expect(loadComponentPrototypeStub.calledWith(TestComponent, module.components)).to.be.true;
-    expect(loadComponentPrototypeStub.calledWith(TestController, module.controllers)).to.be.true;
+    loader.initialize();
+    expect(loadComponentPrototypeStub.calledWith(componentWrapper, module.components)).to.be.true;
+    expect(loadComponentPrototypeStub.calledWith(controllerWrapper, module.controllers)).to.be.true;
   });
 
   it('should call "loadInstanceOfComponent" for each component in each module', () => {
     const injector = new Injector();
-    // eslint-disable-next-line dot-notation
     loader['injector'] = injector;
 
     const module = {
       components: new Map(),
       controllers: new Map(),
     };
-    module.components.set('TestComponent', { instance: null, metaType: TestComponent });
+    const componentWrapper = {
+      name: 'TestComponent',
+      instance: null,
+      metaType: TestComponent,
+    };
+    module.components.set('TestComponent', componentWrapper);
 
     const modules = new Map();
-    modules.set('TestModule', module);
+    modules.set('TestComponent', module);
     mockContainer.expects('getModules').returns(modules);
 
     const loadComponentStub = sinon.stub(injector, 'loadInstanceOfComponent');
     sinon.stub(injector, 'loadInstanceOfController');
 
-    loader.createInstancesOfDependencies();
-
-    expect(loadComponentStub.calledWith(TestComponent, <Module>module)).to.be.true;
+    loader.initialize();
+    expect(loadComponentStub.calledWith(module.components.get('TestComponent'), module)).to.be.true;
   });
 
-  it('should call "loadInstanceOfController" for each route in each module', () => {
+  it('should call "loadInstanceOfController" for each controller in each module', () => {
     const injector = new Injector();
-    // eslint-disable-next-line dot-notation
     loader['injector'] = injector;
 
     const module = {
       components: new Map(),
       controllers: new Map(),
     };
-    module.controllers.set('TestController', { instance: null, metaType: TestController });
+    const controllerWrapper = {
+      name: 'TestController',
+      instance: null,
+      metaType: TestController,
+    };
+    module.controllers.set('TestController', controllerWrapper);
 
     const modules = new Map();
-    modules.set('TestModule', module);
+    modules.set('Test', module);
     mockContainer.expects('getModules').returns(modules);
 
     sinon.stub(injector, 'loadInstanceOfComponent');
     const loadRoutesStub = sinon.stub(injector, 'loadInstanceOfController');
 
-    loader.createInstancesOfDependencies();
+    loader.initialize();
 
-    expect(loadRoutesStub.calledWith(TestController, <Module>module)).to.be.true;
+    expect(loadRoutesStub.calledWith(module.controllers.get('TestController'), module)).to.be.true;
   });
 });

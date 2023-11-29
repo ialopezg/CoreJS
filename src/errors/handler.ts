@@ -1,17 +1,20 @@
-import { LoggerService, RuntimeException } from '../common';
+import { LoggerService } from '../common';
+import { RuntimeException } from './exceptions';
 
 /**
  * Handles error type objects and resolve them according its behaviour.
  */
 export class ExceptionHandler {
-  private static readonly logger = new LoggerService(ExceptionHandler.name);
+  private logger: LoggerService;
 
   /**
    * Handle given error object.
    *
    * @param exception Error object.
    */
-  static handle(exception: Error | RuntimeException): void {
+  public handle(exception: Error | RuntimeException): void {
+    this.logger = new LoggerService(ExceptionHandler.name);
+
     if (!(exception instanceof RuntimeException)) {
       this.logger.error(exception.message, exception.stack);
 

@@ -1,7 +1,10 @@
+import 'reflect-metadata';
+
 /**
- * Define the component metadata on the target.
+ * Provides the functionality as a service or component to a class object.
+ *
  * @constructor
  */
 export const Component = (): ClassDecorator => {
-  return (_target: Object) => { };
+  return (_target) => {}
 };

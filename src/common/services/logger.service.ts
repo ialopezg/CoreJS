@@ -1,77 +1,78 @@
-import { AppMode } from '../enums';
-import { ColorService as Color } from './color.service';
+import { Color } from '@ialopezg/cli';
+import { pad } from '@ialopezg/commonjs';
+
+import { ApplicationMode } from '../enums/application-mode.enum';
+
+declare var process;
 
 /**
- * Defines a service that logs messages.
+ * Logger Service.
  */
 export class LoggerService {
-  private static mode = AppMode.RUN;
+  private static mode = ApplicationMode.RUN;
 
   /**
-   * Creates a new instance to the class LoggerService.
+   * Creates a new instance of the LoggerService class with given context name.
    *
-   * @param context Application context to be used.
+   * @param {string} context Context name.
    */
-  constructor(private readonly context: string) {}
+  constructor(private context: string) {}
 
-  public static setMode(mode: AppMode): void {
-    this.mode = mode;
+  /**
+   * Set current application execution context.
+   *
+   * @param {ApplicationMode} value Value to be set.
+   */
+  public static setMode(value: ApplicationMode) {
+    this.mode = value;
   }
 
   /**
-   * Prints a log message into the current terminal console.
+   * Prints an error message to the console.
    *
-   * @param message Message to be printed.
+   * @param {string} message Message to write.
+   * @param {string} trace Stack trace information.
    */
-  log(message: string) {
-    this.logMessage(message, Color.green);
+  public error(message: string, trace = ''): void {
+    this.print(message, Color.red);
+    this.printStack(trace);
   }
 
   /**
-   * Prints an error message into the current terminal console.
+   * Prints an informative message to the console.
    *
-   * @param message Message to be printed.
-   * @param trace Tracing error details
+   * @param {string} message Message to write.
    */
-  error(message: string, trace = '') {
-    this.logMessage(message, Color.red);
-    this.printStackTrace(trace);
+  public log(message: string): void {
+    this.print(message);
   }
 
   /**
-   * Prints warn messages into the current terminal console.
+   * Prints an error message to the console.
    *
-   * @param message Message to be printed.
+   * @param {string} message Message to write.
    */
-  warn(message: string) {
-    this.logMessage(message, Color.yellow);
+  public warning(message: string): void {
+    this.print(message, Color.yellow);
   }
 
-  /**
-   * Prints messages into the current terminal console with given parameters.
-   *
-   * @param message Message to be printed.
-   * @param color Default text color.
-   */
-  private logMessage(message: string, color: Function) {
-    if (LoggerService.mode === AppMode.TEST) {
+  private print(message: string, color: Function = Color.green): void {
+    if (LoggerService.mode === ApplicationMode.TEST) {
       return;
     }
 
-    process.stdout.write(color(`[CoreJS] ${process.pid}   - `));
-    process.stdout.write(`${new Date(Date.now()).toLocaleString()}   `);
-    process.stdout.write(Color.yellow(`[${this.context}] `));
+    const pid = process.pid.toString();
+    const date = new Date(Date.now()).toLocaleString();
+
+    process.stdout.write(color(`[CoreJS] ${pad(pid,  pid.length + 1, 'RIGHT', ' ')}– `));
+    process.stdout.write(`${pad(date, date.length + 2, 'RIGHT', ' ')}`);
+    process.stdout.write(Color.yellow(`${pad(`[${this.context}]`, 21, 'RIGHT', ' ')}`));
     process.stdout.write(color(message));
     process.stdout.write('\n');
   }
 
-  /**
-   * Prints stack trace information into current console.
-   *
-   * @param trace Stack trace information to be printed.
-   */
-  private printStackTrace(trace: string) {
-    if (LoggerService.mode === AppMode.TEST) {
+  private printStack(trace: string): void {
+    if (LoggerService.mode === ApplicationMode.TEST) {
       return;
     }
 

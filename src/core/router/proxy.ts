@@ -3,41 +3,48 @@ import { NextFunction, Request, Response } from 'express';
 import { ExceptionHandler } from '../exceptions';
 
 /**
- * Represents a router proxy callback.
- */
-export interface RouterProxyCallback {
-  (request?: Request, response?: Response, next?: NextFunction): void;
-}
-
-/**
- * Represents an object that creates router proxies.
+ * Represents a proxy callback between to a request method.
  */
 export class RouterProxy {
   /**
-   * Creates a new instance of this class with given parameters.
+   * Creates a new instance of the RouterProxy class.
    *
-   * @param exceptionHandler Exception handler.
+   * @param {ExceptionHandler} handler Error handler.
    */
-  constructor(private readonly exceptionHandler: ExceptionHandler) {
-  }
+  constructor(private readonly handler: ExceptionHandler) {}
 
   /**
-   * Creates a proxy instance with given callback.
+   * Creates a router proxy to execute a custom function.
    *
-   * @param callback Callback to be used.
-   * @returns
+   * @param {(request: Request, response: Response, next: NextFunction) => void} callback Function to execute.
    */
-  create(callback: RouterProxyCallback): any {
-    return (request: Request, response: Response, next: NextFunction) => {
+  public createProxy(
+    callback: RouterProxyCallback,
+  ): (request: Request, response: Response, next: NextFunction) => void {
+    return (request, response, next) => {
       try {
         Promise
           .resolve(callback(request, response, next))
           .catch((error: any) => {
-            this.exceptionHandler.next(error, response);
+            this.handler.next(error, response);
           });
       } catch (error: any) {
-        this.exceptionHandler.next(error, response);
+        this.handler.next(error, response);
       }
     };
   }
+}
+
+/**
+ * Represents a router callback function.
+ */
+export interface RouterProxyCallback {
+  /**
+   * Callback executor.
+   *
+   * @param {Request} request Request object.
+   * @param {Response} response Response object.
+   * @param {NextFunction} next Next function.
+   */
+  (request?: Request, response?: Response, next?: NextFunction): void;
 }

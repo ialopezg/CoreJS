@@ -1,22 +1,21 @@
 import 'reflect-metadata';
 
 import { expect } from 'chai';
-import { PATH_METADATA } from '../../constants';
 
 import { Controller } from '../../decorators';
-import { ControllerMetadata } from '../../interfaces';
+import { PATH_METADATA } from '../../constants';
 
 describe('@Controller', () => {
-  const metadata: ControllerMetadata = { path: 'test' };
+  const metadata = {
+    path: 'test',
+  };
 
   @Controller(metadata)
   class TestController {}
-
-  @Controller()
-  class AnotherTestController {}
-
   @Controller()
   class EmptyDecoratorController {}
+  @Controller()
+  class AnotherTestController {}
 
   it('should enhance transport with expected path metadata', () => {
     const path = Reflect.getMetadata(PATH_METADATA, TestController);
@@ -25,13 +24,13 @@ describe('@Controller', () => {
   });
 
   it('should set default path when no object passed as param', () => {
-    const path = Reflect.getMetadata(PATH_METADATA, AnotherTestController);
+    const path = Reflect.getMetadata(PATH_METADATA, EmptyDecoratorController);
 
     expect(path).to.be.eql('/');
   });
 
   it('should set default path when empty passed as param', () => {
-    const path = Reflect.getMetadata(PATH_METADATA, EmptyDecoratorController);
+    const path = Reflect.getMetadata(PATH_METADATA, AnotherTestController);
 
     expect(path).to.be.eql('/');
   });

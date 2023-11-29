@@ -1,6 +1,5 @@
-
 export const messages = {
-  APPLICATION_START: 'Starting CoreJS application...',
-  APPLICATION_READY: 'CoreJS application is ready!',
-  UNKNOWN_EXCEPTION_MESSAGE: 'Unknown exception!',
+  APPLICATION_START: 'Application is starting...',
+  APPLICATION_READY: 'Application is ready!',
+  UNKNOWN_EXCEPTION: 'Unknown exception!',
 };

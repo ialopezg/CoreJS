@@ -1,56 +1,38 @@
-import { LoggerService } from '../../common';
-import { getMiddlewareInitMessage } from '../helpers';
-import { Injector } from '../injector';
-import { Module } from '../injector/module';
+import { Injector, Module } from '../injector';
 import { MiddlewareContainer, MiddlewareWrapper } from './container';
-import { MiddlewareMetaType } from './interfaces';
 
 /**
- * Represents an object that resolve middleware instances.
+ * Resolves middleware instances.
  */
 export class MiddlewareResolver {
-  private readonly logger = new LoggerService(MiddlewareResolver.name);
-  private readonly injector = new Injector();
+  private injector = new Injector();
 
   /**
-   * Creates a new instance of this app with given parameters.
+   * Creates a new instance of the MiddlewareResolver class.
    *
-   * @param container Middleware container.
+   * @param {MiddlewareContainer} container Middleware container.
    */
   constructor(private readonly container: MiddlewareContainer) {}
 
   /**
-   * Resolve a middleware instance for given module.
+   * Resolves middleware instances.
    *
-   * @param target Module that contains the middleware configuration.
-   * @param moduleName Middleware prototype to be resolved.
+   * @param {Module} parent Parent
+   * @param {string} parentName Module prototype.
    */
-  resolveInstances(target: Module, moduleName: string): void {
-    const middlewares = this.container.getMiddlewares(moduleName);
+  public resolve(parent: Module, parentName: string): void {
+    const middlewares = this.container.getMiddlewares(parentName);
 
-    middlewares.forEach(({ metaType }) => {
-      this.resolveMiddlewareInstance(metaType, middlewares, target);
-
-      this.logger.log(getMiddlewareInitMessage(metaType.name, target.metaType.name));
+    middlewares.forEach((wrapper) => {
+      this.resolveMiddlewareInstance(wrapper, middlewares, parent);
     });
   }
 
-  /**
-   * Resolve a middleware instance for given middleware prototype.
-   *
-   * @param metaType Middleware prototype.
-   * @param middlewares Middleware collection.
-   * @param target Container Module.
-   */
   private resolveMiddlewareInstance(
-    metaType: MiddlewareMetaType,
+    wrapper: MiddlewareWrapper,
     middlewares: Map<string, MiddlewareWrapper>,
-    target: Module,
-  ) {
-    this.injector.loadInstanceOfMiddleware(
-      metaType,
-      middlewares,
-      target,
-    );
+    parent: Module,
+  ): void {
+    this.injector.loadInstanceOfMiddleware(wrapper, middlewares, parent);
   }
 }

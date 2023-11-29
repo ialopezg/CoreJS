@@ -1,23 +1,29 @@
 import 'reflect-metadata';
-import { PATH_METADATA } from '../constants';
-import { isUndefined } from '../helpers';
 
 import { ControllerMetadata } from '../interfaces';
+import { PATH_METADATA } from '../constants';
+import { isUndefined } from '@ialopezg/commonjs';
 
-const defaultMetadata: ControllerMetadata = { [PATH_METADATA]: '/' };
+const defaultMetadata = { [PATH_METADATA]: '/' };
 
 /**
- * Define the controller metadata on the target.
+ * Provides the Controller functionality to the annotated class.
  *
- * @param metadata An object that contains attached metadata.
+ * The annotated object will act a global path handler for an
+ * application resource or endpoint.
+ *
+ * @param {ControllerMetadata} metadata Controller feature definitions.
+ *
  * @constructor
  */
-export const Controller = (metadata: ControllerMetadata = defaultMetadata): ClassDecorator => {
+export const Controller = (
+  metadata: ControllerMetadata = defaultMetadata,
+): ClassDecorator => {
   if (isUndefined(metadata[PATH_METADATA])) {
     metadata[PATH_METADATA] = '/';
   }
 
-  return (target: Object) => {
+  return (target) => {
     Reflect.defineMetadata(PATH_METADATA, metadata[PATH_METADATA], target);
   };
 };

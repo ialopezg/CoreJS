@@ -1,33 +1,29 @@
 import { expect } from 'chai';
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import * as sinon from 'sinon';
 
-import { AppMiddleware, MiddlewareBuilder } from '../../middleware';
-import { Component, Controller, RequestMapping, RequestMethod, RuntimeException } from '../../../common';
-import { MiddlewareModule } from '../../middleware/module';
-import { InvalidMiddlewareException } from '../../../errors/exceptions';
+import { Component, Controller, RequestMapping, RequestMethod } from '../../../common';
+import { IMiddleware } from '../../middleware';
+import { MiddlewareBuilder, MiddlewareModule } from '../../middleware';
+import { InvalidMiddlewareException, RuntimeException } from '../../../errors';
 
 describe('MiddlewareModule', () => {
   @Controller({ path: 'test' })
-  class AnotherController {}
+  class AnotherRoute {}
 
   @Controller({ path: 'test' })
-  class TestController {
+  class TestRoute {
     @RequestMapping({ path: 'test' })
     getTest() {}
 
-    @RequestMapping({
-      path: 'another',
-      method: RequestMethod.DELETE,
-    })
+    @RequestMapping({ path: 'another', method: RequestMethod.DELETE })
     getAnother() {}
   }
 
   @Component()
-  class TestMiddleware implements AppMiddleware {
+  class TestMiddleware implements IMiddleware {
     resolve() {
-      return (_request: Request, _response: Response, _next: NextFunction) => {
-      };
+      return (_request: Request, _response: Response, _next: NextFunction) => {};
     }
   }
 
@@ -38,28 +34,25 @@ describe('MiddlewareModule', () => {
         configure: configureSpy,
       };
 
-      MiddlewareModule.loadConfiguration(<any>mockModule, <any>'Test');
+      MiddlewareModule['loadConfiguration'](<any>mockModule, <any>'Test');
 
       expect(configureSpy.calledOnce).to.be.true;
       expect(configureSpy.calledWith(new MiddlewareBuilder())).to.be.true;
     });
   });
 
-  describe('setupControllerMiddleware', () => {
+  describe('setupRouteMiddleware', () => {
     it('should throw "RuntimeException" exception when middlewares is not stored in container', () => {
-      @Component()
-      class InvalidMiddleware {}
-
       const route = { path: 'Test' };
       const configuration = {
-        middlewares: [InvalidMiddleware],
-        forRoutes: [TestController],
+        middlewares: [TestMiddleware],
+        forRoutes: [TestRoute],
       };
 
       const useSpy = sinon.spy();
       const app = { use: useSpy };
 
-      expect(MiddlewareModule.setupControllerMiddleware.bind(
+      expect(MiddlewareModule['setupControllerMiddleware'].bind(
         MiddlewareModule, route, configuration, <any>'Test', <any>app,
       )).throws(RuntimeException);
     });
@@ -71,7 +64,7 @@ describe('MiddlewareModule', () => {
       const route = { path: 'Test' };
       const configuration = {
         middlewares: [InvalidMiddleware],
-        forRoutes: [TestController],
+        forRoutes: [TestRoute],
       };
 
       const useSpy = sinon.spy();
@@ -80,25 +73,23 @@ describe('MiddlewareModule', () => {
       const container = MiddlewareModule.getContainer();
       const moduleKey = <any>'Test';
       container.addConfig([<any>configuration], moduleKey);
+
       const instance = new InvalidMiddleware();
       container.getMiddlewares(moduleKey).set('InvalidMiddleware', <any>{
-        metaType: InvalidMiddleware,
         instance,
+        metaType: InvalidMiddleware,
       });
 
-      expect(MiddlewareModule.setupControllerMiddleware.bind(
+      expect(MiddlewareModule['setupControllerMiddleware'].bind(
         MiddlewareModule, route, configuration, moduleKey, <any>app,
       )).throws(InvalidMiddlewareException);
     });
 
     it('should store middlewares when middleware is stored in container', () => {
-      const route = {
-        path: 'Test',
-        method: RequestMethod.GET,
-      };
+      const route = { path: 'Test', method: RequestMethod.GET };
       const configuration = {
         middlewares: [TestMiddleware],
-        forRoutes: [{ path: 'test' }, AnotherController, TestController],
+        forRoutes: [{ path: 'test' }, AnotherRoute, TestRoute],
       };
 
       const useSpy = sinon.spy();
@@ -112,11 +103,11 @@ describe('MiddlewareModule', () => {
 
       const instance = new TestMiddleware();
       container.getMiddlewares(moduleKey).set('TestMiddleware', {
-        metaType: TestMiddleware,
         instance,
+        metaType: TestMiddleware,
       });
 
-      MiddlewareModule.setupControllerMiddleware(route, configuration, moduleKey, <any>app);
+      MiddlewareModule['setupControllerMiddleware'](route, configuration, moduleKey, <any>app);
 
       expect(useSpy.calledOnce).to.be.true;
     });

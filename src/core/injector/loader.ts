@@ -1,100 +1,87 @@
-import { AppMode, LoggerService } from '../../common';
+import 'reflect-metadata';
+
 import { Controller, Injectable } from '../../common/interfaces';
-import { getModuleInitMessage } from '../helpers';
-import { Container } from './container';
+import { ModuleContainer } from './container';
 import { Injector } from './injector';
+import { LoggerService } from '../../common';
 import { Module } from './module';
+import { getInitializedModuleMessage } from '../helpers';
 
 /**
- * Represents a class that loads prototypes and instances of Injectable and Controller objects.
+ * Instance Loader.
  */
 export class InstanceLoader {
   private readonly logger = new LoggerService(InstanceLoader.name);
   private injector = new Injector();
 
   /**
-   * Creates an object that has the specified prototype.
+   * Creates a new instance of the class InstanceLoader.
    *
-   * @param container Module container.
+   * @param {ModuleContainer} container Modules container.
    */
-  constructor(private readonly container: Container) {}
+  constructor(private readonly container: ModuleContainer) {}
 
   /**
-   * Creates prototypes and instances of Injectable and Controller objects.
+   * Create the instances for all registered dependencies.
    */
-  createInstancesOfDependencies(): void {
+  public initialize(): void {
     const modules = this.container.getModules();
+
     this.createPrototypes(modules);
     this.createInstances(modules);
   }
 
-  /**
-   * Creates objects that has Injectable and Controller prototype.
-   *
-   * @param modules Module object that contains the prototypes to be created.
-   */
   private createPrototypes(modules: Map<string, Module>): void {
-    modules.forEach((module) => {
+    modules.forEach((module, name) => {
       this.createPrototypesOfComponents(module);
       this.createPrototypesOfControllers(module);
+
+      this.logger.log(getInitializedModuleMessage(name));
     });
   }
 
-  /**
-   * Creates instances of Injectable and Controller objects.
-   *
-   * @param modules ModuleDependency that contains the object to be instantiated.
-   */
   private createInstances(modules: Map<string, Module>): void {
-    modules.forEach((module, name) => {
+    modules.forEach((module) => {
       this.createInstancesOfComponents(module);
-      this.createInstancesOfRoutes(module);
-
-      this.logger.log(getModuleInitMessage(name));
+      this.createInstancesOfControllers(module);
     });
   }
 
-  /**
-   * Creates objects that has Injectable prototype.
-   *
-   * @param target Module object that contains the Injectable prototypes to be created.
-   */
-  private createPrototypesOfComponents(target: Module): void {
-    target.components.forEach((wrapper) => {
-      this.injector.loadPrototypeOfInstance<Injectable>(wrapper.metaType, target.components);
-    });
+  private createPrototypesOfComponents(parent: Module): void {
+    parent.components.forEach((
+      wrapper,
+    ) => this.injector.loadPrototypeOfInstance<Injectable>(
+      wrapper,
+      parent.components,
+    ));
   }
 
-  /**
-   * Creates instances of Injectable objects.
-   *
-   * @param target Container Module.
-   */
-  private createInstancesOfComponents(target: Module): void {
-    target.components.forEach((wrapper) => {
-      this.injector.loadInstanceOfComponent(wrapper.metaType, target);
-    });
+  private createInstancesOfComponents(parent: Module): void {
+    parent.components.forEach((
+      wrapper,
+    ) => this.injector.loadInstanceOfComponent(
+      wrapper,
+      parent,
+    ));
   }
 
-  /**
-   * Creates objects that has Controller prototype.
-   *
-   * @param target Module object that contains the Controller prototypes to be created.
-   */
-  private createPrototypesOfControllers(target: Module): void {
-    target.controllers.forEach((wrapper) => {
-      this.injector.loadPrototypeOfInstance<Controller>(wrapper.metaType, target.controllers);
-    });
+  private createPrototypesOfControllers(parent: Module): void {
+    parent.controllers.forEach(
+      (
+        wrapper,
+      ) => this.injector.loadPrototypeOfInstance<Controller>(
+        wrapper,
+        parent.controllers,
+      ));
   }
 
-  /**
-   * Creates instances of Controller objects.
-   *
-   * @param target Container Module.
-   */
-  private createInstancesOfRoutes(target: Module) {
-    target.controllers.forEach((wrapper): void => {
-      this.injector.loadInstanceOfController(wrapper.metaType, target);
-    });
+  private createInstancesOfControllers(parent: Module): void {
+    parent.controllers.forEach(
+      (
+        wrapper,
+      ) => this.injector.loadInstanceOfController(
+        wrapper,
+        parent,
+      ));
   }
 }

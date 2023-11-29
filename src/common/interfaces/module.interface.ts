@@ -1,11 +1,14 @@
-import { MiddlewareBuilder } from '../../core';
+import { MiddlewareBuilder } from '../../core/middleware/builder';
 
 /**
- * Defines a prototype for App Module objects.
+ * Represents a set of code encapsulated to be injected into
+ * an application.
  */
-export interface Module {
+export interface IModule {
   /**
-   * Middleware configurator method.
+   * Middleware configuration resolver.
+   *
+   * @param {MiddlewareBuilder} router Configurator object.
    */
   configure?: (router: MiddlewareBuilder) => MiddlewareBuilder;
 }

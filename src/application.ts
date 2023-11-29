@@ -1,45 +1,63 @@
 import * as express from 'express';
+
+import { ModuleContainer } from './core/injector';
 import { LoggerService } from './common';
-
+import { RouteResolver } from './core/router';
 import { ExpressAdapter } from './core/adapters';
+import { SocketModule } from './websocket/module';
+import { MiddlewareModule } from './core/middleware';
 import { messages } from './core/constants';
-import { Container } from './core/injector';
-import { MiddlewareModule } from './core/middleware/module';
-import { RoutesResolver } from './core/router';
-import { MicroservicesModule } from './microservice/module';
-import { SocketModule } from './websocket/socket.module';
+import { MicroserviceModule } from './microservices/module';
 
+/**
+ * Represents the main entry for a web app.
+ */
 export class Application {
   private readonly logger = new LoggerService(Application.name);
-  private resolver: RoutesResolver;
+  private readonly resolver: RouteResolver;
 
+  /**
+   * Creates a new instance of Application class.
+   *
+   * @param {ModuleContainer} container Module container.
+   * @param {express} express Express application.
+   */
   constructor(
-    private readonly container: Container,
+    private readonly container: ModuleContainer,
     private readonly express: express.Application,
   ) {
-    this.resolver = new RoutesResolver(this.container, ExpressAdapter);
+    this.resolver = new RouteResolver(container, ExpressAdapter);
   }
 
-  setup() {
+  /**
+   * Setup and prepares the application context.
+   */
+  public setup(): void {
     SocketModule.setup(this.container);
     MiddlewareModule.setup(this.container);
-    MicroservicesModule.setupClients(this.container);
+    MicroserviceModule.setupClients(this.container);
   }
 
-  listen(port: number, callback: () => void) {
+  /**
+   * Initializes the application to receive requests and respond.
+   *
+   * @param {number} port Application port.
+   * @param {Function} callback Application callback to be executed after initialized.
+   */
+  public listen(port: number, callback: () => void): void {
     this.setupMiddlewares(this.express);
-    this.setupRoutes(this.express);
+    this.setupControllers(this.express);
+
+    this.express.listen(port, callback);
 
     this.logger.log(messages.APPLICATION_READY);
-
-    return this.express.listen(port, callback);
   }
 
-  private setupMiddlewares(instance: express.Application): void {
+  private setupMiddlewares(instance: express.Application) {
     MiddlewareModule.setupMiddlewares(instance);
   }
 
-  private setupRoutes(instance: express.Application): void {
+  private setupControllers(instance: express.Application) {
     this.resolver.resolve(instance);
   }
 }

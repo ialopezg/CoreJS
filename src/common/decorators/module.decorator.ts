@@ -1,29 +1,30 @@
 import 'reflect-metadata';
 
-import { InvalidModuleConfigurationException } from '../../errors/exceptions';
-import { metadata } from '../constants';
 import { ModuleMetadata } from '../interfaces';
+import { InvalidModuleConfigurationException } from '../../errors';
+import { MODULE_METADATA } from '../constants';
 
 /**
- * Define the module metadata on the target.
+ * Provides the functionality (modules, components or services, and routes) to an application module.
  *
- * @param props An object that contains attached metadata.
+ * @param {ModuleMetadata} metadata Module feature definitions.
+ *
  * @constructor
  */
-export const Module = (props: ModuleMetadata): ClassDecorator => {
-  const properties = Object.keys(props);
-  const acceptableProperties = [metadata.MODULES, metadata.CONTROLLERS, metadata.COMPONENTS, metadata.EXPORTS];
-
-  properties.forEach((property: string) => {
-    if (acceptableProperties.findIndex((param: string) => param === property) < 0) {
-      throw new InvalidModuleConfigurationException(property);
+export const Module = (metadata: ModuleMetadata): ClassDecorator => {
+  const keys = Object.keys(metadata);
+  const allowed = [...(Object.values(MODULE_METADATA) as string[])];
+  
+  keys.forEach((key) => {
+    if (!allowed.includes(key)) {
+      throw new InvalidModuleConfigurationException(key);
     }
   });
 
-  return (target: Object) => {
-    for (const property in props) {
-      if ({}.hasOwnProperty.call(props, property)) {
-        Reflect.defineMetadata(property, props[property], target);
+  return (target) => {
+    for (const property in metadata) {
+      if (({}).hasOwnProperty.call(metadata, property)) {
+        Reflect.defineMetadata(property, metadata[property], target);
       }
     }
   };

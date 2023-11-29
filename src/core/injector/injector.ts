@@ -1,211 +1,236 @@
-import 'reflect-metadata';
+import { isFunction, isNil, isUndefined } from '@ialopezg/commonjs';
 
-import { isUndefined, PARAM_TYPES_METADATA, RuntimeException } from '../../common';
-import { Controller, Injectable, MetaType } from '../../common/interfaces';
-import { UnknownDependenciesException } from '../../errors/exceptions';
-import { MiddlewareMetaType } from '../middleware/interfaces';
-import { MiddlewareWrapper } from '../middleware/container';
+import {
+  Controller,
+  Injectable,
+  MetaType,
+} from '../../common/interfaces';
+import {
+  RuntimeException,
+  UnknownDependenciesException,
+} from '../../errors';
+import { MiddlewareWrapper } from '../middleware';
 import { InstanceWrapper } from './container';
 import { Module } from './module';
+import {
+  DESIGN_PARAM_TYPES_METADATA,
+  SELF_PARAM_TYPES_METADATA,
+} from '../../common/constants';
 
 /**
- * Represents an Injector object class.
+ * Creates all the dependency instances and injects them into the main application.
  */
 export class Injector {
   /**
-   * Creates an object that has the specified prototype.
+   * Creates a new object, using an existing object as the prototype of the newly created object.
    *
-   * @param instance Object to use as a prototype.
-   * @param collection Collection that contains the prototype to be created.
+   * @param {MetaType<any>} metaType Existent prototype.
+   * @param {string} name Component name.
+   * @param {Map<string, InstanceWrapper<any>>} collection Collection that contains the prototype.
    */
-  loadPrototypeOfInstance<T>(instance: MetaType<T>, collection: Map<string, InstanceWrapper<T>>): void {
-    if (!collection || collection.get(instance.name).resolved) {
+  public loadPrototypeOfInstance<T>(
+    { metaType, name }: InstanceWrapper<T>,
+    collection: Map<string, InstanceWrapper<T>>,
+  ): void {
+    if (!collection) {
       return;
     }
 
-    collection.set(instance.name, {
-      ...collection.get(instance.name),
-      instance: Object.create(instance.prototype),
+    const target = collection.get(name);
+    if (target.resolved || !isNil(target.inject)) {
+      return;
+    }
+
+    collection.set(name, {
+      ...collection.get(name),
+      instance: Object.create(metaType.prototype),
     });
   }
 
   /**
-   * Loads an instance of given Injectable object.
+   * Loads the instance of given component.
    *
-   * @param component Object to be loaded.
-   * @param target Container Module.
+   * @param {MetaType<Injectable>} wrapper Component object to be loaded.
+   * @param {Module} parent Parent module.
    */
-  loadInstanceOfComponent(component: MetaType<Injectable>, target: Module): void {
-    this.loadInstance<Injectable>(component, target.components, target);
+  public loadInstanceOfComponent(
+    wrapper: InstanceWrapper<Injectable>,
+    parent: Module,
+  ): void {
+    this.loadInstance<Injectable>(wrapper, parent.components, parent);
   }
 
   /**
-   * Loads an instance of given Controller object.
+   * Loads the instance of given component.
    *
-   * @param controller Object to be loaded.
-   * @param target Container Module.
+   * @param {MetaType<Controller>} wrapper Component object to be loaded.
+   * @param {Module} parent Parent module.
    */
-  loadInstanceOfController(controller: MetaType<Controller>, target: Module): void {
-    this.loadInstance<Controller>(controller, target.controllers, target);
+  public loadInstanceOfController(
+    wrapper: InstanceWrapper<Controller>,
+    parent: Module,
+  ): void {
+    this.loadInstance<Controller>(wrapper, parent.controllers, parent);
   }
 
   /**
-   * Loads an instance of given Middleware object.
+   * Loads the instance of given component.
    *
-   * @param target Object to be loaded.
-   * @param prototype prototype middleware.
-   * @param collection Collection that contains the object to be loaded.
-   * @param target Container Module.
+   * @param {Injectable} wrapper Component object to be loaded.
+   * @param {Map<MiddlewareMetaType, IMiddleware>} middlewares Middlewares.
+   * @param {Module} parent Parent module.
    */
-  loadInstanceOfMiddleware(
-    prototype: MiddlewareMetaType,
-    collection: Map<string, MiddlewareWrapper>,
-    target: Module,
+  public loadInstanceOfMiddleware(
+    wrapper: MiddlewareWrapper,
+    middlewares: Map<string, MiddlewareWrapper>,
+    parent: Module,
   ) {
-    const fetchedMiddleware = collection.get(prototype.name);
-    if (fetchedMiddleware.instance !== null) {
+    const { metaType } = wrapper;
+    const fetchedInstance = middlewares.get(metaType.name);
+    if (fetchedInstance.instance) {
       return;
     }
 
-    this.resolveConstructorParams(prototype, target, (args: any) => {
-      collection.set(prototype.name, {
-        // eslint-disable-next-line new-cap
-        instance: new prototype(...args),
-        metaType: prototype,
-      });
-    });
+    this.resolveConstructorParams(
+      <any>wrapper,
+      parent,
+      null,
+      (args: Injectable[]) => {
+        middlewares.set(metaType.name, {
+          instance: new metaType(...args),
+          metaType,
+        });
+      },
+    );
   }
 
-  /**
-   * Load an instance of given prototype object.
-   *
-   * @param prototype Object requesting the parameters.
-   * @param collection Component collection.
-   * @param target Container Module.
-   */
-  loadInstance<T>(prototype: MetaType<T>, collection: Map<any, InstanceWrapper<any>>, target: Module): void {
-    const fetchedInstance = collection.get(prototype.name);
-    if (isUndefined(fetchedInstance)) {
+  private loadInstance<T>(
+    wrapper: InstanceWrapper<T>,
+    collection: Map<string, InstanceWrapper<T>>,
+    parent: Module,
+  ): void {
+    const { inject, metaType, name } = wrapper;
+    const instanceWrapper = collection.get(name);
+    if (isUndefined(instanceWrapper)) {
       throw new RuntimeException();
     }
 
-    if (fetchedInstance.resolved) {
+    if (instanceWrapper.resolved) {
       return;
     }
 
-    this.resolveConstructorParams<T>(prototype, target, (args: any) => {
-      fetchedInstance.instance = Object.assign(
-        fetchedInstance.instance,
-        // eslint-disable-next-line new-cap
-        new prototype(...args),
-      );
-      fetchedInstance.resolved = true;
+    this.resolveConstructorParams<T>(wrapper, parent, inject, (args: any[]) => {
+      if (isNil(inject)) {
+        instanceWrapper.instance = Object.assign(
+          instanceWrapper.instance,
+          new metaType(...args),
+        );
+      } else {
+        instanceWrapper.instance = new instanceWrapper.metaType(...args);
+      }
+      instanceWrapper.resolved = true;
     });
   }
 
-  /**
-   * Resolve all Injectable Component objects requested as a constructor parameter.
-   *
-   * @param prototype Component requesting the parameters.
-   * @param target Container Module.
-   * @param callback Actions to be executed after resolve the Injectable Component objects.
-   */
-  resolveConstructorParams<T>(prototype: MetaType<T>, target: Module, callback: Function): void {
-    const params = Reflect.getMetadata(PARAM_TYPES_METADATA, prototype) || [];
-    const args = params.map((param: any) => this.resolveSingleParam<T>(prototype, param, target));
-    callback(args);
+  private reflectConstructorParams<T>(metaType: MetaType<T>): any[] {
+    const paramTypes = Reflect.getMetadata(DESIGN_PARAM_TYPES_METADATA, metaType) ?? [];
+    const selfParams = this.reflectSelfParams<T>(metaType);
+
+    selfParams.forEach(({ index, param }) => paramTypes[index] = param);
+
+    return paramTypes;
   }
 
-  /**
-   * Resolve for a single Injectable Component object requested as a constructor parameter.
-   *
-   * @param prototype Component requesting the parameter Component.
-   * @param param Component to be looked up.
-   * @param target Container Module.
-   *
-   * @returns An instance of Injectable.
-   */
-  resolveSingleParam<T>(prototype: MetaType<T>, param: MetaType<any>, target: Module): Injectable {
+  private reflectSelfParams<T>(metaType: MetaType<T>): any[] {
+    return Reflect.getMetadata(SELF_PARAM_TYPES_METADATA, metaType) ?? [];
+  }
+
+  private resolveConstructorParams<T>(
+    wrapper: InstanceWrapper<T>,
+    parent: Module,
+    inject: any[],
+    callback: Function,
+  ): void {
+    const args = isNil(inject) ? this.reflectConstructorParams(wrapper.metaType) : inject;
+
+    callback(args.map(
+      (param) => this.resolveSingleParam<T>(wrapper, param, parent),
+    ));
+  }
+
+  private resolveSingleParam<T>(
+    wrapper: InstanceWrapper<T>,
+    param: MetaType<any> | string | symbol,
+    parent: Module,
+  ): Injectable {
     if (isUndefined(param)) {
       throw new RuntimeException();
     }
 
-    return this.resolveComponentInstance<T>(target, param, prototype);
+    return this.resolveComponentInstance<T>(
+      parent,
+      isFunction(param) ? (<MetaType<T>>param).name : param,
+      wrapper,
+    );
   }
 
-  /**
-   * Resolve an Injectable Component object.
-   *
-   * @param target Container Module.
-   * @param param Component to be looked up.
-   * @param prototype Component requesting the parameter Component.
-   *
-   * @returns An instance of Injectable.
-   */
-  resolveComponentInstance<T>(target: Module, param: MetaType<any>, prototype: MetaType<T>): Injectable {
-    const components = target.components;
-    const instanceWrapper = this.scanForComponent<T>(components, param, target, prototype);
+  private resolveComponentInstance<T>(
+    parent: Module,
+    name: any,
+    wrapper: InstanceWrapper<T>,
+  ): Injectable {
+    const components = parent.components;
+    const instanceWrapper = this.scanForComponent<T>(
+      components,
+      name,
+      parent,
+      wrapper,
+    );
 
-    if (instanceWrapper.instance === null) {
-      this.loadInstanceOfComponent(param, target);
+    if (!instanceWrapper.instance) {
+      this.loadInstanceOfComponent(name, parent);
     }
 
     return instanceWrapper.instance;
   }
 
-  /**
-   * Scan for a Component (Injectable) object.
-   *
-   * @param components Component list.
-   * @param param Component to be looked up.
-   * @param target Container Module.
-   * @param prototype Component requesting the parameter Component.
-   *
-   * @returns An Instance of InstanceWrapper<Injectable>.
-   */
-  scanForComponent<T>(
-    components: Map<string, InstanceWrapper<Injectable>>,
-    param: MetaType<any>,
-    target: Module,
-    prototype: MetaType<T>,
+  private scanForComponent<T>(
+    components: Map<string, InstanceWrapper<any>>,
+    name: any,
+    parent: Module,
+    { metaType }: InstanceWrapper<T>,
   ): InstanceWrapper<Injectable> {
-    if (components.has(param.name)) {
-      return components.get(param.name);
+    if (components.has(name)) {
+      return components.get(name);
     }
 
-    const instanceWrapper = this.scanForComponentInSubModules(target, param);
-    if (instanceWrapper === null) {
-      throw new UnknownDependenciesException(prototype.name);
+    const wrapper = this.scanComponentInChildModules(parent, name);
+    if (!wrapper) {
+      throw new UnknownDependenciesException(metaType.name);
     }
 
-    return instanceWrapper;
+    return wrapper;
   }
 
-  /**
-   * Scan for a Component (Injectable) object in submodules.
-   *
-   * @param target Container Module.
-   * @param prototype Component to be looked up.
-   *
-   * @returns An instance of InstanceWrapper<Injectable>.
-   */
-  scanForComponentInSubModules(target: Module, prototype: MetaType<any>): InstanceWrapper<Injectable> {
-    const modules = target.modules || [];
-    let instanceWrapper = null;
+  private scanComponentInChildModules(
+    parent: Module,
+    name: any,
+  ): InstanceWrapper<Injectable> {
+    const childModules = parent.modules ?? [];
+    let wrapper: InstanceWrapper<Injectable> = null;
 
-    (<Array<any>>modules).forEach((module: Module) => {
-      const { components, exports } = module;
-
-      if (!exports.has(prototype.name) || !components.has(prototype.name)) {
+    childModules.forEach((child: Module) => {
+      const { exports, components } = child;
+      if (!exports.has(name) || !components.has(name)) {
         return;
       }
 
-      instanceWrapper = components.get(prototype.name);
-      if (!instanceWrapper.resolved) {
-        this.loadInstanceOfComponent(prototype, module);
+      wrapper = child.components.get(name);
+      if (!wrapper.resolved) {
+        this.loadInstanceOfComponent(wrapper, child);
       }
     });
 
-    return instanceWrapper;
+    return wrapper;
   }
 }

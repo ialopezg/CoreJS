@@ -1,4 +1,7 @@
-import { AppMiddleware } from './app-middleware.interface';
+import { IMiddleware } from './middleware.interface';
 import { MetaType } from '../../../common/interfaces';
 
-export interface MiddlewareMetaType extends MetaType<AppMiddleware> { }
+/**
+ * Takes a set of parameters and returns a middleware object type.
+ */
+export interface MiddlewareMetaType extends MetaType<IMiddleware> {}

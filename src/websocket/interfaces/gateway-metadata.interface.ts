@@ -1,4 +1,13 @@
+/**
+ * Gateway property definitions.
+ */
 export interface GatewayMetadata {
-  port?: number;
+  /**
+   * Gateway namespace.
+   */
   namespace?: string;
+  /**
+   * Port number.
+   */
+  port?: number;
 }

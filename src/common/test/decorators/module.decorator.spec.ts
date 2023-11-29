@@ -1,37 +1,37 @@
 import 'reflect-metadata';
+
 import { expect } from 'chai';
 
-import { InvalidModuleConfigurationException } from '../../../errors/exceptions';
-import { metadata } from '../../constants';
 import { Module } from '../../decorators';
-import { ModuleMetadata } from '../../interfaces';
+import { InvalidModuleConfigurationException } from '../../../errors';
+import { MODULE_METADATA } from '../../constants';
 
 describe('@Module', () => {
-  const props: ModuleMetadata = {
-    modules: ['AnotherTestModule'],
-    components: ['TestComponent'],
-    controllers: ['TestController'],
-    exports: ['TestComponent'],
+  const moduleProps = {
+    modules: ['Test'],
+    components: ['Test'],
+    exports: ['Test'],
+    controllers: ['Test'],
   };
 
-  @Module(props)
+  @Module(moduleProps)
   class TestModule {}
 
   it('should enhance transport with expected module metadata', () => {
-    const modules = Reflect.getMetadata(metadata.MODULES, TestModule);
-    const controllers = Reflect.getMetadata(metadata.CONTROLLERS, TestModule);
-    const components = Reflect.getMetadata(metadata.COMPONENTS, TestModule);
-    const exports = Reflect.getMetadata(metadata.EXPORTS, TestModule);
+    const modules = Reflect.getMetadata(MODULE_METADATA.MODULES, TestModule);
+    const controllers = Reflect.getMetadata(MODULE_METADATA.CONTROLLERS, TestModule);
+    const components = Reflect.getMetadata(MODULE_METADATA.COMPONENTS, TestModule);
+    const exports = Reflect.getMetadata(MODULE_METADATA.EXPORTS, TestModule);
 
-    expect(modules).to.be.eql(props.modules);
-    expect(controllers).to.be.eql(props.controllers);
-    expect(components).to.be.eql(props.components);
-    expect(exports).to.be.eql(props.exports);
+    expect(modules).to.be.eql(moduleProps.modules);
+    expect(components).to.be.eql(moduleProps.components);
+    expect(controllers).to.be.eql(moduleProps.controllers);
+    expect(exports).to.be.eql(moduleProps.exports);
   });
 
   it('should throw exception when module properties are invalid', () => {
     const invalidProps = {
-      ...props,
+      ...moduleProps,
       test: [],
     };
 

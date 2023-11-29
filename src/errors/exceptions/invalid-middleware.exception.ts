@@ -1,14 +1,14 @@
-import { RuntimeException } from '../../common/exceptions';
 import { getInvalidMiddlewareMessage } from '../messages';
+import { RuntimeException } from './runtime.exception';
 
 /**
- * Defines an error when middleware not implement the resolve() method or is wrong.
+ * Represents an error when a middleware object is invalid.
  */
 export class InvalidMiddlewareException extends RuntimeException {
   /**
    * Creates a new instance of the class InvalidMiddlewareException.
    */
-  constructor(name: string) {
-    super(getInvalidMiddlewareMessage(name));
+  constructor(middleware: string) {
+    super(getInvalidMiddlewareMessage(middleware));
   }
 }

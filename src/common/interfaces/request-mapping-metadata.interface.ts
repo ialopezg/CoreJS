@@ -1,15 +1,15 @@
 import { RequestMethod } from '../enums';
 
 /**
- * Metadata information for @RequestMapping decorator annotation.
+ * Route definitions.
  */
 export interface RequestMappingMetadata {
   /**
-   * Method or route path.
+   * Path.
    */
   path?: string;
   /**
-   * HTTP Request Method.
+   * Request method.
    */
   method?: RequestMethod;
 }
