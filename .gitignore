@@ -36,11 +36,5 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # Local data
-database
-data/pgadmin
-data/postgres
-data/mongodb
-/example
+/database
 .env
-.env.development
-.env.test
