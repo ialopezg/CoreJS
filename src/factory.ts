@@ -31,13 +31,11 @@ export class AppFactory {
     target: ModuleMetaType,
     express: Express = ExpressAdapter.create(),
   ): Application {
-    try {
-      this.initialize(target);
+    this.initialize(target);
 
-      return this.createInstance<Application>(
-        new Application(this.container, express),
-      );
-    } catch (_error: any) {}
+    return this.createInstance<Application>(
+      new Application(this.container, express),
+    );
   }
 
   /**
@@ -50,13 +48,11 @@ export class AppFactory {
     target: ModuleMetaType,
     config?: MicroserviceConfiguration,
   ): Microservice {
-    try {
-      this.initialize(target);
+    this.initialize(target);
 
-      return this.createInstance<Microservice>(
-        new Microservice(this.container, config),
-      );
-    } catch (_error: any) {}
+    return this.createInstance<Microservice>(
+      new Microservice(this.container, config),
+    );
   }
 
   private static initialize(target: ModuleMetaType) {

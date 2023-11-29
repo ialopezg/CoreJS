@@ -18,7 +18,7 @@ export class ExceptionWrapper {
     } catch (error: any) {
       this.handler.handle(error);
 
-      throw error;
+      throw 'Unhandled CoreJS application Runtime Exception';
     }
   }
 }
