@@ -1,7 +1,7 @@
 import { isNil, isUndefined } from "@ialopezg/commonjs";
 
-import { Controller, MetaType } from "../../common/interfaces";
-import { BindResolveValues, LoggerService } from "../../common";
+import { Controller, ControllerMetadata, MetaType } from "../../common/interfaces";
+import { BindResolveValues, LoggerService, RequestMethod } from "../../common";
 import { InvalidMiddlewareConfigurationException } from "../../errors";
 import { MiddlewareConfiguration } from "./interfaces";
 
@@ -28,16 +28,16 @@ export class MiddlewareBuilder {
 
         return config as MiddlewareConfigProxy;
       },
-      forRoutes: (routes: any) => {
+      forRoutes: (...routes: (Controller | ControllerMetadata & { method: RequestMethod })[]) => {
         if (isUndefined(routes)) {
           throw new InvalidMiddlewareConfigurationException();
         }
 
-        const configuration = {
+        const configuration: MiddlewareConfiguration = {
           middlewares: this.bindValuesToResolve(metaTypes, params),
-          forRoutes: [].concat(routes),
+          forRoutes: routes,
         };
-        this.middlewares.add(<MiddlewareConfiguration>configuration);
+        this.middlewares.add(configuration);
 
         return this;
       },
@@ -105,5 +105,5 @@ export interface MiddlewareConfigProxy {
    *
    * @param {any} routes Routes to be configured.
    */
-  forRoutes: (routes: Controller | Array<Controller>) => MiddlewareBuilder;
+  forRoutes: (...routes: (Controller | ControllerMetadata & { method: RequestMethod })[]) => MiddlewareBuilder;
 }
