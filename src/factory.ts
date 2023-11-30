@@ -1,4 +1,4 @@
-import { Express } from 'express';
+import { Application as Express } from 'express';
 
 import { InstanceLoader, ModuleContainer } from './core/injector';
 import { DependencyScanner } from './core/scanner';

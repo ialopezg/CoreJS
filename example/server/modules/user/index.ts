@@ -22,7 +22,7 @@ export class UserModule {
   configure(builder: MiddlewareBuilder): MiddlewareBuilder {
     return builder
       .apply(JwtMiddleware)
-      .with('admin', 'creator', 'editor')
+      .with('admin')
       .forRoutes(UserController);
   }
 }
