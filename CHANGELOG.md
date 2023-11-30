@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-RC.0](https://github.com/ialopezg/corejs/compare/v1.0.0-alpha.11...v1.0.0-RC.0) (2023-11-30)
+
+
+### Features
+
+* improvements ([e6e3393](https://github.com/ialopezg/corejs/commits/e6e3393764d0a6fe54d0bf0fc73db7907d854895))
+
+
+### Bug Fixes
+
+* ci/cd github actions ([a3384ae](https://github.com/ialopezg/corejs/commits/a3384ae80e272d65e6f4141796a7db9e9ea9d7a4))
+* hotfix ([fbf2fef](https://github.com/ialopezg/corejs/commits/fbf2fef24d4b1e8d4ac467f9ea191b7286034066))
+* hotfixes ([fd94c0d](https://github.com/ialopezg/corejs/commits/fd94c0dac9ff6954d22aeaf8bfbba00ab4287590))
+
 ## [1.0.0-alpha.11](https://github.com/ialopezg/corejs/compare/v1.0.0-alpha.10...v1.0.0-alpha.11) (2023-11-29)
 
 
