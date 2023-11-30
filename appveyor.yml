@@ -1,6 +1,5 @@
 environment:
   matrix:
-    - nodejs_version: '12'
     - nodejs_version: '14'
 
 version: '{build}'
@@ -9,10 +8,10 @@ cache:
   - node_modules -> package.json
 
 install:
-  - ps: Install-Product node $env:nodejs_version x64
-  - node --version
-  - npm --version
-  - npm install
+  - ps: Install-Product node $env:nodejs_version
+  - corepack enable
+  - corepack prepare pnpm@latest-8 --activate
+  - pnpm install
 
 test_script:
   - npm test
