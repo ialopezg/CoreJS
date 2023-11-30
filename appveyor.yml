@@ -14,8 +14,8 @@ install:
   - pnpm install
 
 test_script:
-  - npm test
-  - npm run coverage
+  - pnpm test
+  - pnpm run coverage
 
 build: off
 deploy: off
