@@ -72,4 +72,4 @@ export const Post = mappingDecoratorFactory(RequestMethod.POST);
  *
  * @constructor
  */
-export const Puth = mappingDecoratorFactory(RequestMethod.PUT);
+export const Put = mappingDecoratorFactory(RequestMethod.PUT);

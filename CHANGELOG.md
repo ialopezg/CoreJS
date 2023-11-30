@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0-alpha.11](https://github.com/ialopezg/corejs/compare/v1.0.0-alpha.10...v1.0.0-alpha.11) (2023-11-29)
+
+
+### Bug Fixes
+
+* exclude database local files ([7b20d21](https://github.com/ialopezg/corejs/commits/7b20d211b05fb578158b3bb9dec38232a6e166d2))
+* ignore files ([0c8a249](https://github.com/ialopezg/corejs/commits/0c8a24910c4901f4af81e1502f88cb8fdfa14bca))
+
+
+### Documentation
+
+* Update README.md ([6d68577](https://github.com/ialopezg/corejs/commits/6d685771b4cdf3a3a56be6b4cb50290aa8157a9f))
+
 ## [1.0.0-alpha.10](https://github.com/ialopezg/corejs/compare/v1.0.0-alpha.9...v1.0.0-alpha.10) (2022-11-29)
 
 - Microservice support (TCP & Redis transports)
