@@ -1,4 +1,4 @@
-interface Constructor<T> {
+export interface Constructor<T> {
   new (...args: any[]): T;
 }
 
@@ -9,7 +9,9 @@ interface Constructor<T> {
  *
  * @constructor
  */
-export const ProvideValues = <T extends Constructor<{}>>(data: any) => {
+export const MergeWithValues = <T extends Constructor<{}>>(
+  data: { [key: string]: any },
+) => {
   return (metaType: T) => {
     const type = class extends metaType {
       constructor(...args: any[]) {
@@ -22,4 +24,4 @@ export const ProvideValues = <T extends Constructor<{}>>(data: any) => {
 
     return type;
   };
-}
+};

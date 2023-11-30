@@ -9,7 +9,7 @@
     "experimentalDecorators": true,
     "target": "es6",
     "sourceMap": false,
-    "outDir": "./lib"
+    "outDir": "node_modules/@ialopezg/corejs"
   },
   "files": [
     "./src/index.ts"

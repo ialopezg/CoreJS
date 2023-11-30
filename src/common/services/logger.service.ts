@@ -52,7 +52,7 @@ export class LoggerService {
    *
    * @param {string} message Message to write.
    */
-  public warning(message: string): void {
+  public warn(message: string): void {
     this.print(message, Color.yellow);
   }
 

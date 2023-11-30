@@ -2,16 +2,16 @@ import 'reflect-metadata';
 
 import { expect } from 'chai';
 
-import { ProvideValues } from '../../decorators';
+import { MergeWithValues } from '../../decorators';
 
-describe('ProvideValues', () => {
+describe('MergeWithValues', () => {
   let type: any;
   const data = { test: [1, 2, 3] };
 
   class Test {}
 
   beforeEach(() => {
-    type = ProvideValues(data)(Test);
+    type = MergeWithValues(data)(Test);
   });
 
   it('should enrich prototype with given values', () => {

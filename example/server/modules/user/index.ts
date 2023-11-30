@@ -1,10 +1,10 @@
-import { MiddlewareBuilder, Module, ProvideValues } from '../../../../src';
+import { MiddlewareBuilder, Module, MergeWithValues } from '../../../../src';
 import { JwtMiddleware } from '../auth/middlewares';
 import { SharedModule } from '../shared';
 import { UserController } from './controllers';
 import { UserService } from './services';
 
-const ProvideRoles = ProvideValues({
+const ProvideRoles = MergeWithValues({
   role: ['admin', 'user']
 });
 
@@ -19,10 +19,10 @@ export class UserModule {
     return 'Test';
   }
 
-  configure(router: any): MiddlewareBuilder {
-    return router.use({
-      middlewares: [ProvideRoles(JwtMiddleware)],
-      forRoutes: [UserController],
-    });
+  configure(builder: MiddlewareBuilder): MiddlewareBuilder {
+    return builder
+      .apply(JwtMiddleware)
+      .with('admin', 'creator', 'editor')
+      .forRoutes(UserController);
   }
 }

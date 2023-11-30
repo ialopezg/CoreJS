@@ -7,5 +7,5 @@ export interface IMiddleware {
   /**
    * Middleware configuration resolver.
    */
-  resolve: () => (request?: Request, response?: Response, next?: NextFunction) => void;
+  resolve(...args: any[]): (request?: Request, response?: Response, next?: NextFunction) => void;
 }
